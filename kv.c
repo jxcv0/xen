@@ -8,7 +8,7 @@ int main()
 
     while(!should_close())
     {
-        temp_esc();
+        handle_input();
         swap_buffers();
         poll_events();
     }

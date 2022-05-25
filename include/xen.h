@@ -6,9 +6,11 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-GLFWwindow* window;
-float window_w;
-float window_h;
+
+//window
+static GLFWwindow* window;
+static float window_w;
+static float window_h;
 
 void on_resize(GLFWwindow* window, int width, int height)
 {
@@ -25,7 +27,7 @@ void init_window(float w, float h, const char* window_name)
     window_h = h;
     window = glfwCreateWindow(window_w, window_h, window_name, NULL, NULL);
 
-    if(!window)
+    if (!window)
     {
         printf("Unable to create GLFW window\n");
         glfwTerminate();
@@ -34,7 +36,7 @@ void init_window(float w, float h, const char* window_name)
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, on_resize);
 
-    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         printf("Unable to initialize GLAD\n");
     }
@@ -52,10 +54,9 @@ void close_window()
     glfwTerminate();
 }
 
-// TODO delete
-void temp_esc()
+void handle_input()
 {
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(window, true);
     }
@@ -68,5 +69,34 @@ bool should_close()
 
 void swap_buffers() { glfwSwapBuffers(window); }
 void poll_events() { glfwPollEvents(); }
+
+void shader_check_compile(GLuint shader_id)
+{
+    GLint success;
+    GLchar log[1024];
+    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(shader_id, 1024, NULL, log);
+        printf("Shader program compilation error: %s\n", log);
+    }
+}
+
+void shader_check_link(GLuint prgm_id)
+{
+    GLint success;
+    GLchar log[1024];
+    glGetProgramiv(prgm_id, GL_LINK_STATUS, &success);
+    if (!success)
+    {
+        glGetProgramInfoLog(prgm_id, 1024, NULL, log)
+        printf("Shader program linking error: %s\n", log);
+    }
+}
+
+unsigned int load_shader(const char* vert_path, const char* frag_path)
+{
+    // TODO
+}
 
 #endif // XEN_H
