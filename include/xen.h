@@ -196,9 +196,11 @@ unsigned int load_shader(const char* vert_path, const char* frag_path)
             vert_code[n++] = (char)c;
         }
         vert_code[n] = '\0';
+        fclose(file);
     }
     else
     {
+        printf("unable to open vertex shader file | %s", vert_path);
         return -1;
     }
 
@@ -218,9 +220,11 @@ unsigned int load_shader(const char* vert_path, const char* frag_path)
             frag_code[n++] = (char)c;
         }
         frag_code[n] = '\0';
+        fclose(file);
     }
     else
     {
+        printf("unable to open fragment shader file | %s", frag_path);
         return -1;
     }
 
