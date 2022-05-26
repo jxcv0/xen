@@ -4,6 +4,7 @@
 #include "glad.h"
 #include <GLFW/glfw3.h>
 
+// #include <pthread.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
@@ -89,8 +90,43 @@ mat4_t cross_m4(mat4_t m1, mat4_t m2)
 
 typedef struct mesh_t
 {
-    vec3_t* vertex_positions;
+    // TODO allocations
+    unsigned int VAO, VBO, EBO;
+    vec3_t* positions;
+    vec3_t* normals;
+    vec3_t* tex_coords;
+    vec3_t* tangents;
+    vec3_t* bitangents;
+    int* tex_ids;
+    char* uniform_names;
 } mesh_t;
+
+int load_model(const char* model_path)
+{
+    // TODO do in dedicated asset streaming thread
+    // TODO return handle to array or return model_t?
+
+    FILE* fstream;
+    char* line = NULL;
+    size_t len = 0;
+    ssize_t nread;
+
+    fstream = fopen(model_path, "r");
+    if (fstream == NULL)
+    {
+        fprintf(stderr, "Unable to open .obj file | %s\n", model_path);
+    }
+
+    while ((nread = getline(&line, &len, fstream)) != -1)
+    {
+        // handle line
+    }
+
+    free(line);
+    fclose(fstream);
+
+    return 0;
+}
 
 void on_resize(GLFWwindow* window, int width, int height)
 {
@@ -109,7 +145,7 @@ void init_window(float w, float h, const char* window_name)
 
     if (!window)
     {
-        printf("Unable to create GLFW window\n");
+        perror("Unable to create GLFW window\n");
         glfwTerminate();
     }
 
@@ -118,7 +154,7 @@ void init_window(float w, float h, const char* window_name)
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        printf("Unable to initialize GLAD\n");
+        perror("Unable to initialize GLAD\n");
     }
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -158,7 +194,7 @@ void shader_check_compile(GLuint shader_id, const char* msg)
     if (!success)
     {
         glGetShaderInfoLog(shader_id, 1024, NULL, log);
-        printf("Shader program compilation error | %s\n%s\n", msg, log);
+        fprintf(stderr, "Shader program compilation error | %s\n%s\n", msg, log);
     }
 }
 
@@ -170,7 +206,7 @@ void shader_check_link(GLuint prgm_id)
     if (!success)
     {
         glGetProgramInfoLog(prgm_id, 1024, NULL, log);
-        printf("Shader program linking error | %s\n", log);
+        fprintf(stderr, "Shader program linking error | %s\n", log);
     }
 }
 
@@ -200,7 +236,7 @@ unsigned int load_shader(const char* vert_path, const char* frag_path)
     }
     else
     {
-        printf("unable to open vertex shader file | %s", vert_path);
+        fprintf(stderr, "unable to open vertex shader file | %s", vert_path);
         return -1;
     }
 
@@ -224,7 +260,7 @@ unsigned int load_shader(const char* vert_path, const char* frag_path)
     }
     else
     {
-        printf("unable to open fragment shader file | %s", frag_path);
+        fprintf(stderr, "Unable to open fragment shader file | %s", frag_path);
         return -1;
     }
 
