@@ -6,6 +6,9 @@ int main()
 {
     init_window(800, 600, "KV");
 
+    unsigned int shader = load_shader("assets/shaders/ubershader.vert", "assets/shaders/ubershader.frag");
+    use_shader(shader);
+
     while(!should_close())
     {
         handle_input();

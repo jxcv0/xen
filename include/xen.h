@@ -4,6 +4,7 @@
 #include "glad.h"
 #include <GLFW/glfw3.h>
 
+#include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -86,6 +87,11 @@ mat4_t cross_m4(mat4_t m1, mat4_t m2)
     return result;
 }
 
+typedef struct mesh_t
+{
+    vec3_t* vertex_positions;
+} mesh_t;
+
 void on_resize(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -144,7 +150,7 @@ bool should_close()
 void swap_buffers() { glfwSwapBuffers(window); }
 void poll_events() { glfwPollEvents(); }
 
-void shader_check_compile(GLuint shader_id)
+void shader_check_compile(GLuint shader_id, const char* msg)
 {
     GLint success;
     GLchar log[1024];
@@ -152,7 +158,7 @@ void shader_check_compile(GLuint shader_id)
     if (!success)
     {
         glGetShaderInfoLog(shader_id, 1024, NULL, log);
-        printf("Shader program compilation error: %s\n", log);
+        printf("Shader program compilation error | %s\n%s\n", msg, log);
     }
 }
 
@@ -164,13 +170,90 @@ void shader_check_link(GLuint prgm_id)
     if (!success)
     {
         glGetProgramInfoLog(prgm_id, 1024, NULL, log);
-        printf("Shader program linking error: %s\n", log);
+        printf("Shader program linking error | %s\n", log);
     }
 }
 
 unsigned int load_shader(const char* vert_path, const char* frag_path)
 {
-    // TODO
+    FILE* file;
+    char* vert_code;
+    char* frag_code;
+
+    // vert
+    if ((file = fopen(vert_path, "r")) != NULL)
+    {
+        fseek(file, 0, SEEK_END);
+        long f_size = ftell(file);
+        fseek(file, 0, SEEK_SET);
+        vert_code = malloc(f_size);
+
+        size_t n = 0;
+        int c;
+
+        while((c = fgetc(file)) != EOF)
+        {
+            vert_code[n++] = (char)c;
+        }
+        vert_code[n] = '\0';
+    }
+    else
+    {
+        return -1;
+    }
+
+    // frag
+    if ((file = fopen(frag_path, "r")) != NULL)
+    {
+        fseek(file, 0, SEEK_END);
+        long f_size = ftell(file);
+        fseek(file, 0, SEEK_SET);
+        frag_code = malloc(f_size);
+
+        size_t n = 0;
+        int c;
+
+        while((c = fgetc(file)) != EOF)
+        {
+            frag_code[n++] = (char)c;
+        }
+        frag_code[n] = '\0';
+    }
+    else
+    {
+        return -1;
+    }
+
+    const char* const_vert_code = vert_code;
+    unsigned int vert_id = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vert_id, 1, &const_vert_code, NULL); // wtf
+    glCompileShader(vert_id);
+    shader_check_compile(vert_id, vert_path);
+
+    const char* const_frag_code = frag_code;
+    unsigned int frag_id = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(frag_id, 1, &const_frag_code, NULL);
+    glCompileShader(frag_id);
+    shader_check_compile(frag_id, frag_path);
+
+    unsigned int program_id = glCreateProgram();
+    glAttachShader(program_id, vert_id);
+    glAttachShader(program_id, frag_id);
+    glLinkProgram(program_id);
+    shader_check_link(program_id);
+
+    glDeleteShader(vert_id);
+    glDeleteShader(frag_id);
+
+    free(vert_code);
+    free(frag_code);
+
+    return program_id;
+}
+
+void use_shader(unsigned int shader)
+{
+    glUseProgram(shader);
 }
 
 #endif // XEN_H
