@@ -17,16 +17,43 @@ static float window_h;
 
 typedef struct vec2_t
 {
-    float values[2];
+    union
+    {
+        struct
+        {
+            float x;
+            float y;
+        };
+        float values[2];
+    };
 } vec2_t;
 
 typedef struct vec3_t
 {
-    float values[3];
+    union
+    {
+        struct
+        {
+            float x;
+            float y;
+            float z;
+        };
+        float values[3];
+    };
 } vec3_t;
 
 typedef struct vec4_t
 {
+    union
+    {
+        struct
+        {
+            float x;
+            float y;
+            float z;
+            float w;
+        };
+    };
     float values[4];
 } vec4_t;
 
@@ -34,6 +61,16 @@ typedef struct mat4_t
 {
     float values[4][4];
 } mat4_t;
+
+mat4_t identity_mat4()
+{
+    mat4_t result;
+    result.values[0][0] = 1.0f;
+    result.values[1][1] = 1.0f;
+    result.values[2][2] = 1.0f;
+    result.values[3][3] = 1.0f;
+    return result;
+}
 
 // TODO by value or ptr
 
@@ -55,10 +92,10 @@ vec4_t col(mat4_t m, int n)
 
 float dot_v4(vec4_t v1, vec4_t v2)
 {
-    return (v1.values[0] * v2.values[0])
-         + (v1.values[1] * v2.values[1])
-         + (v1.values[2] * v2.values[2])
-         + (v1.values[3] * v2.values[3]);
+    return (v1.x * v2.x)
+         + (v1.y * v2.y)
+         + (v1.z * v2.z)
+         + (v1.w * v2.w);
 }
 
 mat4_t cross_m4(mat4_t m1, mat4_t m2)
@@ -94,7 +131,7 @@ typedef struct mesh_t
     unsigned int VAO, VBO, EBO;
     vec3_t* positions;
     vec3_t* normals;
-    vec3_t* tex_coords;
+    vec2_t* tex_coords;
     vec3_t* tangents;
     vec3_t* bitangents;
     int* tex_ids;
@@ -111,15 +148,47 @@ int load_model(const char* model_path)
     size_t len = 0;
     ssize_t nread;
 
+    int n_vertices = 0;
+    int n_texcoords = 0;
+    int n_normals = 0;
+    int n_indices = 0;
+
     fstream = fopen(model_path, "r");
     if (fstream == NULL)
     {
         fprintf(stderr, "Unable to open .obj file | %s\n", model_path);
     }
 
+    // count
     while ((nread = getline(&line, &len, fstream)) != -1)
     {
-        // handle line
+        // ignore comments
+        if (line[0] == '#') { continue; }
+
+        // mtlib
+        // TODO
+
+        // o
+        // TODO
+
+        // vertices
+        if (line[0] == 'v' && line[1] == ' ')
+        {
+            // TODO
+            continue;
+        }
+
+        // textures
+        // normals
+        // indices
+
+        // usemtl
+        // TODO
+        
+        // s
+        // TODO
+
+        printf("%s", line);
     }
 
     free(line);
