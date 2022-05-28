@@ -132,18 +132,64 @@ mat4_t cross_m4(mat4_t m1, mat4_t m2)
     return result;
 }
 
+// seems to be little performance gain for VBO for SOA vs AOS TODO confirm this with testing
+typedef struct vertex_t
+{
+    vec3_t* position;
+    vec3_t* normal;
+    vec2_t* tex_coords;
+    vec3_t* tangent;
+    vec3_t* bitangent;
+} vertex_t;
+
 typedef struct mesh_t
 {
     // TODO allocations
     unsigned int VAO, VBO, EBO;
-    vec3_t* positions;
-    vec3_t* normals;
-    vec2_t* tex_coords;
-    vec3_t* tangents;
-    vec3_t* bitangents;
-    int* tex_ids;
+    size_t n_vertices;
+    vertex_t* vertices;
+    size_t n_indices;
+    unsigned int* indices;
+    unsigned int* tex_ids;
     char* uniform_names;
 } mesh_t;
+
+void buffer_mesh(mesh_t* mesh)
+{
+    glGenVertexArrays(1, &mesh->VAO);
+    glGenBuffers(1, &mesh->VAO);
+    glGenBuffers(1, &mesh->EBO);
+
+    glBindVertexArray(mesh->VAO);
+
+    // vertices
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->VAO);
+    glBufferData(GL_ARRAY_BUFFER, mesh->n_vertices * sizeof(vertex_t), &mesh->vertices[0], GL_STATIC_DRAW);
+
+    // indices
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->n_indices * sizeof(unsigned int), &mesh->indices[0], GL_STATIC_DRAW);
+
+    // positions
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)0);
+    
+    // texcoords
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, tex_coords));
+
+    // normals
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, normal));
+
+    // tangent
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, tangent));
+
+    // tangent
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, bitangent));
+}
 
 int load_model(const char* model_path)
 {
