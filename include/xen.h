@@ -4,11 +4,18 @@
 #include "glad.h"
 #include <GLFW/glfw3.h>
 
+#include <assimp/cimport.h>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 // #include <pthread.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
+
+#include "stb_image.h"
 
 //window
 static GLFWwindow* window;
@@ -53,8 +60,8 @@ typedef struct vec4_t
             float z;
             float w;
         };
+        float values[4];
     };
-    float values[4];
 } vec4_t;
 
 typedef struct mat4_t
@@ -140,60 +147,25 @@ typedef struct mesh_t
 
 int load_model(const char* model_path)
 {
-    // TODO do in dedicated asset streaming thread
-    // TODO return handle to array or return model_t?
+    // TODO use own loading procedure 
 
-    FILE* fstream;
-    char* line = NULL;
-    size_t len = 0;
-    ssize_t nread;
+    const struct aiScene* scene = aiImportFile(model_path,
+        aiProcess_CalcTangentSpace       | 
+        aiProcess_Triangulate            |
+        aiProcess_JoinIdenticalVertices  );
 
-    int n_vertices = 0;
-    int n_texcoords = 0;
-    int n_normals = 0;
-    int n_indices = 0;
-
-    fstream = fopen(model_path, "r");
-    if (fstream == NULL)
+    if(!scene)
     {
-        fprintf(stderr, "Unable to open .obj file | %s\n", model_path);
+        fprintf(stderr, "Unable to open model file | %s\n", model_path);
+        return 1;
     }
 
-    // count
-    while ((nread = getline(&line, &len, fstream)) != -1)
-    {
-        // ignore comments
-        if (line[0] == '#') { continue; }
+    // only ever a single mesh per model so no need to recurse or iterate
 
-        // mtlib
-        // TODO
+    // printf("%d\n", scene->mNumMeshes);
+    // printf("%d\n", scene->mNumMaterials);
 
-        // o
-        // TODO
-
-        // vertices
-        if (line[0] == 'v' && line[1] == ' ')
-        {
-            // TODO
-            continue;
-        }
-
-        // textures
-        // normals
-        // indices
-
-        // usemtl
-        // TODO
-        
-        // s
-        // TODO
-
-        printf("%s", line);
-    }
-
-    free(line);
-    fclose(fstream);
-
+    aiReleaseImport(scene);
     return 0;
 }
 

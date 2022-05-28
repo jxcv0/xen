@@ -9,7 +9,7 @@ int main()
     // uber shader
     use_shader(load_shader("assets/shaders/ubershader.vert", "assets/shaders/ubershader.frag"));
 
-    load_model("assets/models/ucube.obj");
+    load_model("assets/models/ucube/ucube.obj");
 
     while(!should_close())
     {
