@@ -22,6 +22,79 @@ static GLFWwindow* window;
 static float window_w;
 static float window_h;
 
+GLenum checkerror_(const char *file, int line) {
+    GLenum errorCode;
+    while ((errorCode = glGetError()) != GL_NO_ERROR){
+        const char* error;
+        switch (errorCode) {
+            case GL_INVALID_ENUM: error = "INVALID_ENUM"; break;
+            case GL_INVALID_VALUE: error = "INVALID_VALUE"; break;
+            case GL_INVALID_OPERATION: error = "INVALID_OPERATION"; break;
+            case GL_STACK_OVERFLOW: error = "STACK_OVERFLOW"; break;
+            case GL_STACK_UNDERFLOW: error = "STACK_UNDERFLOW"; break;
+            case GL_OUT_OF_MEMORY: error = "OUT_OF_MEMORY"; break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+        }
+            fprintf(stderr, "%s | %s (%d)\n", error, file, line);
+        }
+        return errorCode;
+    }
+#define checkerr() checkerror_(__FILE__, __LINE__)
+
+/**
+ * @brief Debug callback for opengl
+ * 
+ * @param source 
+ * @param type 
+ * @param id 
+ * @param severity 
+ * @param length 
+ * @param message 
+ * @param userParam 
+ */
+void APIENTRY gl_debug_output(
+    GLenum source,
+    GLenum type,
+    unsigned int id,
+    GLenum severity,
+    GLsizei length,
+    const char *message,
+    const void *userParam
+) {
+    // ignore non-significant error codes
+    if(id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+        printf("---------------\n");
+        printf("Debug message (%d): %s\n", id, message);
+        switch (source) {
+            case GL_DEBUG_SOURCE_API: printf("Source: API"); break;
+            case GL_DEBUG_SOURCE_WINDOW_SYSTEM: printf("Source: Window System"); break;
+            case GL_DEBUG_SOURCE_SHADER_COMPILER: printf("Source: Shader Compiler"); break;
+            case GL_DEBUG_SOURCE_THIRD_PARTY: printf("Source: Third Party"); break;
+            case GL_DEBUG_SOURCE_APPLICATION: printf("Source: Application"); break;
+            case GL_DEBUG_SOURCE_OTHER: printf("Source: Other"); break;
+        } printf("\n");
+    
+        switch (type) {
+            case GL_DEBUG_TYPE_ERROR: printf("Type: Error"); break;
+            case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: printf("Type: Deprecated Behaviour"); break;
+            case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: printf("Type: Undefined Behaviour"); break;
+            case GL_DEBUG_TYPE_PORTABILITY: printf("Type: Portability"); break;
+            case GL_DEBUG_TYPE_PERFORMANCE: printf("Type: Performance"); break;
+            case GL_DEBUG_TYPE_MARKER: printf("Type: Marker"); break;
+            case GL_DEBUG_TYPE_PUSH_GROUP: printf("Type: Push Group"); break;
+            case GL_DEBUG_TYPE_POP_GROUP: printf("Type: Pop Group"); break;
+            case GL_DEBUG_TYPE_OTHER: printf("Type: Other"); break;
+        } printf("\n");
+    
+        switch (severity) {
+            case GL_DEBUG_SEVERITY_HIGH: printf("Severity: high"); break;
+            case GL_DEBUG_SEVERITY_MEDIUM: printf("Severity: medium"); break;
+            case GL_DEBUG_SEVERITY_LOW: printf("Severity: low"); break;
+            case GL_DEBUG_SEVERITY_NOTIFICATION: printf("Severity: notification"); break;
+        } printf("\n");
+    printf("\n");
+}
+
 typedef struct vec2_t
 {
     union
@@ -132,87 +205,147 @@ mat4_t cross_m4(mat4_t m1, mat4_t m2)
     return result;
 }
 
-// seems to be little performance gain for VBO for SOA vs AOS TODO confirm this with testing
-typedef struct vertex_t
-{
-    vec3_t* position;
-    vec3_t* normal;
-    vec2_t* tex_coords;
-    vec3_t* tangent;
-    vec3_t* bitangent;
-} vertex_t;
-
 typedef struct mesh_t
 {
-    // TODO allocations
+    vec3_t* positions;
+    vec3_t* normals;
+    vec2_t* tex_coords;
+    vec3_t* tangents;
+    vec3_t* bitangents;
+    unsigned int* indices;
+
+    void* mem_block;
+
     unsigned int VAO, VBO, EBO;
     size_t n_vertices;
-    vertex_t* vertices;
     size_t n_indices;
-    unsigned int* indices;
-    unsigned int* tex_ids;
-    char* uniform_names;
+
+    unsigned int tex_ids[3];
+    char uniform_names[3][4];
 } mesh_t;
 
-void buffer_mesh(mesh_t* mesh)
-{
-    glGenVertexArrays(1, &mesh->VAO);
-    glGenBuffers(1, &mesh->VAO);
-    glGenBuffers(1, &mesh->EBO);
-
-    glBindVertexArray(mesh->VAO);
-
-    // vertices
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->VAO);
-    glBufferData(GL_ARRAY_BUFFER, mesh->n_vertices * sizeof(vertex_t), &mesh->vertices[0], GL_STATIC_DRAW);
-
-    // indices
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->n_indices * sizeof(unsigned int), &mesh->indices[0], GL_STATIC_DRAW);
-
-    // positions
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)0);
-    
-    // texcoords
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, tex_coords));
-
-    // normals
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, normal));
-
-    // tangent
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, tangent));
-
-    // tangent
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_t), (void*)offsetof(vertex_t, bitangent));
-}
-
-int load_model(const char* model_path)
+mesh_t load_mesh(const char* filepath)
 {
     // TODO use own loading procedure 
 
-    const struct aiScene* scene = aiImportFile(model_path,
+    const struct aiScene* scene = aiImportFile(filepath,
         aiProcess_CalcTangentSpace       | 
         aiProcess_Triangulate            |
         aiProcess_JoinIdenticalVertices  );
 
     if(!scene)
     {
-        fprintf(stderr, "Unable to open model file | %s\n", model_path);
-        return 1;
+        fprintf(stderr, "Unable to open model file | %s\n", filepath);
     }
 
     // only ever a single mesh per model so no need to recurse or iterate
 
-    // printf("%d\n", scene->mNumMeshes);
-    // printf("%d\n", scene->mNumMaterials);
+    mesh_t mesh; 
+    struct aiMesh* ai_mesh = scene->mMeshes[0];
+    mesh.n_vertices = ai_mesh->mNumVertices;
+    mesh.n_indices = ai_mesh->mNumFaces * 3;    // all faces are triangulated
+
+    // allocate block of memory for mesh
+    int positions_size = sizeof(vec3_t) * mesh.n_vertices;
+    int normals_size = sizeof(vec3_t) * mesh.n_vertices;
+    int tex_coords_size = sizeof(vec2_t) * mesh.n_vertices;
+    int tangents_size = sizeof(vec3_t) * mesh.n_vertices;
+    int bitangents_size = sizeof(vec3_t) * mesh.n_vertices;
+    int indices_size = sizeof(unsigned int) * mesh.n_indices;
+
+    int mem_size = positions_size + normals_size + tex_coords_size + tangents_size + bitangents_size + indices_size;
+    mesh.mem_block = malloc(mem_size);
+
+    // memory offsets into mesh memory
+    mesh.positions = (vec3_t*)mesh.mem_block;
+    mesh.normals = (vec3_t*)(mesh.mem_block + positions_size);
+    mesh.tex_coords = (vec2_t*)(mesh.mem_block + positions_size + normals_size);
+    mesh.tangents = (vec3_t*)(mesh.mem_block + positions_size + normals_size + tex_coords_size);
+    mesh.bitangents = (vec3_t*)(mesh.mem_block + positions_size + normals_size + tex_coords_size + tangents_size);
+
+    for(int i = 0; i < ai_mesh->mNumVertices; i++)
+    {
+        mesh.positions[i].x = ai_mesh->mVertices[i].x;
+        mesh.positions[i].y = ai_mesh->mVertices[i].y;
+        mesh.positions[i].z = ai_mesh->mVertices[i].z;
+
+        mesh.normals[i].x = ai_mesh->mNormals[i].x;
+        mesh.normals[i].y = ai_mesh->mNormals[i].y;
+        mesh.normals[i].z = ai_mesh->mNormals[i].z;
+
+        mesh.tex_coords[i].x = ai_mesh->mTextureCoords[0][i].x; 
+        mesh.tex_coords[i].y = ai_mesh->mTextureCoords[0][i].y;
+
+        mesh.tangents[i].x = ai_mesh->mTangents[i].x;
+        mesh.tangents[i].y = ai_mesh->mTangents[i].y;
+        mesh.tangents[i].z = ai_mesh->mTangents[i].z;
+
+        mesh.bitangents[i].x = ai_mesh->mBitangents[i].x;
+        mesh.bitangents[i].y = ai_mesh->mBitangents[i].y;
+        mesh.bitangents[i].z = ai_mesh->mBitangents[i].z;
+    }
+
+    int face_counter = 0;
+    for(int i = 0; i < ai_mesh->mNumFaces; i++)
+    {
+        struct aiFace face = ai_mesh->mFaces[i];
+        for(int j = 0; j < face.mNumIndices; j++)
+        {
+            mesh.indices[face_counter++] = face.mIndices[j];
+        }
+    }
 
     aiReleaseImport(scene);
-    return 0;
+
+    // gl buffers
+    glGenVertexArrays(1, &mesh.VAO);
+    glGenBuffers(1, &mesh.VAO);
+    glGenBuffers(1, &mesh.EBO);
+
+    glBindVertexArray(mesh.VAO);
+
+    // vertices
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
+    glBufferData(GL_ARRAY_BUFFER, mem_size, mesh.mem_block, GL_STATIC_DRAW);
+
+    // indices
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.n_indices * sizeof(unsigned int), &mesh.indices[0], GL_STATIC_DRAW);
+
+    // positions
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh.positions);
+    
+    // normals
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)mesh.normals);
+
+    // tex_coords
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh.tex_coords);
+
+    // tangent
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh.tangents);
+
+    // tangent
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh.bitangents);
+
+    glBindVertexArray(0);
+
+    return mesh;
+}
+
+void free_mesh(mesh_t* mesh)
+{
+    free(mesh->mem_block);
+}
+
+// TODO shader as arg?
+void draw_mesh(mesh_t* mesh)
+{
+    // TODO
 }
 
 void on_resize(GLFWwindow* window, int width, int height)
@@ -225,6 +358,20 @@ void init_window(float w, float h, const char* window_name)
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+
+#ifdef XEN_DEBUG
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+
+    int flags;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags); // y u seg fault
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+    {
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(gl_debug_output, (void*)0);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, (void*)0, GL_TRUE);
+    }
+#endif
 
     window_w = w;
     window_h = h;

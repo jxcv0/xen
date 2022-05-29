@@ -1,6 +1,5 @@
+#define XEN_DEBUG
 #include "xen.h"
-
-bool run = true;
 
 int main()
 {
@@ -9,14 +8,18 @@ int main()
     // uber shader
     use_shader(load_shader("assets/shaders/ubershader.vert", "assets/shaders/ubershader.frag"));
 
-    load_model("assets/models/ucube/ucube.obj");
+    mesh_t mesh = load_mesh("assets/models/ucube/ucube.obj");
 
     while(!should_close())
     {
+        draw_mesh(&mesh);
         handle_input();
         swap_buffers();
         poll_events();
+        checkerr();
     }
+
+    free_mesh(&mesh);
 
     close_window();
 
