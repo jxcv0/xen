@@ -4,11 +4,9 @@
 int main()
 {
     init_window(800, 600, "KV");
-
-    // uber shader
     use_shader(load_shader("assets/shaders/ubershader.vert", "assets/shaders/ubershader.frag"));
-
-    mesh_t mesh = load_mesh("assets/models/ucube/ucube.obj");
+    mesh_t mesh;
+    load_mesh(&mesh, "assets/models/ucube/ucube.obj");
 
     while(!should_close())
     {
@@ -16,7 +14,6 @@ int main()
         handle_input();
         swap_buffers();
         poll_events();
-        checkerr();
     }
 
     free_mesh(&mesh);

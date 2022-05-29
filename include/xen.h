@@ -207,14 +207,13 @@ mat4_t cross_m4(mat4_t m1, mat4_t m2)
 
 typedef struct mesh_t
 {
+    void* mem_block;
     vec3_t* positions;
     vec3_t* normals;
     vec2_t* tex_coords;
     vec3_t* tangents;
     vec3_t* bitangents;
-    unsigned int* indices;
-
-    void* mem_block;
+    int* indices;
 
     unsigned int VAO, VBO, EBO;
     size_t n_vertices;
@@ -224,7 +223,7 @@ typedef struct mesh_t
     char uniform_names[3][4];
 } mesh_t;
 
-mesh_t load_mesh(const char* filepath)
+int load_mesh(mesh_t* mesh, const char* filepath)
 {
     // TODO use own loading procedure 
 
@@ -236,53 +235,52 @@ mesh_t load_mesh(const char* filepath)
     if(!scene)
     {
         fprintf(stderr, "Unable to open model file | %s\n", filepath);
+        return 1;
     }
 
-    // only ever a single mesh per model so no need to recurse or iterate
-
-    mesh_t mesh; 
     struct aiMesh* ai_mesh = scene->mMeshes[0];
-    mesh.n_vertices = ai_mesh->mNumVertices;
-    mesh.n_indices = ai_mesh->mNumFaces * 3;    // all faces are triangulated
+    mesh->n_vertices = ai_mesh->mNumVertices;
+    mesh->n_indices = ai_mesh->mNumFaces * 3;    // all faces are triangulated
 
     // allocate block of memory for mesh
-    int positions_size = sizeof(vec3_t) * mesh.n_vertices;
-    int normals_size = sizeof(vec3_t) * mesh.n_vertices;
-    int tex_coords_size = sizeof(vec2_t) * mesh.n_vertices;
-    int tangents_size = sizeof(vec3_t) * mesh.n_vertices;
-    int bitangents_size = sizeof(vec3_t) * mesh.n_vertices;
-    int indices_size = sizeof(unsigned int) * mesh.n_indices;
+    int positions_size = sizeof(vec3_t) * mesh->n_vertices;
+    int normals_size = sizeof(vec3_t) * mesh->n_vertices;
+    int tex_coords_size = sizeof(vec2_t) * mesh->n_vertices;
+    int tangents_size = sizeof(vec3_t) * mesh->n_vertices;
+    int bitangents_size = sizeof(vec3_t) * mesh->n_vertices;
+    int indices_size = sizeof(int) * mesh->n_indices;
 
-    int mem_size = positions_size + normals_size + tex_coords_size + tangents_size + bitangents_size + indices_size;
-    mesh.mem_block = malloc(mem_size);
+    size_t mem_size = positions_size + normals_size + tex_coords_size + tangents_size + bitangents_size + indices_size;
+    mesh->mem_block = malloc(mem_size);
 
     // memory offsets into mesh memory
-    mesh.positions = (vec3_t*)mesh.mem_block;
-    mesh.normals = (vec3_t*)(mesh.mem_block + positions_size);
-    mesh.tex_coords = (vec2_t*)(mesh.mem_block + positions_size + normals_size);
-    mesh.tangents = (vec3_t*)(mesh.mem_block + positions_size + normals_size + tex_coords_size);
-    mesh.bitangents = (vec3_t*)(mesh.mem_block + positions_size + normals_size + tex_coords_size + tangents_size);
+    mesh->positions = (vec3_t*)mesh->mem_block;
+    mesh->normals = (vec3_t*)(mesh->mem_block + positions_size);
+    mesh->tex_coords = (vec2_t*)(mesh->mem_block + positions_size + normals_size);
+    mesh->tangents = (vec3_t*)(mesh->mem_block + positions_size + normals_size + tex_coords_size);
+    mesh->bitangents = (vec3_t*)(mesh->mem_block + positions_size + normals_size + tex_coords_size + tangents_size);
+    mesh->indices = (int*)(mesh->mem_block + positions_size + normals_size + tex_coords_size + tangents_size + bitangents_size);
 
     for(int i = 0; i < ai_mesh->mNumVertices; i++)
     {
-        mesh.positions[i].x = ai_mesh->mVertices[i].x;
-        mesh.positions[i].y = ai_mesh->mVertices[i].y;
-        mesh.positions[i].z = ai_mesh->mVertices[i].z;
+        mesh->positions[i].x = ai_mesh->mVertices[i].x;
+        mesh->positions[i].y = ai_mesh->mVertices[i].y;
+        mesh->positions[i].z = ai_mesh->mVertices[i].z;
 
-        mesh.normals[i].x = ai_mesh->mNormals[i].x;
-        mesh.normals[i].y = ai_mesh->mNormals[i].y;
-        mesh.normals[i].z = ai_mesh->mNormals[i].z;
+        mesh->normals[i].x = ai_mesh->mNormals[i].x;
+        mesh->normals[i].y = ai_mesh->mNormals[i].y;
+        mesh->normals[i].z = ai_mesh->mNormals[i].z;
 
-        mesh.tex_coords[i].x = ai_mesh->mTextureCoords[0][i].x; 
-        mesh.tex_coords[i].y = ai_mesh->mTextureCoords[0][i].y;
+        mesh->tex_coords[i].x = ai_mesh->mTextureCoords[0][i].x; 
+        mesh->tex_coords[i].y = ai_mesh->mTextureCoords[0][i].y;
 
-        mesh.tangents[i].x = ai_mesh->mTangents[i].x;
-        mesh.tangents[i].y = ai_mesh->mTangents[i].y;
-        mesh.tangents[i].z = ai_mesh->mTangents[i].z;
+        mesh->tangents[i].x = ai_mesh->mTangents[i].x;
+        mesh->tangents[i].y = ai_mesh->mTangents[i].y;
+        mesh->tangents[i].z = ai_mesh->mTangents[i].z;
 
-        mesh.bitangents[i].x = ai_mesh->mBitangents[i].x;
-        mesh.bitangents[i].y = ai_mesh->mBitangents[i].y;
-        mesh.bitangents[i].z = ai_mesh->mBitangents[i].z;
+        mesh->bitangents[i].x = ai_mesh->mBitangents[i].x;
+        mesh->bitangents[i].y = ai_mesh->mBitangents[i].y;
+        mesh->bitangents[i].z = ai_mesh->mBitangents[i].z;
     }
 
     int face_counter = 0;
@@ -291,50 +289,58 @@ mesh_t load_mesh(const char* filepath)
         struct aiFace face = ai_mesh->mFaces[i];
         for(int j = 0; j < face.mNumIndices; j++)
         {
-            mesh.indices[face_counter++] = face.mIndices[j];
+            mesh->indices[face_counter++] = face.mIndices[j];
         }
     }
 
     aiReleaseImport(scene);
 
-    // gl buffers
-    glGenVertexArrays(1, &mesh.VAO);
-    glGenBuffers(1, &mesh.VAO);
-    glGenBuffers(1, &mesh.EBO);
+    // TODO materials and textures
 
-    glBindVertexArray(mesh.VAO);
+    // gl buffers
+    glGenVertexArrays(1, &mesh->VAO);
+    glGenBuffers(1, &mesh->VBO);
+    glGenBuffers(1, &mesh->EBO);
+
+    glBindVertexArray(mesh->VAO);
 
     // vertices
-    glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-    glBufferData(GL_ARRAY_BUFFER, mem_size, mesh.mem_block, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->VBO);
+    glBufferData(GL_ARRAY_BUFFER, mem_size, mesh->mem_block, GL_STATIC_DRAW);
 
+    checkerr();
     // indices
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.n_indices * sizeof(unsigned int), &mesh.indices[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->n_indices * sizeof(unsigned int), &mesh->indices[0], GL_STATIC_DRAW);
 
+    checkerr();
     // positions
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh.positions);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->positions);
     
+    checkerr();
     // normals
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)mesh.normals);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)mesh->normals);
 
+    checkerr();
     // tex_coords
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh.tex_coords);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->tex_coords);
 
+    checkerr();
     // tangent
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh.tangents);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->tangents);
 
+    checkerr();
     // tangent
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh.bitangents);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->bitangents);
 
     glBindVertexArray(0);
 
-    return mesh;
+    return 0;
 }
 
 void free_mesh(mesh_t* mesh)
@@ -387,7 +393,7 @@ void init_window(float w, float h, const char* window_name)
 #ifdef XEN_DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 
-    GLint flags;
+    int flags;
     glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
     if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
     {
