@@ -225,7 +225,18 @@ typedef struct mesh_t
 
 int load_mesh(mesh_t* mesh, const char* filepath)
 {
-    // TODO use own loading procedure 
+    // strncpy
+    char* slash = strrchr(filepath, '/');
+
+    int index = 0;
+    while (index < strlen(filepath) && &filepath[index] != slash) 
+    {
+        index++;
+    }
+    index++;
+
+    char dir[index];
+    strncpy(dir, filepath, index);
 
     const struct aiScene* scene = aiImportFile(filepath,
         aiProcess_CalcTangentSpace       | 
@@ -243,12 +254,12 @@ int load_mesh(mesh_t* mesh, const char* filepath)
     mesh->n_indices = ai_mesh->mNumFaces * 3;    // all faces are triangulated
 
     // allocate block of memory for mesh
-    int positions_size = sizeof(vec3_t) * mesh->n_vertices;
-    int normals_size = sizeof(vec3_t) * mesh->n_vertices;
-    int tex_coords_size = sizeof(vec2_t) * mesh->n_vertices;
-    int tangents_size = sizeof(vec3_t) * mesh->n_vertices;
-    int bitangents_size = sizeof(vec3_t) * mesh->n_vertices;
-    int indices_size = sizeof(int) * mesh->n_indices;
+    size_t positions_size = sizeof(vec3_t) * mesh->n_vertices;
+    size_t normals_size = sizeof(vec3_t) * mesh->n_vertices;
+    size_t tex_coords_size = sizeof(vec2_t) * mesh->n_vertices;
+    size_t tangents_size = sizeof(vec3_t) * mesh->n_vertices;
+    size_t bitangents_size = sizeof(vec3_t) * mesh->n_vertices;
+    size_t indices_size = sizeof(int) * mesh->n_indices;
 
     size_t mem_size = positions_size + normals_size + tex_coords_size + tangents_size + bitangents_size + indices_size;
     mesh->mem_block = malloc(mem_size);
@@ -295,7 +306,12 @@ int load_mesh(mesh_t* mesh, const char* filepath)
 
     aiReleaseImport(scene);
 
-    // TODO materials and textures
+    struct aiString str;
+    struct aiMaterial* ai_mat = scene->mMaterials[ai_mesh->mMaterialIndex];
+    if (AI_SUCCESS != aiGetMaterialString(ai_mat, AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), &str))
+    {
+        fprintf(stderr, "Diffuse texture not found | %s | %s\n", str.data, filepath);
+    }
 
     // gl buffers
     glGenVertexArrays(1, &mesh->VAO);
@@ -308,33 +324,27 @@ int load_mesh(mesh_t* mesh, const char* filepath)
     glBindBuffer(GL_ARRAY_BUFFER, mesh->VBO);
     glBufferData(GL_ARRAY_BUFFER, mem_size, mesh->mem_block, GL_STATIC_DRAW);
 
-    checkerr();
     // indices
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->n_indices * sizeof(unsigned int), &mesh->indices[0], GL_STATIC_DRAW);
 
-    checkerr();
     // positions
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->positions);
     
-    checkerr();
     // normals
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)mesh->normals);
 
-    checkerr();
     // tex_coords
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->tex_coords);
 
-    checkerr();
     // tangent
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->tangents);
 
-    checkerr();
-    // tangent
+    // bitangent
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->bitangents);
 
