@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 //window
@@ -22,11 +23,14 @@ static GLFWwindow* window;
 static float window_w;
 static float window_h;
 
-GLenum checkerror_(const char *file, int line) {
+GLenum checkerror_(const char *file, int line)
+{
     GLenum errorCode;
-    while ((errorCode = glGetError()) != GL_NO_ERROR){
+    while ((errorCode = glGetError()) != GL_NO_ERROR)
+    {
         const char* error;
-        switch (errorCode) {
+        switch (errorCode)
+        {
             case GL_INVALID_ENUM: error = "INVALID_ENUM"; break;
             case GL_INVALID_VALUE: error = "INVALID_VALUE"; break;
             case GL_INVALID_OPERATION: error = "INVALID_OPERATION"; break;
@@ -35,64 +39,58 @@ GLenum checkerror_(const char *file, int line) {
             case GL_OUT_OF_MEMORY: error = "OUT_OF_MEMORY"; break;
             case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
         }
-            fprintf(stderr, "%s | %s (%d)\n", error, file, line);
-        }
-        return errorCode;
+        fprintf(stderr, "%s | %s (%d)\n", error, file, line);
     }
+    return errorCode;
+}
 #define checkerr() checkerror_(__FILE__, __LINE__)
 
-/**
- * @brief Debug callback for opengl
- * 
- * @param source 
- * @param type 
- * @param id 
- * @param severity 
- * @param length 
- * @param message 
- * @param userParam 
- */
-void APIENTRY gl_debug_output(
-    GLenum source,
-    GLenum type,
-    unsigned int id,
-    GLenum severity,
-    GLsizei length,
-    const char *message,
-    const void *userParam
-) {
-    // ignore non-significant error codes
-    if(id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
-        printf("---------------\n");
-        printf("Debug message (%d): %s\n", id, message);
-        switch (source) {
-            case GL_DEBUG_SOURCE_API: printf("Source: API"); break;
-            case GL_DEBUG_SOURCE_WINDOW_SYSTEM: printf("Source: Window System"); break;
-            case GL_DEBUG_SOURCE_SHADER_COMPILER: printf("Source: Shader Compiler"); break;
-            case GL_DEBUG_SOURCE_THIRD_PARTY: printf("Source: Third Party"); break;
-            case GL_DEBUG_SOURCE_APPLICATION: printf("Source: Application"); break;
-            case GL_DEBUG_SOURCE_OTHER: printf("Source: Other"); break;
-        } printf("\n");
-    
-        switch (type) {
-            case GL_DEBUG_TYPE_ERROR: printf("Type: Error"); break;
-            case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: printf("Type: Deprecated Behaviour"); break;
-            case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: printf("Type: Undefined Behaviour"); break;
-            case GL_DEBUG_TYPE_PORTABILITY: printf("Type: Portability"); break;
-            case GL_DEBUG_TYPE_PERFORMANCE: printf("Type: Performance"); break;
-            case GL_DEBUG_TYPE_MARKER: printf("Type: Marker"); break;
-            case GL_DEBUG_TYPE_PUSH_GROUP: printf("Type: Push Group"); break;
-            case GL_DEBUG_TYPE_POP_GROUP: printf("Type: Pop Group"); break;
-            case GL_DEBUG_TYPE_OTHER: printf("Type: Other"); break;
-        } printf("\n");
-    
-        switch (severity) {
-            case GL_DEBUG_SEVERITY_HIGH: printf("Severity: high"); break;
-            case GL_DEBUG_SEVERITY_MEDIUM: printf("Severity: medium"); break;
-            case GL_DEBUG_SEVERITY_LOW: printf("Severity: low"); break;
-            case GL_DEBUG_SEVERITY_NOTIFICATION: printf("Severity: notification"); break;
-        } printf("\n");
+void APIENTRY gl_debug_output(GLenum source,
+                              GLenum type,
+                              unsigned int id,
+                              GLenum severity,
+                              GLsizei length,
+                              const char *message,
+                              const void *userParam)
+{
+    // non-significant error codes
+    if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+
+    printf("---------------\n");
+    printf("Debug message (%d): %s\n", id, message);
+    switch (source)
+    {
+        case GL_DEBUG_SOURCE_API: printf("Source: API"); break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM: printf("Source: Window System"); break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER: printf("Source: Shader Compiler"); break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY: printf("Source: Third Party"); break;
+        case GL_DEBUG_SOURCE_APPLICATION: printf("Source: Application"); break;
+        case GL_DEBUG_SOURCE_OTHER: printf("Source: Other"); break;
+    }
     printf("\n");
+
+    switch (type)
+    {
+        case GL_DEBUG_TYPE_ERROR: printf("Type: Error"); break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: printf("Type: Deprecated Behaviour"); break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: printf("Type: Undefined Behaviour"); break;
+        case GL_DEBUG_TYPE_PORTABILITY: printf("Type: Portability"); break;
+        case GL_DEBUG_TYPE_PERFORMANCE: printf("Type: Performance"); break;
+        case GL_DEBUG_TYPE_MARKER: printf("Type: Marker"); break;
+        case GL_DEBUG_TYPE_PUSH_GROUP: printf("Type: Push Group"); break;
+        case GL_DEBUG_TYPE_POP_GROUP: printf("Type: Pop Group"); break;
+        case GL_DEBUG_TYPE_OTHER: printf("Type: Other"); break;
+    }
+    printf("\n");
+
+    switch (severity)
+    {
+        case GL_DEBUG_SEVERITY_HIGH: printf("Severity: high"); break;
+        case GL_DEBUG_SEVERITY_MEDIUM: printf("Severity: medium"); break;
+        case GL_DEBUG_SEVERITY_LOW: printf("Severity: low"); break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION: printf("Severity: notification"); break;
+    }
+    printf("\n\n");
 }
 
 typedef struct vec2_t
@@ -220,30 +218,69 @@ typedef struct mesh_t
     size_t n_indices;
 
     unsigned int tex_ids[3];
-    char uniform_names[3][4];
+    char uniform_names[3][4]; // diff, spec, norm
 } mesh_t;
 
-int load_mesh(mesh_t* mesh, const char* filepath)
+unsigned int load_texture(const char* filepath)
 {
-    // strncpy
-    char* slash = strrchr(filepath, '/');
+    unsigned int tex_id = 0;
+    glGenTextures(1, &tex_id);
 
-    int index = 0;
-    while (index < strlen(filepath) && &filepath[index] != slash) 
+    int w, h, n;
+    unsigned char* data = stbi_load(filepath, &w, &h, &n, 0);
+
+    if (data)
     {
-        index++;
-    }
-    index++;
+        GLenum format;
+        if (n == 4)
+        {
+            format = GL_RED;
+        }
+        else if (n == 3)
+        {
+            format = GL_RGB;
+        }
+        else if (n == 4)
+        {
+            format = GL_RGBA;
+        }
 
-    char dir[index];
-    strncpy(dir, filepath, index);
+        glBindTexture(GL_TEXTURE_2D, tex_id);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, GL_UNSIGNED_BYTE, data);
+        // glGenerateMipMap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+	}
+    else
+    {
+        fprintf(stderr, "Unable to load texture | %s\n", filepath);
+        stbi_image_free(data);
+    }
+    return tex_id;
+}
+
+// TODO for now we assume that each model has 3 texture maps in the same dir and that the file is .obj
+int load_mesh_obj(mesh_t* mesh, const char* filepath)
+{
+    char* filename = strrchr(filepath, '/');
+    size_t namelen = strlen(filename) - 5;  // remove '/' and ".obj"
+    char name[namelen];
+    if (!strncpy(name, &filename[1], namelen))
+    {
+        fprintf(stderr, "Unable to find file name | %s\n", filepath);
+    }
 
     const struct aiScene* scene = aiImportFile(filepath,
-        aiProcess_CalcTangentSpace       | 
-        aiProcess_Triangulate            |
-        aiProcess_JoinIdenticalVertices  );
+        aiProcess_CalcTangentSpace      | 
+        aiProcess_Triangulate           |
+        aiProcess_JoinIdenticalVertices );
 
-    if(!scene)
+    if (!scene)
     {
         fprintf(stderr, "Unable to open model file | %s\n", filepath);
         return 1;
@@ -306,12 +343,8 @@ int load_mesh(mesh_t* mesh, const char* filepath)
 
     aiReleaseImport(scene);
 
-    struct aiString str;
-    struct aiMaterial* ai_mat = scene->mMaterials[ai_mesh->mMaterialIndex];
-    if (AI_SUCCESS != aiGetMaterialString(ai_mat, AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), &str))
-    {
-        fprintf(stderr, "Diffuse texture not found | %s | %s\n", str.data, filepath);
-    }
+    // TODO textures
+    
 
     // gl buffers
     glGenVertexArrays(1, &mesh->VAO);
