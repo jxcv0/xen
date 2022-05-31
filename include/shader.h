@@ -117,4 +117,14 @@ void shader_use(unsigned int shader)
     glUseProgram(shader);
 }
 
+void shader_set_uniformi(unsigned int shader, const char* uniform_name, int i)
+{
+    glUniform1i(glGetUniformLocation(shader, uniform_name), i);
+}
+
+void shader_set_uniformf(unsigned int shader, const char* uniform_name, float f)
+{
+    glUniform1f(glGetUniformLocation(shader, uniform_name), f);
+}
+
 #endif // SHADER_H

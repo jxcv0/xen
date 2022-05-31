@@ -111,7 +111,6 @@ typedef struct mesh_t
     size_t n_indices;
 
     unsigned int tex_ids[3];
-    // char uid[16];
 } mesh_t;
 
 unsigned int load_texture(const char* dir, const char* tex_name)
@@ -304,10 +303,26 @@ void free_mesh(mesh_t* mesh)
 
 void draw_mesh(mesh_t* mesh, unsigned int shader)
 {
-    for (int i = 0; i < 3; i++) // 3 textures
-    {
-        glActiveTexture(GL_TEXTURE0 + i);
-    }
+    // diff
+    glActiveTexture(GL_TEXTURE0);
+    shader_set_uniformi(shader, "tex_diff", 0);
+    glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[0]);
+
+    // spec
+    glActiveTexture(GL_TEXTURE + 1);
+    shader_set_uniformi(shader, "tex_spec", 1);
+    glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[1]);
+
+    // norm
+    glActiveTexture(GL_TEXTURE0 + 2);
+    shader_set_uniformi(shader, "tex_norm", 2);
+    glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[3]);
+
+    glBindVertexArray(mesh->VAO);
+    glDrawElements(GL_TRIANGLES, mesh->n_indices, GL_UNSIGNED_INT, 0);
+
+    glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
 }
 
 void on_resize(GLFWwindow* window, int width, int height)
