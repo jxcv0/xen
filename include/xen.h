@@ -218,11 +218,15 @@ typedef struct mesh_t
     size_t n_indices;
 
     unsigned int tex_ids[3];
-    char uniform_names[3][4]; // diff, spec, norm
+    // char uid[16];
 } mesh_t;
 
-unsigned int load_texture(const char* filepath)
+unsigned int load_texture(const char* dir, const char* tex_name)
 {
+    char filepath[strlen(dir) + strlen(tex_name)];
+    strcpy(filepath, dir);
+    strcat(filepath, tex_name);
+
     unsigned int tex_id = 0;
     glGenTextures(1, &tex_id);
 
@@ -264,16 +268,14 @@ unsigned int load_texture(const char* filepath)
     return tex_id;
 }
 
-// TODO for now we assume that each model has 3 texture maps in the same dir and that the file is .obj
-int load_mesh_obj(mesh_t* mesh, const char* filepath)
+// for now we assume that each model has 3 texture maps in the same dir, the file is .obj and all 3 textures are .png
+// TODO lots of strange string things going on here
+int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
 {
-    char* filename = strrchr(filepath, '/');
-    size_t namelen = strlen(filename) - 5;  // remove '/' and ".obj"
-    char name[namelen];
-    if (!strncpy(name, &filename[1], namelen))
-    {
-        fprintf(stderr, "Unable to find file name | %s\n", filepath);
-    }
+    char filepath[strlen(dir) + strlen(name)];
+    strcpy(filepath, dir);
+    strcat(filepath, name);
+    strcat(filepath, ".obj");
 
     const struct aiScene* scene = aiImportFile(filepath,
         aiProcess_CalcTangentSpace      | 
@@ -343,8 +345,24 @@ int load_mesh_obj(mesh_t* mesh, const char* filepath)
 
     aiReleaseImport(scene);
 
-    // TODO textures
-    
+    // textures
+    size_t namelen = strlen(name);
+
+    char diff[namelen + 9]; // name + "_type.png"
+    strcpy(diff, name);
+    strcat(diff, "_diff.png");
+
+    char spec[namelen + 9];
+    strcpy(spec, name);
+    strcat(spec, "_spec.png");
+
+    char norm[namelen + 9];
+    strcpy(norm, name);
+    strcat(norm, "_norm.png");
+
+    mesh->tex_ids[0] = load_texture(dir, diff);
+    mesh->tex_ids[1] = load_texture(dir, spec);
+    mesh->tex_ids[2] = load_texture(dir, norm);
 
     // gl buffers
     glGenVertexArrays(1, &mesh->VAO);
