@@ -1,6 +1,5 @@
 #ifndef SHADER_H
 #define SHADER_H
-#endif // SHADER_H
 
 #include "glad.h"
 #include <GLFW/glfw3.h>
@@ -117,3 +116,5 @@ void shader_use(unsigned int shader)
 {
     glUseProgram(shader);
 }
+
+#endif // SHADER_H
