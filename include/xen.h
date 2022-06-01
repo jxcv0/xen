@@ -291,6 +291,7 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->bitangents);
 
+    // unbind
     glBindVertexArray(0);
 
     return 0;
@@ -304,19 +305,19 @@ void free_mesh(mesh_t* mesh)
 void draw_mesh(mesh_t* mesh, unsigned int shader)
 {
     // diff
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE1);
     shader_set_uniformi(shader, "tex_diff", 0);
     glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[0]);
 
     // spec
-    glActiveTexture(GL_TEXTURE + 1);
+    glActiveTexture(GL_TEXTURE2);
     shader_set_uniformi(shader, "tex_spec", 1);
     glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[1]);
 
     // norm
-    glActiveTexture(GL_TEXTURE0 + 2);
+    glActiveTexture(GL_TEXTURE3);
     shader_set_uniformi(shader, "tex_norm", 2);
-    glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[3]);
+    glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[2]);
 
     glBindVertexArray(mesh->VAO);
     glDrawElements(GL_TRIANGLES, mesh->n_indices, GL_UNSIGNED_INT, 0);
