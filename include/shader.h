@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+// check compile status
 void shader_check_compile(GLuint shader_id, const char* msg)
 {
     GLint success;
@@ -19,6 +20,7 @@ void shader_check_compile(GLuint shader_id, const char* msg)
     }
 }
 
+// check link status
 void shader_check_link(GLuint prgm_id)
 {
     GLint success;
@@ -31,6 +33,7 @@ void shader_check_link(GLuint prgm_id)
     }
 }
 
+// load and compile a shader from a text file
 unsigned int shader_load(const char* vert_path, const char* frag_path)
 {
     FILE* file;
@@ -112,19 +115,28 @@ unsigned int shader_load(const char* vert_path, const char* frag_path)
     return program_id;
 }
 
+// set a shader as the active shader
 void shader_use(unsigned int shader)
 {
     glUseProgram(shader);
 }
 
-void shader_set_uniformi(unsigned int shader, const char* uniform_name, int i)
+// set shader uniform utility function
+void shader_set_uniformi(unsigned int shader, const char* uniform_name, const int i)
 {
     glUniform1i(glGetUniformLocation(shader, uniform_name), i);
 }
 
-void shader_set_uniformf(unsigned int shader, const char* uniform_name, float f)
+// set shader uniform utility function
+void shader_set_uniformf(unsigned int shader, const char* uniform_name, const float f)
 {
     glUniform1f(glGetUniformLocation(shader, uniform_name), f);
+}
+
+// set shader uniform utility function
+void set_shader_uniform4fv(unsigned int shader, const char* uniform_name, const float m[4][4])
+{
+    glUniformMatrix4fv(glGetUniformLocation(shader, uniform_name), 1, GL_FALSE, &m[0][0]);
 }
 
 #endif // SHADER_H

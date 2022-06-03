@@ -127,18 +127,15 @@ unsigned int load_texture(const char* dir, const char* tex_name)
 
     if (data)
     {
-        GLenum format;
-        if (n == 4)
+        GLenum format = GL_RGBA;
+
+        if (n == 1)
         {
             format = GL_RED;
         }
         else if (n == 3)
         {
             format = GL_RGB;
-        }
-        else if (n == 4)
-        {
-            format = GL_RGBA;
         }
 
         glBindTexture(GL_TEXTURE_2D, tex_id);
@@ -225,13 +222,13 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
         mesh->bitangents[i].z = ai_mesh->mBitangents[i].z;
     }
 
-    int face_counter = 0;
+    int n = 0;
     for(int i = 0; i < ai_mesh->mNumFaces; i++)
     {
         struct aiFace face = ai_mesh->mFaces[i];
         for(int j = 0; j < face.mNumIndices; j++)
         {
-            mesh->indices[face_counter++] = face.mIndices[j];
+            mesh->indices[n++] = face.mIndices[j];
         }
     }
 
