@@ -1,8 +1,9 @@
 #ifndef XEN_H
 #define XEN_H
 
+#define XEN_DEBUG
+
 #include "vec.h"
-#include "shader.h"
 
 #include "glad.h"
 #include <GLFW/glfw3.h>
@@ -21,10 +22,15 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-//window
+// window
 static GLFWwindow* window;
 static float window_w;
 static float window_h;
+
+// camera
+static vec3_t camera_pos = { .values = {0.0f, 3.0f, 3.0f} };
+static vec3_t camera_dir = { .values = {0.0f, 0.0f, -1.0f} };
+static vec3_t camera_up = { .values = {0.0f, 1.0f, 0.0f} };
 
 GLenum checkerror_(const char *file, int line)
 {
@@ -96,6 +102,171 @@ void APIENTRY gl_debug_output(GLenum source,
     printf("\n\n");
 }
 
+// check compile status
+void shader_check_compile(GLuint shader_id, const char* msg)
+{
+    GLint success;
+    GLchar log[1024];
+    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(shader_id, 1024, NULL, log);
+        fprintf(stderr, "Shader program compilation error | %s\n%s\n", msg, log);
+    }
+}
+
+// check link status
+void shader_check_link(GLuint prgm_id)
+{
+    GLint success;
+    GLchar log[1024];
+    glGetProgramiv(prgm_id, GL_LINK_STATUS, &success);
+    if (!success)
+    {
+        glGetProgramInfoLog(prgm_id, 1024, NULL, log);
+        fprintf(stderr, "Shader program linking error | %s\n", log);
+    }
+}
+
+// load and compile a shader from a text file
+unsigned int shader_load(const char* vert_path, const char* frag_path)
+{
+    FILE* file;
+    char* vert_code;
+    char* frag_code;
+
+    // vert
+    if ((file = fopen(vert_path, "r")) != NULL)
+    {
+        fseek(file, 0, SEEK_END);
+        long f_size = ftell(file);
+        fseek(file, 0, SEEK_SET);
+        vert_code = malloc(f_size);
+
+        size_t n = 0;
+        int c;
+
+        while((c = fgetc(file)) != EOF)
+        {
+            vert_code[n++] = (char)c;
+        }
+        vert_code[n] = '\0';
+        fclose(file);
+    }
+    else
+    {
+        fprintf(stderr, "unable to open vertex shader file | %s", vert_path);
+        return -1;
+    }
+
+    // frag
+    if ((file = fopen(frag_path, "r")) != NULL)
+    {
+        fseek(file, 0, SEEK_END);
+        long f_size = ftell(file);
+        fseek(file, 0, SEEK_SET);
+        frag_code = malloc(f_size);
+
+        size_t n = 0;
+        int c;
+
+        while((c = fgetc(file)) != EOF)
+        {
+            frag_code[n++] = (char)c;
+        }
+        frag_code[n] = '\0';
+        fclose(file);
+    }
+    else
+    {
+        fprintf(stderr, "Unable to open fragment shader file | %s", frag_path);
+        return -1;
+    }
+
+    const char* const_vert_code = vert_code;
+    unsigned int vert_id = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vert_id, 1, &const_vert_code, NULL); // wtf
+    glCompileShader(vert_id);
+    shader_check_compile(vert_id, vert_path);
+
+    const char* const_frag_code = frag_code;
+    unsigned int frag_id = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(frag_id, 1, &const_frag_code, NULL);
+    glCompileShader(frag_id);
+    shader_check_compile(frag_id, frag_path);
+
+    unsigned int program_id = glCreateProgram();
+    glAttachShader(program_id, vert_id);
+    glAttachShader(program_id, frag_id);
+    glLinkProgram(program_id);
+    shader_check_link(program_id);
+
+    glDeleteShader(vert_id);
+    glDeleteShader(frag_id);
+
+    free(vert_code);
+    free(frag_code);
+
+    return program_id;
+}
+
+// set a shader as the active shader
+void shader_use(unsigned int shader)
+{
+    glUseProgram(shader);
+}
+
+// set shader uniform utility function
+void shader_set_uniformi(unsigned int shader, const char* uniform_name, const int i)
+{
+    glUniform1i(glGetUniformLocation(shader, uniform_name), i);
+}
+
+// set shader uniform utility function
+void shader_set_uniformf(unsigned int shader, const char* uniform_name, const float f)
+{
+    glUniform1f(glGetUniformLocation(shader, uniform_name), f);
+}
+
+// set shader uniform utility function
+void shader_set_uniform2fv(unsigned int shader, const char* uniform_name, const float v[2])
+{
+    glUniform2fv(glGetUniformLocation(shader, uniform_name), 1, &v[0]);
+}
+
+// set shader uniform utility function
+void shader_set_uniform3fv(unsigned int shader, const char* uniform_name, const float v[3])
+{
+    glUniform3fv(glGetUniformLocation(shader, uniform_name), 1, &v[0]);
+}
+
+// set shader uniform utility function
+void shader_set_uniform4fm(unsigned int shader, const char* uniform_name, const float m[4][4])
+{
+    glUniformMatrix4fv(glGetUniformLocation(shader, uniform_name), 1, GL_FALSE, &m[0][0]);
+}
+
+typedef struct light_t
+{
+    vec3_t color;
+    vec3_t position;
+    float constant;
+    float linear;
+    float quadratic;
+} light_t;
+
+light_t create_default_light()
+{
+    light_t result = {
+        .color.values = {1.0f, 1.0f, 1.0f},
+        .position.values = {1.0f, 1.0f, 1.0f},
+        .constant = 1.0f,
+        .linear = 0.09f,
+        .quadratic = 0.032
+    };
+    return result;
+}
+
 typedef struct mesh_t
 {
     void* mem_block;
@@ -157,7 +328,8 @@ unsigned int load_texture(const char* dir, const char* tex_name)
     return tex_id;
 }
 
-// for now we assume that each model has 3 texture maps in the same dir, the file is .obj and all 3 textures are .png
+// for now we assume that each model has 3 texture maps in the same dir, the file is .obj and all 3
+// textures are .png
 // TODO lots of strange string things going on here
 int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
 {
@@ -189,16 +361,32 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
     size_t bitangents_size = sizeof(vec3_t) * mesh->n_vertices;
     size_t indices_size = sizeof(int) * mesh->n_indices;
 
-    size_t mem_size = positions_size + normals_size + tex_coords_size + tangents_size + bitangents_size + indices_size;
+    size_t mem_size = positions_size
+                    + normals_size
+                    + tex_coords_size
+                    + tangents_size
+                    + bitangents_size
+                    + indices_size;
+
     mesh->mem_block = malloc(mem_size);
 
     // memory offsets into mesh memory
     mesh->positions = (vec3_t*)mesh->mem_block;
-    mesh->normals = (vec3_t*)(mesh->mem_block + positions_size);
-    mesh->tex_coords = (vec2_t*)(mesh->mem_block + positions_size + normals_size);
-    mesh->tangents = (vec3_t*)(mesh->mem_block + positions_size + normals_size + tex_coords_size);
-    mesh->bitangents = (vec3_t*)(mesh->mem_block + positions_size + normals_size + tex_coords_size + tangents_size);
-    mesh->indices = (int*)(mesh->mem_block + positions_size + normals_size + tex_coords_size + tangents_size + bitangents_size);
+
+    mesh->normals = (vec3_t*)(mesh->mem_block
+            + positions_size);
+
+    mesh->tex_coords = (vec2_t*)(mesh->mem_block
+            + positions_size + normals_size);
+
+    mesh->tangents = (vec3_t*)(mesh->mem_block
+            + positions_size + normals_size + tex_coords_size);
+
+    mesh->bitangents = (vec3_t*)(mesh->mem_block
+            + positions_size + normals_size + tex_coords_size + tangents_size);
+
+    mesh->indices = (int*)(mesh->mem_block
+            + positions_size + normals_size + tex_coords_size + tangents_size + bitangents_size);
 
     for(int i = 0; i < ai_mesh->mNumVertices; i++)
     {
@@ -395,5 +583,34 @@ bool should_close()
 void swap_buffers() { glfwSwapBuffers(window); }
 void poll_events() { glfwPollEvents(); }
 
+void clear_buffers()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+// get a const pointer to the camera position
+const float* camera_position(void)
+{
+    return camera_pos.values;
+}
+
+// get a const pointer to the camera direction
+const float* camera_direction(void)
+{
+    return camera_dir.values;
+}
+
+// update the camera direction based on a change in mouse position
+void camera_update_direction(float mouse_x, float mouse_y, float s)
+{
+
+    return;
+}
+
+// generate a view matrix from the camera
+mat4_t camera_view_matrix(void)
+{
+    return create_view_matrix(camera_pos.values, camera_dir.values, camera_up.values);
+}
 
 #endif // XEN_H

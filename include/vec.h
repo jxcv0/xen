@@ -137,6 +137,8 @@ mat4_t create_perspective_matrix(const float fov, const float near, const float 
 {
     mat4_t result = {0};
     
+    // TODO radians?
+
     result.values[0][0] = cos(0.5 * fov) / sin(0.5 * fov);
     result.values[1][1] = result.values[0][0] * h / w;
     result.values[2][2] = (near - far) / (far - near);
@@ -181,7 +183,7 @@ mat4_t create_translation_matrix(const float v[3])
     return result;
 }
 
-mat4_t rotate_m4(float m[4][4], float axis[3], float a)
+mat4_t rotate_m4(const float m[4][4], const float axis[3], const float a)
 {
     float rad = radians(a);
     float c = cos(rad);
