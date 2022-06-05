@@ -40,7 +40,7 @@ float prev_y = 0;
 void xen_dbg()
 {
     printf("camera pos: %f, %f, %f\n", camera_pos.x, camera_pos.y, camera_pos.z);
-    printf("camera dir: %f, %f, %f\n", camera_dir.x, camera_pos.y, camera_pos.z);
+    printf("camera dir: %f, %f, %f\n", camera_dir.x, camera_dir.y, camera_dir.z);
     printf("camera up: %f, %f, %f\n", camera_up.x, camera_up.y, camera_up.z);
     printf("\n");
 }
@@ -545,7 +545,7 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     prev_x = delta_x;
     prev_y = delta_y;
 
-    // TODO make sensetivity adjustable
+    // TODO make sensitivity adjustable
     rot_b += delta_x * 0.1f;
     rot_a += delta_y * 0.1f;
 
@@ -557,17 +557,17 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     float new_y = sin(radians(rot_a));
     float new_z = sin(radians(rot_b)) * cos(radians(rot_a));
 
-    printf("new dir: %f, %f, %f\n", new_x, new_y, new_z);
-    xen_dbg();
+    camera_dir.x = new_x;
+    camera_dir.y = new_y;
+    camera_dir.z = new_z;
 
-    vec3_t new_dir = { .values = {new_x, new_y, new_z} };
-    camera_dir = normalize_v3(new_dir.values);
+    xen_dbg();
 }
 
 // generate a view matrix from the camera
 mat4_t camera_view_matrix(void)
 {
-    return create_view_matrix(camera_pos.values, camera_dir.values, camera_up.values);
+    return create_view_matrix(camera_pos.values, add_vec3(camera_pos.values, camera_dir.values).values, camera_up.values);
 }
 
 void on_resize(GLFWwindow* window, int width, int height)

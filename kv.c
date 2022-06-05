@@ -40,7 +40,6 @@ int main()
         clear_buffers();
 
         draw_mesh(&mesh, shader);
-
         handle_input();
         swap_buffers();
         poll_events();

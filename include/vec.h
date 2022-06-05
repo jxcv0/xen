@@ -2,6 +2,11 @@
 #define VEC_H
 
 #include <math.h>
+#include <stdio.h>
+
+// TODO
+// rewrite all this 
+// make tests
 
 float radians(float x)
 {
@@ -84,6 +89,14 @@ vec4_t col(const float m[4][4], int n)
 float scalar(const float v[3], const float scalar)
 {
     return (v[0] * scalar) + (v[1] * scalar) + (v[2] * scalar);
+}
+
+vec3_t add_vec3(float v1[3], float v2[3])
+{
+    vec3_t result = {
+        .values = {(v1[0] + v2[0]), (v1[1] + v2[1]), (v1[2] + v2[2])}
+    };
+    return result;
 }
 
 float dot_v3(const float v1[3], const float v2[3])
