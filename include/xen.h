@@ -102,6 +102,8 @@ void APIENTRY gl_debug_output(GLenum source,
     printf("\n\n");
 }
 
+// shaders ----------------------------------------------------------------------------------------
+
 // check compile status
 void shader_check_compile(GLuint shader_id, const char* msg)
 {
