@@ -31,6 +31,19 @@ static float window_h;
 static vec3_t camera_pos = { .values = {0.0f, 3.0f, 3.0f} };
 static vec3_t camera_dir = { .values = {0.0f, 0.0f, -1.0f} };
 static vec3_t camera_up = { .values = {0.0f, 1.0f, 0.0f} };
+static bool first_mouse = true;
+float rot_a = 0.0f;  // rotation about x axis
+float rot_b = 90.0f; // rotation about y axis
+float prev_x = 0;
+float prev_y = 0;
+
+void xen_dbg()
+{
+    printf("camera pos: %f, %f, %f\n", camera_pos.x, camera_pos.y, camera_pos.z);
+    printf("camera dir: %f, %f, %f\n", camera_dir.x, camera_pos.y, camera_pos.z);
+    printf("camera up: %f, %f, %f\n", camera_up.x, camera_up.y, camera_up.z);
+    printf("\n");
+}
 
 GLenum checkerror_(const char *file, int line)
 {
@@ -261,7 +274,7 @@ light_t create_default_light()
 {
     light_t result = {
         .color.values = {1.0f, 1.0f, 1.0f},
-        .position.values = {1.0f, 1.0f, 1.0f},
+        .position.values = {1.0f, 3.0f, 2.0f},
         .constant = 1.0f,
         .linear = 0.09f,
         .quadratic = 0.032
@@ -513,12 +526,56 @@ void draw_mesh(mesh_t* mesh, unsigned int shader)
     glActiveTexture(GL_TEXTURE0);
 }
 
+// update the camera direction based on a change in mouse position
+void camera_update_dir(GLFWwindow* window, double x, double y)
+{
+    float mouse_x = (float)x;
+    float mouse_y = (float)y;
+
+    if (first_mouse)
+    {
+        prev_x = mouse_x;
+        prev_y = mouse_y;
+        first_mouse = false;
+    }
+
+    float delta_x = mouse_x - prev_x;
+    float delta_y = prev_y - mouse_y;
+
+    prev_x = delta_x;
+    prev_y = delta_y;
+
+    // TODO make sensetivity adjustable
+    rot_b += delta_x * 0.1f;
+    rot_a += delta_y * 0.1f;
+
+    if (rot_a > 50.0f) { rot_a = 50.0f; }
+    if (rot_a < -50.0f) { rot_a = -50.0f; }
+
+    // TODO offset radius for 3rd person
+    float new_x = cos(radians(rot_b)) * cos(radians(rot_a));
+    float new_y = sin(radians(rot_a));
+    float new_z = sin(radians(rot_b)) * cos(radians(rot_a));
+
+    printf("new dir: %f, %f, %f\n", new_x, new_y, new_z);
+    xen_dbg();
+
+    vec3_t new_dir = { .values = {new_x, new_y, new_z} };
+    camera_dir = normalize_v3(new_dir.values);
+}
+
+// generate a view matrix from the camera
+mat4_t camera_view_matrix(void)
+{
+    return create_view_matrix(camera_pos.values, camera_dir.values, camera_up.values);
+}
+
 void on_resize(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 
-void init_window(float w, float h, const char* window_name)
+void window_init(float w, float h, const char* window_name)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -543,6 +600,7 @@ void init_window(float w, float h, const char* window_name)
     }
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, camera_update_dir);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -588,31 +646,6 @@ void poll_events() { glfwPollEvents(); }
 void clear_buffers()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-// get a const pointer to the camera position
-const float* camera_position(void)
-{
-    return camera_pos.values;
-}
-
-// get a const pointer to the camera direction
-const float* camera_direction(void)
-{
-    return camera_dir.values;
-}
-
-// update the camera direction based on a change in mouse position
-void camera_update_direction(float mouse_x, float mouse_y, float s)
-{
-
-    return;
-}
-
-// generate a view matrix from the camera
-mat4_t camera_view_matrix(void)
-{
-    return create_view_matrix(camera_pos.values, camera_dir.values, camera_up.values);
 }
 
 #endif // XEN_H

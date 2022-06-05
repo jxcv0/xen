@@ -6,7 +6,7 @@
 
 int main()
 {
-    init_window(SCREEN_W, SCREEN_H, "KV");
+    window_init(SCREEN_W, SCREEN_H, "KV");
 
     unsigned int shader = shader_load("assets/shaders/ubershader.vert", "assets/shaders/ubershader.frag");
     shader_use(shader);
@@ -38,10 +38,13 @@ int main()
     while(!should_close())
     {
         clear_buffers();
+
         draw_mesh(&mesh, shader);
+
         handle_input();
         swap_buffers();
         poll_events();
+
         checkerr();
     }
 

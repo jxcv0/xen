@@ -3,8 +3,10 @@
 
 #include <math.h>
 
-// inline radians function
-#define radians(x) (x * 0.0174533)
+float radians(float x)
+{
+    return x * 0.0174533;
+}
 
 typedef struct vec2_t
 {
