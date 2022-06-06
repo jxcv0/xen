@@ -31,23 +31,32 @@ typedef struct mat4_t
     float values[4][4];
 } mat4_t;
 
-// construct 4x4 identity matrix
-mat4_t construct_identity_mat4()
+// construct a 4 dimensional vector
+vec4_t construct_vec4(float x, float y, float z, float w)
+{
+    vec4_t vec4 = {
+        .values = {x, y, z, w}
+    };
+    return vec4;
+}
+
+// construct 4x4 matrix
+mat4_t construct_mat4(float x)
 {
     mat4_t mat4 = {0};
-    mat4.values[0][0] = 1.0f;
-    mat4.values[1][1] = 1.0f;
-    mat4.values[2][2] = 1.0f;
-    mat4.values[3][3] = 1.0f;
+    mat4.values[0][0] = x;
+    mat4.values[1][1] = x;
+    mat4.values[2][2] = x;
+    mat4.values[3][3] = x;
     return mat4;
 }
 
 // get a row of a 4x4 matrix as a vec4
-vec4_t row(const float m[4][4], int n)
+vec4_t row(const mat4_t m, int n)
 {
-    vec4_t result = {
-        .values = {m[n][0], m[n][1], m[n][2], m[n][3]}
-    };
+   
+    vec4_t result = 
+        construct_vec4(m.values[n][0], m.values[n][1], m.values[n][2], m.values[n][3]);
     return result;
 }
 
