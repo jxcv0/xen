@@ -8,51 +8,22 @@
 // rewrite all this 
 // make tests
 
-float radians(float x)
-{
-    return x * 0.0174533;
-}
+float radians(float x) { return x * 0.0174533; }
 
+// wrapper types for arrays of values
 typedef struct vec2_t
 {
-    union
-    {
-        struct
-        {
-            float x;
-            float y;
-        };
-        float values[2];
-    };
+    float values[2];
 } vec2_t;
 
 typedef struct vec3_t
 {
-    union
-    {
-        struct
-        {
-            float x;
-            float y;
-            float z;
-        };
-        float values[3];
-    };
+    float values[3];
 } vec3_t;
 
 typedef struct vec4_t
 {
-    union
-    {
-        struct
-        {
-            float x;
-            float y;
-            float z;
-            float w;
-        };
-        float values[4];
-    };
+    float values[4];
 } vec4_t;
 
 typedef struct mat4_t
@@ -60,16 +31,18 @@ typedef struct mat4_t
     float values[4][4];
 } mat4_t;
 
-mat4_t identity_mat4()
+// construct 4x4 identity matrix
+mat4_t construct_identity_mat4()
 {
-    mat4_t result = {0};
-    result.values[0][0] = 1.0f;
-    result.values[1][1] = 1.0f;
-    result.values[2][2] = 1.0f;
-    result.values[3][3] = 1.0f;
-    return result;
+    mat4_t mat4 = {0};
+    mat4.values[0][0] = 1.0f;
+    mat4.values[1][1] = 1.0f;
+    mat4.values[2][2] = 1.0f;
+    mat4.values[3][3] = 1.0f;
+    return mat4;
 }
 
+// get a row of a 4x4 matrix as a vec4
 vec4_t row(const float m[4][4], int n)
 {
     vec4_t result = {
@@ -78,6 +51,7 @@ vec4_t row(const float m[4][4], int n)
     return result;
 }
 
+// get a column of a 4x4 matrix as a vec4
 vec4_t col(const float m[4][4], int n)
 {
     vec4_t result = {

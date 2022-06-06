@@ -3,7 +3,7 @@
 
 #define XEN_DEBUG
 
-#include "vec.h"
+#include "lm.h"
 
 #include "glad.h"
 #include <GLFW/glfw3.h>
