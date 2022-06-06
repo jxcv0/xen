@@ -97,7 +97,7 @@ vec3_t normalize_vec3(const vec3_t v)
 {
     vec3_t nv = {0};
 
-    // TODO fast?
+    // TODO how fast is sqrt?
     float l = sqrt((v.values[0] * v.values[0])
                  + (v.values[1] * v.values[1])
                  + (v.values[2] * v.values[2]));
@@ -109,15 +109,15 @@ vec3_t normalize_vec3(const vec3_t v)
     return nv;
 }
 
-/* QUARANTINE
-vec3_t add_vec3(float v1[3], float v2[3])
+// get the sum of 2 vec3s
+vec3_t add_vec3(const vec3_t v1, const vec3_t v2)
 {
-    vec3_t result = {
-        .values = {(v1[0] + v2[0]), (v1[1] + v2[1]), (v1[2] + v2[2])}
-    };
-    return result;
+    return construct_vec3((v1.values[0] + v2.values[0]),
+                       (v1.values[1] + v2.values[1]),
+                       (v1.values[2] + v2.values[2]));
 }
 
+/* QUARANTINE
 float dot_v3(const float v1[3], const float v2[3])
 {
     return (v1[0] * v2[0]) + (v1[1] * v2[1]) + (v1[2] * v2[2]);
