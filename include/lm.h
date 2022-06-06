@@ -60,6 +60,7 @@ vec4_t col(const float m[4][4], int n)
     return result;
 }
 
+/* QUARANTINE
 float scalar(const float v[3], const float scalar)
 {
     return (v[0] * scalar) + (v[1] * scalar) + (v[2] * scalar);
@@ -231,5 +232,7 @@ mat4_t create_view_matrix(const float pos[3], const float eye[3], const float up
 
     return result;
 }
+
+*/ 
 
 #endif // VEC_H
