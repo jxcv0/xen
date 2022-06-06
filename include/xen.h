@@ -47,10 +47,10 @@ void xen_dbg()
 
 GLenum checkerror_(const char *file, int line)
 {
-    GLenum errorCode;
+    GLenum errorCode = GL_NO_ERROR;
     while ((errorCode = glGetError()) != GL_NO_ERROR)
     {
-        const char* error;
+        const char* error = NULL;
         switch (errorCode)
         {
             case GL_INVALID_ENUM: error = "INVALID_ENUM"; break;
@@ -114,8 +114,6 @@ void APIENTRY gl_debug_output(GLenum source,
     }
     printf("\n\n");
 }
-
-// shaders ----------------------------------------------------------------------------------------
 
 // check compile status
 void shader_check_compile(GLuint shader_id, const char* msg)
