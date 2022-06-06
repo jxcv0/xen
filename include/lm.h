@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 // TODO
 // rewrite all this 
@@ -30,50 +31,85 @@ typedef struct mat4_t
     float values[4][4];
 } mat4_t;
 
+// construct a 3 dimensional vector
+vec3_t construct_vec3(float x, float y, float z)
+{
+    vec3_t v = {
+        .values = {x, y, z}
+    };
+    return v;
+}
+
 // construct a 4 dimensional vector
 vec4_t construct_vec4(float x, float y, float z, float w)
 {
-    vec4_t vec4 = {
+    vec4_t v = {
         .values = {x, y, z, w}
     };
-    return vec4;
+    return v;
 }
 
 // construct 4x4 matrix
 mat4_t construct_mat4(float x)
 {
-    mat4_t mat4 = {0};
-    mat4.values[0][0] = x;
-    mat4.values[1][1] = x;
-    mat4.values[2][2] = x;
-    mat4.values[3][3] = x;
-    return mat4;
+    mat4_t m = {0};
+    m.values[0][0] = x;
+    m.values[1][1] = x;
+    m.values[2][2] = x;
+    m.values[3][3] = x;
+    return m;
 }
 
 // get a row of a 4x4 matrix as a vec4
-vec4_t row(const mat4_t m, int n)
+vec4_t row_mat4(const mat4_t m, int n)
 {
-   
-    vec4_t result = 
-        construct_vec4(m.values[n][0], m.values[n][1], m.values[n][2], m.values[n][3]);
-    return result;
+    vec4_t v = construct_vec4(m.values[n][0], m.values[n][1], m.values[n][2], m.values[n][3]);
+    return v;
 }
 
 // get a column of a 4x4 matrix as a vec4
-vec4_t col(const float m[4][4], int n)
+vec4_t col_mat4(const mat4_t m, int n)
 {
-    vec4_t result = {
-        .values = {m[0][n], m[1][n], m[2][n], m[3][n]}
-    };
-    return result;
+    vec4_t v = construct_vec4(m.values[0][n], m.values[1][n], m.values[2][n], m.values[3][n]);
+    return v;
+}
+
+bool fequal(float a, float b, float epsilon)
+{
+    return fabs(a - b) < epsilon; 
+}
+
+// compare 2 vec3s - do not use anywhere other than tests
+bool compare_vec3(const vec3_t v1, const vec3_t v2, float e)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (!fequal(v1.values[i], v2.values[i], e));
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+// make the magnitude of a vec3 equal to 1
+vec3_t normalize_vec3(const vec3_t v)
+{
+    vec3_t nv = {0};
+
+    // TODO fast?
+    float l = sqrt((v.values[0] * v.values[0])
+                 + (v.values[1] * v.values[1])
+                 + (v.values[2] * v.values[2]));
+
+    nv.values[0] = v.values[0] / l;
+    nv.values[1] = v.values[1] / l;
+    nv.values[2] = v.values[2] / l;
+
+    return nv;
 }
 
 /* QUARANTINE
-float scalar(const float v[3], const float scalar)
-{
-    return (v[0] * scalar) + (v[1] * scalar) + (v[2] * scalar);
-}
-
 vec3_t add_vec3(float v1[3], float v2[3])
 {
     vec3_t result = {
@@ -142,20 +178,6 @@ mat4_t create_perspective_matrix(const float fov, const float near, const float 
     result.values[2][2] = (near - far) / (far - near);
     result.values[2][3] = 1.0f;
     result.values[3][2] = (2.0f * far * near) / (far - near);
-
-    return result;
-}
-
-// make the magnitude of a vec3 equal to 1
-vec3_t normalize_v3(const float v[3])
-{
-    vec3_t result = {0};
-
-    // TODO fast?
-    float l = sqrt((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]));
-    result.x = v[0] / l;
-    result.x = v[1] / l;
-    result.x = v[2] / l;
 
     return result;
 }
