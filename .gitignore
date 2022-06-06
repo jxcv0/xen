@@ -1,3 +1,2 @@
-# kv binary
-run
-*.exe
+# binaries
+bin/*
