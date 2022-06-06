@@ -10,7 +10,6 @@
 
 float radians(float x) { return x * 0.0174533; }
 
-// wrapper types for arrays of values
 typedef struct vec2_t
 {
     float values[2];
