@@ -75,6 +75,7 @@ vec4_t col_mat4(const mat4_t m, int n)
     return v;
 }
 
+// compare 2 floats
 bool fequal(float a, float b)
 {
     return fabs(a - b) < FLT_EPSILON; 
@@ -85,9 +86,9 @@ bool compare_vec3(const vec3_t v1, const vec3_t v2)
 {
     for (int i = 0; i < 3; i++)
     {
-        if (!fequal(v1.values[i], v2.values[i]));
+        if (!fequal(v1.values[i], v2.values[i]))
         {
-	    return false;
+            return false;
         }
     }
     return true;

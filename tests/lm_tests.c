@@ -73,7 +73,7 @@ void fequal_test()
         return;
     }
 
-    if (!fequal(0.1f, 0.1f))
+    if (!fequal(0.0001f, 0.0001f))
     {
         test_fail();
         return;
