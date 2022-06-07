@@ -116,7 +116,7 @@ bool compare_vec3(const vec3_t v1, const vec3_t v2)
     return true;
 }
 
-// compare 2 mat4_ts
+// compare 2 mat4s
 bool compare_mat4(const mat4_t m1, const mat4_t m2)
 {
     for(int i = 0; i < 4; i++)
@@ -153,8 +153,8 @@ vec3_t normalize_vec3(const vec3_t v)
 vec3_t add_vec3(const vec3_t v1, const vec3_t v2)
 {
     return construct_vec3((v1.values[0] + v2.values[0]),
-                       (v1.values[1] + v2.values[1]),
-                       (v1.values[2] + v2.values[2]));
+                          (v1.values[1] + v2.values[1]),
+                          (v1.values[2] + v2.values[2]));
 }
 
 // get the dot product of 2 vec3s
