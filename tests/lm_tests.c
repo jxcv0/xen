@@ -155,7 +155,7 @@ void dot_vec3_test()
     vec3_t v1 = construct_vec3(1.0f, -3.2f, 0.0f);
     vec3_t v2 = construct_vec3(5.4f, 3.2f, -5.0f);
 
-    if (dot_vec3(v1, v2) - (-4.840001f) > 0.00001) // ?
+    if (dot_vec3(v1, v2) - (-4.840001f) > 0.00001) // why does this work but not FLT_EPSILON??
     {
         test_fail();
     }
@@ -169,7 +169,7 @@ void dot_vec4_test()
     vec4_t v1 = construct_vec4(1.0f, -3.2f, 0.0f, 1.0f);
     vec4_t v2 = construct_vec4(5.4f, 3.2f, -5.0f, -0.5f);
 
-    if (dot_vec4(v1, v2) - (-5.34f) > 0.00001) // ?
+    if (dot_vec4(v1, v2) - (-5.34f) > 0.00001)
     {
         test_fail();
     }
@@ -193,6 +193,48 @@ void cross_vec3_test()
     test_pass();
 }
 
+void cross_mat4_test()
+{
+    test_start();
+
+    mat4_t m1;
+    mat4_t m2;
+
+    float x = 0.0f;
+    for(int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            m1.values[i][j] = x;
+            m2.values[i][j] = x;
+            x += 1.0f;
+        }
+    }
+
+    mat4_t e = {
+        .values = {
+            {56.0f,  62.0f,  68.0f,  74.0f},
+            {152.0f, 174.0f, 196.0f, 218.0f},
+            {248.0f, 286.0f, 324.0f, 362.0f},
+            {344.0f, 398.0f, 452.0f, 506.0f}
+        }
+    };
+
+    mat4_t a = cross_mat4(m1, m2);
+
+    printf("\n");
+    print_mat4(e);
+    print_mat4(a);
+
+    if (compare_mat4(e, a)) // grrrr
+    {
+        test_fail();
+        return;
+    }
+
+    test_pass();
+}
+
 int main(void)
 {
     row_mat4_test();
@@ -204,6 +246,7 @@ int main(void)
     dot_vec3_test();
     dot_vec4_test();
     cross_vec3_test();
+    cross_mat4_test();
 
     return 0;
 }

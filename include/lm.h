@@ -38,6 +38,12 @@ void print_vec3(const vec3_t v)
     printf("| %f, %f, %f |\n", v.values[0], v.values[1], v.values[2]);
 }
 
+// convenience printf function
+void print_vec4(const vec4_t v)
+{
+    printf("| %f, %f, %f, %f |\n", v.values[0], v.values[1], v.values[2], v.values[3]);
+}
+
 // construct a 3 dimensional vector
 vec3_t construct_vec3(float x, float y, float z)
 {
@@ -74,6 +80,16 @@ vec4_t row_mat4(const mat4_t m, int n)
     return v;
 }
 
+// convenience printf function
+void print_mat4(const mat4_t m)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        printf("| %.3f, %.3f, %.3f, %.3f |\n",
+            m.values[i][0], m.values[i][1], m.values[i][2], m.values[i][3]);
+    }
+}
+
 // get a column of a 4x4 matrix as a vec4
 vec4_t col_mat4(const mat4_t m, int n)
 {
@@ -87,7 +103,7 @@ bool fequal(float a, float b)
     return fabs(a - b) < FLT_EPSILON; 
 }
 
-// compare 2 3 dimensional vectors
+// compare 2 vec3s
 bool compare_vec3(const vec3_t v1, const vec3_t v2)
 {
     for (int i = 0; i < 3; i++)
@@ -95,6 +111,22 @@ bool compare_vec3(const vec3_t v1, const vec3_t v2)
         if (!fequal(v1.values[i], v2.values[i]))
         {
             return false;
+        }
+    }
+    return true;
+}
+
+// compare 2 mat4_ts
+bool compare_mat4(const mat4_t m1, const mat4_t m2)
+{
+    for(int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (!fequal(m1.values[i][j], m2.values[i][j]))
+            {
+                return false;
+            }
         }
     }
     return true;
@@ -154,34 +186,35 @@ vec3_t cross_vec3(const vec3_t v1, const vec3_t v2)
     return v;
 }
 
-/* QUARANTINE
-mat4_t cross_m4(const float m1[4][4], const float m2[4][4])
+// get the cross product of 2 mat4s
+mat4_t cross_mat4(const mat4_t m1, const mat4_t m2)
 {
-    mat4_t result = {0};
+    mat4_t m = {0};
 
-    result.values[0][0] = dot_v4(row(m1, 0).values, col(m2, 0).values);
-    result.values[0][1] = dot_v4(row(m1, 0).values, col(m2, 1).values);
-    result.values[0][2] = dot_v4(row(m1, 0).values, col(m2, 2).values);
-    result.values[0][3] = dot_v4(row(m1, 0).values, col(m2, 3).values);
+    m.values[0][0] = dot_vec4(row_mat4(m1, 0), col_mat4(m2, 0));
+    m.values[0][1] = dot_vec4(row_mat4(m1, 0), col_mat4(m2, 1));
+    m.values[0][2] = dot_vec4(row_mat4(m1, 0), col_mat4(m2, 2));
+    m.values[0][3] = dot_vec4(row_mat4(m1, 0), col_mat4(m2, 3));
 
-    result.values[1][0] = dot_v4(row(m1, 1).values, col(m2, 0).values);
-    result.values[1][1] = dot_v4(row(m1, 1).values, col(m2, 1).values);
-    result.values[1][2] = dot_v4(row(m1, 1).values, col(m2, 2).values);
-    result.values[1][3] = dot_v4(row(m1, 1).values, col(m2, 3).values);
+    m.values[1][0] = dot_vec4(row_mat4(m1, 1), col_mat4(m2, 0));
+    m.values[1][1] = dot_vec4(row_mat4(m1, 1), col_mat4(m2, 1));
+    m.values[1][2] = dot_vec4(row_mat4(m1, 1), col_mat4(m2, 2));
+    m.values[1][3] = dot_vec4(row_mat4(m1, 1), col_mat4(m2, 3));
 
-    result.values[2][0] = dot_v4(row(m1, 2).values, col(m2, 0).values);
-    result.values[2][1] = dot_v4(row(m1, 2).values, col(m2, 1).values);
-    result.values[2][2] = dot_v4(row(m1, 2).values, col(m2, 2).values);
-    result.values[2][3] = dot_v4(row(m1, 2).values, col(m2, 3).values);
+    m.values[2][0] = dot_vec4(row_mat4(m1, 2), col_mat4(m2, 0));
+    m.values[2][1] = dot_vec4(row_mat4(m1, 2), col_mat4(m2, 1));
+    m.values[2][2] = dot_vec4(row_mat4(m1, 2), col_mat4(m2, 2));
+    m.values[2][3] = dot_vec4(row_mat4(m1, 2), col_mat4(m2, 3));
 
-    result.values[3][0] = dot_v4(row(m1, 3).values, col(m2, 0).values);
-    result.values[3][1] = dot_v4(row(m1, 3).values, col(m2, 1).values);
-    result.values[3][2] = dot_v4(row(m1, 3).values, col(m2, 2).values);
-    result.values[3][3] = dot_v4(row(m1, 3).values, col(m2, 3).values);
+    m.values[3][0] = dot_vec4(row_mat4(m1, 3), col_mat4(m2, 0));
+    m.values[3][1] = dot_vec4(row_mat4(m1, 3), col_mat4(m2, 1));
+    m.values[3][2] = dot_vec4(row_mat4(m1, 3), col_mat4(m2, 2));
+    m.values[3][3] = dot_vec4(row_mat4(m1, 3), col_mat4(m2, 3));
 
-    return result;
+    return m;
 }
 
+/* QUARANTINE
 // create perspective projection matrix
 mat4_t create_perspective_matrix(const float fov, const float near, const float far, const float w, const float h)
 {
