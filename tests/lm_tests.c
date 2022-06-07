@@ -2,9 +2,18 @@
 #include <stdbool.h>
 #include <float.h>
 
-#define test_start() printf("TESTING | %s | ", __func__)
-#define test_pass() printf("SUCCESS\n")
-#define test_fail() printf("FAIL (line: %d)\n", __LINE__)
+#define test_start() printf("\033[0;34m"); \
+                     printf("TESTING"); \
+                     printf("\033[0m"); \
+                     printf(" %s ", __func__)
+
+#define test_pass() printf("\033[0;32m"); \
+                    printf("SUCCESS\n"); \
+                    printf("\033[0m")
+
+#define test_fail() printf("\033[0;31m"); \
+                    printf("FAILURE (line: %d)\n", __LINE__); \
+                    printf("\033[0m")
 
 void row_mat4_test()
 {
