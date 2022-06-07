@@ -32,6 +32,12 @@ typedef struct mat4_t
     float values[4][4];
 } mat4_t;
 
+// convenience printf function
+void print_vec3(const vec3_t v)
+{
+    printf("| %f, %f, %f |\n", v.values[0], v.values[1], v.values[2]);
+}
+
 // construct a 3 dimensional vector
 vec3_t construct_vec3(float x, float y, float z)
 {
@@ -119,16 +125,20 @@ vec3_t add_vec3(const vec3_t v1, const vec3_t v2)
                        (v1.values[2] + v2.values[2]));
 }
 
-/* QUARANTINE
-float dot_v3(const float v1[3], const float v2[3])
+// get the dot product of 2 vec3s
+float dot_vec3(const vec3_t v1, const vec3_t v2)
 {
-    return (v1[0] * v2[0]) + (v1[1] * v2[1]) + (v1[2] * v2[2]);
+    return (v1.values[0] * v2.values[0])
+         + (v1.values[1] * v2.values[1])
+         + (v1.values[2] * v2.values[2]);
 }
 
 float dot_v4(const float v1[4], const float v2[4])
 {
     return (v1[0] * v2[0]) + (v1[1] * v2[1]) + (v1[2] * v2[2]) + (v1[3] * v2[3]);
 }
+
+/* QUARANTINE
 
 vec3_t cross_v3(const float v1[3], const float v2[0])
 {

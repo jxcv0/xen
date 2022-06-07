@@ -115,20 +115,19 @@ void normalize_vec3_test()
 {
     test_start();
 
-    vec3_t v = construct_vec3(5.0f, 5.6f, 8.32f);
-    vec3_t e = construct_vec3(0.446175f, 0.499716f, 0.742436f);
+    vec3_t v = construct_vec3(1.0f, 1.0f, 1.0f);
+    vec3_t e = construct_vec3(0.5773502691896258f,
+    						  0.5773502691896258f,
+    						  0.5773502691896258f);
     vec3_t a = normalize_vec3(v);
 
-    // printf("\n%f, %f, %f\n", a.values[0], a.values[1], a.values[2]);
-    // printf("%f, %f, %f\n", e.values[0], e.values[1], e.values[2]);
-
-    if (compare_vec3(e, a))
+    if (!compare_vec3(e, a))
     {
-        test_pass();
+        test_fail();
         return;
     }
 
-    test_fail();
+    test_pass();
 }
 
 void add_vec3_test()
@@ -149,17 +148,29 @@ void add_vec3_test()
     test_fail();
 }
 
+void dot_vec3_test()
+{
+    test_start();
+
+    vec3_t v1 = construct_vec3(1.0f, -3.2f, 0.0f);
+    vec3_t v2 = construct_vec3(5.4f, 3.2f, -5.0f);
+
+    if (dot_vec3(v1, v2) - (-4.840001f) > 0.00001) // ?
+    {
+        test_fail();
+    }
+    test_pass();
+}
+
 int main(void)
 {
     row_mat4_test();
     col_mat4_test();
     fequal_test();
     compare_vec3_test();
-
-    // this does not work because of floating point comparison
-    // normalize_vec3_test(); 
-    
+    normalize_vec3_test();
     add_vec3_test();
+    dot_vec3_test();
 
     return 0;
 }
