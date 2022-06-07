@@ -162,6 +162,20 @@ void dot_vec3_test()
     test_pass();
 }
 
+void dot_vec4_test()
+{
+    test_start();
+
+    vec4_t v1 = construct_vec4(1.0f, -3.2f, 0.0f, 1.0f);
+    vec4_t v2 = construct_vec4(5.4f, 3.2f, -5.0f, -0.5f);
+
+    if (dot_vec4(v1, v2) - (-5.34f) > 0.00001) // ?
+    {
+        test_fail();
+    }
+    test_pass();
+}
+
 int main(void)
 {
     row_mat4_test();
@@ -171,6 +185,7 @@ int main(void)
     normalize_vec3_test();
     add_vec3_test();
     dot_vec3_test();
+    dot_vec4_test();
 
     return 0;
 }

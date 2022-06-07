@@ -133,9 +133,13 @@ float dot_vec3(const vec3_t v1, const vec3_t v2)
          + (v1.values[2] * v2.values[2]);
 }
 
-float dot_v4(const float v1[4], const float v2[4])
+// get the dot product of 2 vec4s
+float dot_vec4(const vec4_t v1, const vec4_t v2)
 {
-    return (v1[0] * v2[0]) + (v1[1] * v2[1]) + (v1[2] * v2[2]) + (v1[3] * v2[3]);
+    return (v1.values[0] * v2.values[0])
+         + (v1.values[1] * v2.values[1])
+         + (v1.values[2] * v2.values[2])
+         + (v1.values[3] * v2.values[3]);
 }
 
 /* QUARANTINE
