@@ -222,14 +222,13 @@ void cross_mat4_test()
 
     mat4_t a = cross_mat4(m1, m2);
 
-    // printf("\n");
-    // print_mat4(e);
-    // print_mat4(a);
+    printf("\nVISUAL TEST:\n");
+    print_mat4(e);
+    print_mat4(a);
 
     if (compare_mat4(e, a)) // grrrr
     {
-        test_pass(); // passes printf check for now
-        // test_fail();
+        test_fail();
         return;
     }
 

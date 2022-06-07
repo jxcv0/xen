@@ -98,9 +98,14 @@ vec4_t col_mat4(const mat4_t m, int n)
 }
 
 // compare 2 floats
-bool fequal(float a, float b)
+bool fequal(const float a, const float b)
 {
     return fabs(a - b) < FLT_EPSILON; 
+    // if (fabs(a - b) <= 1.0e-5f)
+    // {
+        // return true;
+    // }
+    // return fabs(a - b) <= 1.0e-5f * fmax(fabs(a), fabs(b));
 }
 
 // compare 2 vec3s
