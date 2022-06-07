@@ -142,19 +142,19 @@ float dot_vec4(const vec4_t v1, const vec4_t v2)
          + (v1.values[3] * v2.values[3]);
 }
 
-/* QUARANTINE
-
-vec3_t cross_v3(const float v1[3], const float v2[0])
+// get the cross product of 2 vec3s
+vec3_t cross_vec3(const vec3_t v1, const vec3_t v2)
 {
-    vec3_t result = {0};
+    vec3_t v = {0};
 
-    result.x = (v1[1] * v2[2]) - (v1[2] * v2[1]);
-    result.x = (v1[2] * v2[0]) - (v1[0] * v2[2]);
-    result.x = (v1[0] * v2[1]) - (v1[1] * v2[2]);
+    v.values[0] = (v1.values[1] * v2.values[2]) - (v1.values[2] * v2.values[1]);
+    v.values[1] = (v1.values[2] * v2.values[0]) - (v1.values[0] * v2.values[2]);
+    v.values[2] = (v1.values[0] * v2.values[1]) - (v1.values[1] * v2.values[0]);
 
-    return result;
+    return v;
 }
 
+/* QUARANTINE
 mat4_t cross_m4(const float m1[4][4], const float m2[4][4])
 {
     mat4_t result = {0};

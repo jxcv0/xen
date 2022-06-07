@@ -176,6 +176,23 @@ void dot_vec4_test()
     test_pass();
 }
 
+void cross_vec3_test()
+{
+    test_start();
+
+    vec3_t v1 = construct_vec3(1.0f, 2.0f, 3.0f);
+    vec3_t v2 = construct_vec3(1.0f, 5.0f, 7.0f);
+    vec3_t e = construct_vec3(-1.0f, -4.0f, 3.0f);
+    vec3_t a = cross_vec3(v1, v2);
+
+    if (compare_vec3(e, a) == false)
+    {
+        test_fail();
+        return;
+    }
+    test_pass();
+}
+
 int main(void)
 {
     row_mat4_test();
@@ -186,6 +203,7 @@ int main(void)
     add_vec3_test();
     dot_vec3_test();
     dot_vec4_test();
+    cross_vec3_test();
 
     return 0;
 }
