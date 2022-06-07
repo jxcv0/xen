@@ -97,15 +97,11 @@ vec4_t col_mat4(const mat4_t m, int n)
     return v;
 }
 
-// compare 2 floats
+// compare 2 floats TODO why does this not work sometimes
 bool fequal(const float a, const float b)
 {
-    return fabs(a - b) < FLT_EPSILON; 
-    // if (fabs(a - b) <= 1.0e-5f)
-    // {
-        // return true;
-    // }
-    // return fabs(a - b) <= 1.0e-5f * fmax(fabs(a), fabs(b));
+    if (fabs(a - b) > FLT_EPSILON) { return false; }
+    else { return true; }
 }
 
 // compare 2 vec3s
