@@ -1,5 +1,6 @@
 #include "lm.h"
 #include <stdbool.h>
+#include <float.h>
 
 #define test_start() printf("TESTING | %s | ", __func__)
 #define test_pass() printf("SUCCESS\n")
@@ -66,13 +67,19 @@ void fequal_test()
 {
     test_start();
 
-    if (!fequal(0.1f, 0.11f, 0.01f))
+    if (fequal(0.1f, 0.11f))
     {
         test_fail();
         return;
     }
 
-    if (fequal(0.1f, 0.11f, 0.009f))
+    if (!fequal(0.1f, 0.1f))
+    {
+        test_fail();
+        return;
+    }
+
+    if (!fequal(1.0f, 1.0f))
     {
         test_fail();
         return;
@@ -87,15 +94,15 @@ void compare_vec3_test()
 
     vec3_t vec3 = construct_vec3(1.0f, 3.2f, 0.0f);
     vec3_t same = construct_vec3(1.0f, 3.2f, 0.0f);
-    vec3_t diff = construct_vec3(1.1f, 3.2f, 0.0f);
+    vec3_t diff = construct_vec3(2.32f, 4.44f, 0.0f);
 
-    if (!compare_vec3(vec3, same, 1.0f))
+    if (compare_vec3(vec3, same) == false)
     {
         test_fail();
         return;
     }
 
-    if (compare_vec3(vec3, diff, 1.0f))
+    if(compare_vec3(vec3, diff) == true)
     {
         test_fail();
         return;
@@ -115,7 +122,7 @@ void normalize_vec3_test()
     // printf("\n%f, %f, %f\n", a.values[0], a.values[1], a.values[2]);
     // printf("%f, %f, %f\n", e.values[0], e.values[1], e.values[2]);
 
-    if (compare_vec3(e, a, 0.0000001f))
+    if (compare_vec3(e, a))
     {
         test_pass();
         return;
@@ -133,7 +140,7 @@ void add_vec3_test()
     vec3_t e = construct_vec3(6.4f, 0.0f, -5.0f);
     vec3_t a = add_vec3(v1, v2);
 
-    if (compare_vec3(e, a, 0.1f))
+    if (compare_vec3(e, a))
     {
         test_pass();
         return;

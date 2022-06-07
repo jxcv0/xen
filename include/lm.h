@@ -2,6 +2,7 @@
 #define VEC_H
 
 #include <math.h>
+#include <float.h>
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -74,19 +75,19 @@ vec4_t col_mat4(const mat4_t m, int n)
     return v;
 }
 
-bool fequal(float a, float b, float epsilon)
+bool fequal(float a, float b)
 {
-    return fabs(a - b) < epsilon; 
+    return fabs(a - b) < FLT_EPSILON; 
 }
 
-// compare 2 vec3s - do not use anywhere other than tests
-bool compare_vec3(const vec3_t v1, const vec3_t v2, float e)
+// compare 2 3 dimensional vectors
+bool compare_vec3(const vec3_t v1, const vec3_t v2)
 {
     for (int i = 0; i < 3; i++)
     {
-        if (!fequal(v1.values[i], v2.values[i], e));
+        if (!fequal(v1.values[i], v2.values[i]));
         {
-            return false;
+	    return false;
         }
     }
     return true;
