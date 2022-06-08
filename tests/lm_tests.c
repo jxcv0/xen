@@ -416,6 +416,43 @@ void rotate_test()
     test_pass();
 }
 
+void look_at_test()
+{
+    test_start();
+
+    vec3_t eye = construct_vec3(3.0f, 3.0f, 3.0f);
+    vec3_t dir = construct_vec3(1.0f, 0.0f, 1.0f);
+    vec3_t up = construct_vec3(0.0f, 1.0f, 0.0f);
+
+    mat4_t e = {
+	.values = {
+	    {-0.707107f, 0.0f, -0.707107f, 0.0f},
+	    {0.0f, 1.0f, -0.0f, 0.0f},
+	    {0.707107f, -0.0f -0.707107f, 0.0f},
+	    {-0.0f, -3.0f, 4.24264f, 1.0f}
+	}
+    };
+    mat4_t a = look_at(eye, add_vec3(eye, dir), up);
+
+    for(int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (fabs(a.values[i][j] - e.values[i][j]) > 0.002)
+            {
+		printf("\nExpected:\n");
+		print_mat4(e);
+		printf("Actual:\n");
+		print_mat4(a);
+                test_fail();
+                return;
+            }
+        }
+    }
+
+    test_pass();
+}
+
 int main(void)
 {
     row_mat4_test();
@@ -433,6 +470,7 @@ int main(void)
     perspective_test();
     translate_test();
     rotate_test();
+    look_at_test();
 
     return 0;
 }

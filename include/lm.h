@@ -311,42 +311,39 @@ mat4_t rotate(const mat4_t m, const vec3_t axis, const float a)
     return rm;
 }
 
-/*
 // create view matrix
-mat4_t create_view_matrix(const float pos[3], const float eye[3], const float up[3])
+mat4_t look_at(const vec3_t eye, const vec3_t ctr, const vec3_t up)
 {
     vec3_t diff = {
-        .values = {pos[0] - eye[0], pos[1] - eye[1], pos[2] - eye[2]}
+        .values = {
+	    ctr.values[0] - eye.values[0],
+	    ctr.values[1] - eye.values[1],
+	    ctr.values[2] - eye.values[2],
+	}
     };
 
-    vec3_t f = normalize_v3(diff.values);
-    vec3_t s = normalize_v3(cross_v3(up, eye).values);
-    vec3_t u = cross_v3(f.values, s.values);
+    vec3_t f = normalize_vec3(diff);
+    vec3_t s = normalize_vec3(cross_vec3(f, up));
+    vec3_t u = cross_vec3(s, f);
     
-    mat4_t result;
-    result.values[0][0] = s.x;
-    result.values[1][0] = s.y;
-    result.values[2][0] = s.z;
-    result.values[3][0] = 1.0f;
+    mat4_t m = construct_mat4(1.0f);
+    m.values[0][0] = s.values[0];
+    m.values[1][0] = s.values[1];
+    m.values[2][0] = s.values[2];
 
-    result.values[0][1] = u.x;
-    result.values[1][1] = u.y;
-    result.values[2][1] = u.z;
-    result.values[3][1] = 1.0f;
+    m.values[0][1] = u.values[0];
+    m.values[1][1] = u.values[1];
+    m.values[2][1] = u.values[2];
 
-    result.values[0][2] = f.x;
-    result.values[1][2] = f.y;
-    result.values[2][2] = f.z;
-    result.values[3][2] = 1.0f;
+    m.values[0][2] = -f.values[0];
+    m.values[1][2] = -f.values[1];
+    m.values[2][2] = -f.values[2];
 
-    result.values[3][0] = -1 * dot_v3(s.values, eye);
-    result.values[3][1] = -1 * dot_v3(u.values, eye);
-    result.values[3][2] = -1 * dot_v3(s.values, eye);
-    result.values[3][3] = 1.0f;
+    m.values[3][0] = -dot_vec3(s, eye);
+    m.values[3][1] = -dot_vec3(u, eye);
+    m.values[3][2] = dot_vec3(f, eye);
 
-    return result;
+    return m;
 }
-
-*/ 
 
 #endif // VEC_H
