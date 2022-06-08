@@ -1,6 +1,7 @@
 #include "lm.h"
 #include <stdbool.h>
 #include <float.h>
+#include <assert.h>
 
 #ifdef _WIN32
 #define test_start() printf("TESTING %s ", __func__)
@@ -103,6 +104,56 @@ void fequal_test()
         return;
     }
 
+    test_pass();
+}
+
+void scalar_vec3_test()
+{
+    test_start();
+
+    vec3_t v = {
+	.values = {1.0f, 2.0f, 3.0f}
+    };
+
+    vec3_t e = {
+	.values = {0.1f, 0.2f, 0.3f}
+    };
+
+    vec3_t a = scalar_vec3(v, 0.1f);
+
+    for (int i = 0; i < 3; i++)
+    {
+	if (fabs(a.values[i] - e.values[i] > FLT_EPSILON))
+	{
+	    test_fail();
+	    return;
+	}
+    }
+    test_pass();
+}
+
+void scalar_vec4_test()
+{
+    test_start();
+
+    vec4_t v = {
+	.values = {1.0f, 2.0f, 3.0f, 4.0f}
+    };
+
+    vec4_t e = {
+	.values = {0.1f, 0.2f, 0.3f, 0.4f}
+    };
+
+    vec4_t a = scalar_vec4(v, 0.1f);
+
+    for (int i = 0; i < 4; i++)
+    {
+	if (fabs(a.values[i] - e.values[i] > FLT_EPSILON))
+	{
+	    test_fail();
+	    return;
+	}
+    }
     test_pass();
 }
 
@@ -330,11 +381,48 @@ void translate_test()
     test_pass();
 }
 
+void rotate_test()
+{
+    test_start();
+    mat4_t m = construct_mat4(1.0f);
+    assert(m.values[3][3] == 1.0f);
+    vec3_t axis = { .values = {0.0f, 1.0f, 0.0f} };
+    mat4_t e = {
+        .values = {
+	    {0.866025f, 0.0f, -0.5f, 0.0f},
+	    {0.0f, 1.0f, 0.0f, 0.0f},
+	    {0.5f, 0.0f, 0.866025f, 0.0f},
+	    {0.0f, 0.0f, 0.0f, 1.0f}
+	}
+    };
+    mat4_t a = rotate(m, axis, 30.0f);
+
+    for(int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (fabs(a.values[i][j] - e.values[i][j]) > 0.002)
+            {
+		printf("\nExpected:\n");
+		print_mat4(e);
+		printf("Actual:\n");
+		print_mat4(a);
+                test_fail();
+                return;
+            }
+        }
+    }
+
+    test_pass();
+}
+
 int main(void)
 {
     row_mat4_test();
     col_mat4_test();
     fequal_test();
+    scalar_vec3_test();
+    scalar_vec4_test();
     compare_vec3_test();
     normalize_vec3_test();
     add_vec3_test();
@@ -344,6 +432,7 @@ int main(void)
     cross_mat4_test();
     perspective_test();
     translate_test();
+    rotate_test();
 
     return 0;
 }

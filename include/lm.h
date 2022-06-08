@@ -161,6 +161,15 @@ vec3_t add_vec3(const vec3_t v1, const vec3_t v2)
                           (v1.values[2] + v2.values[2]));
 }
 
+// get the sum of 2 vec4s
+vec4_t add_vec4(const vec4_t v1, const vec4_t v2)
+{
+    return construct_vec4((v1.values[0] + v2.values[0]),
+                          (v1.values[1] + v2.values[1]),
+                          (v1.values[2] + v2.values[2]),
+                          (v1.values[3] + v2.values[3]));
+}
+
 // get the dot product of 2 vec3s
 float dot_vec3(const vec3_t v1, const vec3_t v2)
 {
@@ -176,6 +185,33 @@ float dot_vec4(const vec4_t v1, const vec4_t v2)
          + (v1.values[1] * v2.values[1])
          + (v1.values[2] * v2.values[2])
          + (v1.values[3] * v2.values[3]);
+}
+
+// multiply a vec3 by a scalar
+vec3_t scalar_vec3(const vec3_t v, float s)
+{
+    vec3_t sv = {
+        .values ={
+	    v.values[0] * s,
+	    v.values[1] * s,
+	    v.values[2] * s
+	}
+    };
+    return sv;
+}
+
+// multiply a vec4 by a scalar
+vec4_t scalar_vec4(const vec4_t v, float s)
+{
+    vec4_t sv = {
+        .values ={
+	    v.values[0] * s,
+	    v.values[1] * s,
+	    v.values[2] * s,
+	    v.values[3] * s
+	}
+    };
+    return sv;
 }
 
 // get the cross product of 2 vec3s
@@ -234,7 +270,7 @@ mat4_t perspective(const float fov, const float near, const float far, const flo
     return m;
 }
 
-// create a transformation matrix ftom a vec3
+// create a transformation matrix from a vec3
 mat4_t translate(const mat4_t m, const vec3_t v)
 {
     mat4_t tm = construct_mat4(1.0f);
@@ -244,32 +280,38 @@ mat4_t translate(const mat4_t m, const vec3_t v)
     return tm;
 }
 
-/*
-mat4_t rotate_m4(const float m[4][4], const float axis[3], const float a)
+// create a transformation matrix from a vec3
+mat4_t rotate(const mat4_t m, const vec3_t axis, const float a)
 {
     float rad = radians(a);
     float c = cos(rad);
     float s = sin(rad);
-    float t = scalar(axis, (1 - c));
-
-    vec3_t temp = { .values = {t, t, t} };
+    float t = 1.0f - c;
+    vec3_t temp = scalar_vec3(axis, t);
 
     mat4_t q = {0};
-    q.values[0][0] = c + temp.x * axis[0];
-    q.values[0][1] = 0 + temp.x * axis[1] + s * axis[2];
-    q.values[0][2] = 0 + temp.x * axis[2] - s * axis[0];
+    q.values[0][0] = c + temp.values[0] * axis.values[0];
+    q.values[0][1] = 0 + temp.values[0] * axis.values[1] + s * axis.values[2];
+    q.values[0][2] = 0 + temp.values[0] * axis.values[2] - s * axis.values[1];
 
-    q.values[1][0] = 0 + temp.y * axis[0] - s * axis[2];
-    q.values[1][1] = c + temp.y * axis[1];
-    q.values[1][2] = 0 + temp.y * axis[2] + s * axis[0];
+    q.values[1][0] = 0 + temp.values[1] * axis.values[0] - s * axis.values[2];
+    q.values[1][1] = c + temp.values[1] * axis.values[1];
+    q.values[1][2] = 0 + temp.values[1] * axis.values[2] + s * axis.values[0];
 
-    q.values[2][0] = 0 + temp.z * axis[0] + s * axis[1];
-    q.values[2][1] = 0 + temp.z * axis[1] - s * axis[0];
-    q.values[2][2] = c + temp.z * axis[2];
+    q.values[2][0] = 0 + temp.values[2] * axis.values[0] + s * axis.values[1];
+    q.values[2][1] = 0 + temp.values[2] * axis.values[1] - s * axis.values[0];
+    q.values[2][2] = c + temp.values[2] * axis.values[2];
 
-    return cross_m4(m, q.values);
+    mat4_t rm = cross_mat4(m, q);
+    rm.values[3][0] = m.values[3][0];
+    rm.values[3][1] = m.values[3][1];
+    rm.values[3][2] = m.values[3][2];
+    rm.values[3][3] = m.values[3][3];
+
+    return rm;
 }
 
+/*
 // create view matrix
 mat4_t create_view_matrix(const float pos[3], const float eye[3], const float up[3])
 {
