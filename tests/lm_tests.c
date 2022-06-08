@@ -492,18 +492,18 @@ void look_at_test()
     test_start();
 
     vec3_t eye = construct_vec3(3.0f, 3.0f, 3.0f);
-    vec3_t dir = construct_vec3(1.0f, 0.0f, 1.0f);
+    vec3_t ctr = construct_vec3(1.0f, 0.0f, 1.0f);
     vec3_t up = construct_vec3(0.0f, 1.0f, 0.0f);
 
     mat4_t e = {
         .values = {
             {-0.707107f, 0.0f, -0.707107f, 0.0f},
             {0.0f, 1.0f, -0.0f, 0.0f},
-            {0.707107f, -0.0f -0.707107f, 0.0f},
+            {0.707107f, -0.0f, -0.707107f, 0.0f},
             {-0.0f, -3.0f, 4.24264f, 1.0f}
         }
     };
-    mat4_t a = look_at(eye, add_vec3(eye, dir), up);
+    mat4_t a = look_at(eye, add_vec3(eye, ctr), up);
 
     for(int i = 0; i < 4; i++)
     {
