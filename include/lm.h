@@ -234,28 +234,17 @@ mat4_t perspective(const float fov, const float near, const float far, const flo
     return m;
 }
 
-/* QUARANTINE
-mat4_t create_identity_matrix()
+// create a transformation matrix ftom a vec3
+mat4_t translate(const mat4_t m, const vec3_t v)
 {
-    mat4_t result;
-
-    result.values[0][0] = 1.0f;
-    result.values[1][1] = 1.0f;
-    result.values[2][2] = 1.0f;
-    result.values[3][3] = 1.0f;
-
-    return result;
+    mat4_t tm = construct_mat4(1.0f);
+    tm.values[3][0] = v.values[0];
+    tm.values[3][1] = v.values[1];
+    tm.values[3][2] = v.values[2];
+    return tm;
 }
 
-mat4_t create_translation_matrix(const float v[3])
-{
-    mat4_t result = create_identity_matrix();
-    result.values[3][0] = v[0];
-    result.values[3][1] = v[1];
-    result.values[3][2] = v[2];
-    return result;
-}
-
+/*
 mat4_t rotate_m4(const float m[4][4], const float axis[3], const float a)
 {
     float rad = radians(a);

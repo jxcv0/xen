@@ -295,6 +295,41 @@ void perspective_test()
     test_pass();
 }
 
+void translate_test()
+{
+    test_start();
+
+    mat4_t m = construct_mat4(1.0f);
+    vec3_t v = construct_vec3(1.1f, 1.2f, 1.3f);
+    mat4_t e = {
+	.values = {
+	    {1.0f, 0.0f, 0.0f, 0.0f},
+	    {0.0f, 1.0f, 0.0f, 0.0f},
+	    {0.0f, 0.0f, 1.0f, 0.0f},
+	    {1.1f, 1.2f, 1.3f, 1.0f},
+	}
+    };
+    mat4_t a = translate(m, v);
+
+    for(int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (fabs(a.values[i][j] - e.values[i][j]) > FLT_EPSILON)
+            {
+		printf("\nExpected:\n");
+		print_mat4(e);
+		printf("Actual:\n");
+		print_mat4(a);
+                test_fail();
+                return;
+            }
+        }
+    }
+
+    test_pass();
+}
+
 int main(void)
 {
     row_mat4_test();
@@ -308,6 +343,7 @@ int main(void)
     cross_vec3_test();
     cross_mat4_test();
     perspective_test();
+    translate_test();
 
     return 0;
 }
