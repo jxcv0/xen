@@ -39,9 +39,9 @@ float prev_y = 0;
 
 void xen_dbg()
 {
-    printf("camera pos: %f, %f, %f\n", camera_pos.x, camera_pos.y, camera_pos.z);
-    printf("camera dir: %f, %f, %f\n", camera_dir.x, camera_dir.y, camera_dir.z);
-    printf("camera up: %f, %f, %f\n", camera_up.x, camera_up.y, camera_up.z);
+    printf("camera pos: %f, %f, %f\n", camera_pos.values[0], camera_pos.values[1], camera_pos.values[2]);
+    printf("camera dir: %f, %f, %f\n", camera_dir.values[0], camera_dir.values[1], camera_dir.values[2]);
+    printf("camera up: %f, %f, %f\n", camera_up.values[0], camera_up.values[1], camera_up.values[2]);
     printf("\n");
 }
 
@@ -403,24 +403,24 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
 
     for(int i = 0; i < ai_mesh->mNumVertices; i++)
     {
-        mesh->positions[i].x = ai_mesh->mVertices[i].x;
-        mesh->positions[i].y = ai_mesh->mVertices[i].y;
-        mesh->positions[i].z = ai_mesh->mVertices[i].z;
+        mesh->positions[i].values[0] = ai_mesh->mVertices[i].x;
+        mesh->positions[i].values[1] = ai_mesh->mVertices[i].y;
+        mesh->positions[i].values[2] = ai_mesh->mVertices[i].z;
 
-        mesh->normals[i].x = ai_mesh->mNormals[i].x;
-        mesh->normals[i].y = ai_mesh->mNormals[i].y;
-        mesh->normals[i].z = ai_mesh->mNormals[i].z;
+        mesh->normals[i].values[0] = ai_mesh->mNormals[i].x;
+        mesh->normals[i].values[1] = ai_mesh->mNormals[i].y;
+        mesh->normals[i].values[2] = ai_mesh->mNormals[i].z;
 
-        mesh->tex_coords[i].x = ai_mesh->mTextureCoords[0][i].x; 
-        mesh->tex_coords[i].y = ai_mesh->mTextureCoords[0][i].y;
+        mesh->tex_coords[i].values[0] = ai_mesh->mTextureCoords[0][i].x; 
+        mesh->tex_coords[i].values[1] = ai_mesh->mTextureCoords[0][i].y;
 
-        mesh->tangents[i].x = ai_mesh->mTangents[i].x;
-        mesh->tangents[i].y = ai_mesh->mTangents[i].y;
-        mesh->tangents[i].z = ai_mesh->mTangents[i].z;
+        mesh->tangents[i].values[0] = ai_mesh->mTangents[i].x;
+        mesh->tangents[i].values[1] = ai_mesh->mTangents[i].y;
+        mesh->tangents[i].values[2] = ai_mesh->mTangents[i].z;
 
-        mesh->bitangents[i].x = ai_mesh->mBitangents[i].x;
-        mesh->bitangents[i].y = ai_mesh->mBitangents[i].y;
-        mesh->bitangents[i].z = ai_mesh->mBitangents[i].z;
+        mesh->bitangents[i].values[0] = ai_mesh->mBitangents[i].x;
+        mesh->bitangents[i].values[1] = ai_mesh->mBitangents[i].y;
+        mesh->bitangents[i].values[2] = ai_mesh->mBitangents[i].z;
     }
 
     int n = 0;
@@ -555,24 +555,23 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     float new_y = sin(radians(rot_a));
     float new_z = sin(radians(rot_b)) * cos(radians(rot_a));
 
-    camera_dir.x = new_x;
-    camera_dir.y = new_y;
-    camera_dir.z = new_z;
-
-    xen_dbg();
+    camera_dir = construct_vec3(new_x, new_y, new_z);
+    // xen_dbg();
 }
 
 // generate a view matrix from the camera
 mat4_t camera_view_matrix(void)
 {
-    return create_view_matrix(camera_pos.values, add_vec3(camera_pos.values, camera_dir.values).values, camera_up.values);
+    return look_at(camera_pos, add_vec3(camera_pos, camera_dir), camera_up);
 }
 
+// window resize callback
 void on_resize(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 
+// initialize window and opengl
 void window_init(float w, float h, const char* window_name)
 {
     glfwInit();
