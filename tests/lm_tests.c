@@ -161,17 +161,40 @@ void compare_vec3_test()
 {
     test_start();
 
-    vec3_t vec3 = construct_vec3(1.0f, 3.2f, 0.0f);
+    vec3_t v = construct_vec3(1.0f, 3.2f, 0.0f);
     vec3_t same = construct_vec3(1.0f, 3.2f, 0.0f);
     vec3_t diff = construct_vec3(2.32f, 4.44f, 0.0f);
 
-    if (compare_vec3(vec3, same) == false)
+    if (compare_vec3(v, same) == false)
     {
         test_fail();
         return;
     }
 
-    if(compare_vec3(vec3, diff) == true)
+    if(compare_vec3(v, diff) == true)
+    {
+        test_fail();
+        return;
+    }
+
+    test_pass();
+}
+
+void compare_vec4_test()
+{
+    test_start();
+
+    vec4_t v = construct_vec4(1.0f, 3.2f, 0.0f, 1.0f);
+    vec4_t same = construct_vec4(1.0f, 3.2f, 0.0f, 1.0f);
+    vec4_t diff = construct_vec4(2.32f, 4.44f, 0.0f, 1.01f);
+
+    if (compare_vec4(v, same) == false)
+    {
+        test_fail();
+        return;
+    }
+
+    if(compare_vec4(v, diff) == true)
     {
         test_fail();
         return;
@@ -209,6 +232,60 @@ void add_vec3_test()
     vec3_t a = add_vec3(v1, v2);
 
     if (compare_vec3(e, a))
+    {
+        test_pass();
+        return;
+    }
+
+    test_fail();
+}
+
+void add_vec4_test()
+{
+    test_start();
+
+    vec4_t v1 = construct_vec4(1.0f, -3.2f, 0.0f, 10.0f);
+    vec4_t v2 = construct_vec4(5.4f, 3.2f, -5.0f, -4.0f);
+    vec4_t e = construct_vec4(6.4f, 0.0f, -5.0f, 6.0f);
+    vec4_t a = add_vec4(v1, v2);
+
+    if (compare_vec4(e, a))
+    {
+        test_pass();
+        return;
+    }
+
+    test_fail();
+}
+
+void subtract_vec3_test()
+{
+    test_start();
+
+    vec3_t v1 = construct_vec3(1.0f, -3.2f, 0.0f);
+    vec3_t v2 = construct_vec3(5.4f, 3.2f, -5.0f);
+    vec3_t e = construct_vec3(4.4f, -6.4f, 5.0f);
+    vec3_t a = subtract_vec3(v1, v2);
+
+    if (compare_vec3(e, a))
+    {
+        test_pass();
+        return;
+    }
+
+    test_fail();
+}
+
+void subtract_vec4_test()
+{
+    test_start();
+
+    vec4_t v1 = construct_vec4(1.0f, -3.2f, 0.0f, 10.0f);
+    vec4_t v2 = construct_vec4(5.4f, 3.2f, -5.0f, -4.0f);
+    vec4_t e = construct_vec4(4.4f, -6.4f, 5.0f, 14.0f);
+    vec4_t a = subtract_vec4(v1, v2);
+
+    if (compare_vec4(e, a))
     {
         test_pass();
         return;
@@ -301,12 +378,6 @@ void cross_mat4_test()
             }
         }
     }
-    
-    // if (compare_mat4(a, e))
-    // {
-        // test_fail();
-        // return;
-    // }
 
     test_pass();
 }
@@ -318,25 +389,25 @@ void perspective_test()
     mat4_t a = perspective(45.0f, 0.1f, 100.0f, (800.0f/600.0f));
 
     mat4_t e = {
-	.values = {
-	    {1.81066f, 0.0f, 0.0f, 0.0f},
-	    {0.0f, 2.41421f, 0.0f, 0.0f},
-	    {0.0f, 0.0f, -1.002f, -1.0f},
-	    {0.0f, 0.0f, -0.200f, 0.0f}
-	}
+        .values = {
+            {1.81066f, 0.0f, 0.0f, 0.0f},
+            {0.0f, 2.41421f, 0.0f, 0.0f},
+            {0.0f, 0.0f, -1.002f, -1.0f},
+            {0.0f, 0.0f, -0.200f, 0.0f}
+        }
     };
 
     for(int i = 0; i < 4; i++)
     {
         for (int j = 0; j < 4; j++)
         {
-	    // FIXME more rounding errors
+            // FIXME more rounding errors
             if (fabs(a.values[i][j] - e.values[i][j]) > 0.001f)
             {
-		printf("\nExpected:\n");
-		print_mat4(e);
-		printf("Actual:\n");
-		print_mat4(a);
+                printf("\nExpected:\n");
+                print_mat4(e);
+                printf("Actual:\n");
+                print_mat4(a);
                 test_fail();
                 return;
             }
@@ -353,12 +424,12 @@ void translate_test()
     mat4_t m = construct_mat4(1.0f);
     vec3_t v = construct_vec3(1.1f, 1.2f, 1.3f);
     mat4_t e = {
-	.values = {
-	    {1.0f, 0.0f, 0.0f, 0.0f},
-	    {0.0f, 1.0f, 0.0f, 0.0f},
-	    {0.0f, 0.0f, 1.0f, 0.0f},
-	    {1.1f, 1.2f, 1.3f, 1.0f},
-	}
+        .values = {
+            {1.0f, 0.0f, 0.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f, 0.0f},
+            {0.0f, 0.0f, 1.0f, 0.0f},
+            {1.1f, 1.2f, 1.3f, 1.0f},
+	    }
     };
     mat4_t a = translate(m, v);
 
@@ -368,10 +439,10 @@ void translate_test()
         {
             if (fabs(a.values[i][j] - e.values[i][j]) > FLT_EPSILON)
             {
-		printf("\nExpected:\n");
-		print_mat4(e);
-		printf("Actual:\n");
-		print_mat4(a);
+                printf("\nExpected:\n");
+                print_mat4(e);
+                printf("Actual:\n");
+                print_mat4(a);
                 test_fail();
                 return;
             }
@@ -389,11 +460,11 @@ void rotate_test()
     vec3_t axis = { .values = {0.0f, 1.0f, 0.0f} };
     mat4_t e = {
         .values = {
-	    {0.866025f, 0.0f, -0.5f, 0.0f},
-	    {0.0f, 1.0f, 0.0f, 0.0f},
-	    {0.5f, 0.0f, 0.866025f, 0.0f},
-	    {0.0f, 0.0f, 0.0f, 1.0f}
-	}
+            {0.866025f, 0.0f, -0.5f, 0.0f},
+            {0.0f, 1.0f, 0.0f, 0.0f},
+            {0.5f, 0.0f, 0.866025f, 0.0f},
+            {0.0f, 0.0f, 0.0f, 1.0f}
+	    }
     };
     mat4_t a = rotate(m, axis, 30.0f);
 
@@ -403,10 +474,10 @@ void rotate_test()
         {
             if (fabs(a.values[i][j] - e.values[i][j]) > 0.002)
             {
-		printf("\nExpected:\n");
-		print_mat4(e);
-		printf("Actual:\n");
-		print_mat4(a);
+                printf("\nExpected:\n");
+                print_mat4(e);
+                printf("Actual:\n");
+                print_mat4(a);
                 test_fail();
                 return;
             }
@@ -425,12 +496,12 @@ void look_at_test()
     vec3_t up = construct_vec3(0.0f, 1.0f, 0.0f);
 
     mat4_t e = {
-	.values = {
-	    {-0.707107f, 0.0f, -0.707107f, 0.0f},
-	    {0.0f, 1.0f, -0.0f, 0.0f},
-	    {0.707107f, -0.0f -0.707107f, 0.0f},
-	    {-0.0f, -3.0f, 4.24264f, 1.0f}
-	}
+        .values = {
+            {-0.707107f, 0.0f, -0.707107f, 0.0f},
+            {0.0f, 1.0f, -0.0f, 0.0f},
+            {0.707107f, -0.0f -0.707107f, 0.0f},
+            {-0.0f, -3.0f, 4.24264f, 1.0f}
+        }
     };
     mat4_t a = look_at(eye, add_vec3(eye, dir), up);
 
@@ -440,10 +511,10 @@ void look_at_test()
         {
             if (fabs(a.values[i][j] - e.values[i][j]) > 0.002)
             {
-		printf("\nExpected:\n");
-		print_mat4(e);
-		printf("Actual:\n");
-		print_mat4(a);
+                printf("\nExpected:\n");
+                print_mat4(e);
+                printf("Actual:\n");
+                print_mat4(a);
                 test_fail();
                 return;
             }
@@ -461,8 +532,10 @@ int main(void)
     scalar_vec3_test();
     scalar_vec4_test();
     compare_vec3_test();
+    compare_vec4_test();
     normalize_vec3_test();
     add_vec3_test();
+    add_vec4_test();
     dot_vec3_test();
     dot_vec4_test();
     cross_vec3_test();

@@ -120,6 +120,19 @@ bool compare_vec3(const vec3_t v1, const vec3_t v2)
     return true;
 }
 
+// compare 2 vec4s
+bool compare_vec4(const vec4_t v1, const vec4_t v2)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        if (!fequal(v1.values[i], v2.values[i]))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 // compare 2 mat4s
 bool compare_mat4(const mat4_t m1, const mat4_t m2)
 {
@@ -168,6 +181,23 @@ vec4_t add_vec4(const vec4_t v1, const vec4_t v2)
                           (v1.values[1] + v2.values[1]),
                           (v1.values[2] + v2.values[2]),
                           (v1.values[3] + v2.values[3]));
+}
+
+// get the difference of 2 vec3s
+vec3_t subtract_vec3(const vec3_t v1, const vec3_t v2)
+{
+    return construct_vec3((v1.values[0] - v2.values[0]),
+                          (v1.values[1] - v2.values[1]),
+                          (v1.values[2] - v2.values[2]));
+}
+
+// get the difference of 2 vec4s
+vec4_t subtract_vec4(const vec4_t v1, const vec4_t v2)
+{
+    return construct_vec4((v1.values[0] - v2.values[0]),
+                          (v1.values[1] - v2.values[1]),
+                          (v1.values[2] - v2.values[2]),
+                          (v1.values[3] - v2.values[3]));
 }
 
 // get the dot product of 2 vec3s
@@ -316,10 +346,10 @@ mat4_t look_at(const vec3_t eye, const vec3_t ctr, const vec3_t up)
 {
     vec3_t diff = {
         .values = {
-	    ctr.values[0] - eye.values[0],
-	    ctr.values[1] - eye.values[1],
-	    ctr.values[2] - eye.values[2],
-	}
+            ctr.values[0] - eye.values[0],
+            ctr.values[1] - eye.values[1],
+            ctr.values[2] - eye.values[2],
+	    }
     };
 
     vec3_t f = normalize_vec3(diff);
