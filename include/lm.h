@@ -10,7 +10,10 @@
 // rewrite all this 
 // make tests
 
-float radians(float x) { return x * 0.0174533; }
+float radians(float x)
+{
+    return x * (M_PI / 180.0f);
+}
 
 typedef struct vec2_t
 {
@@ -215,23 +218,23 @@ mat4_t cross_mat4(const mat4_t m1, const mat4_t m2)
     return m;
 }
 
-/* QUARANTINE
 // create perspective projection matrix
-mat4_t create_perspective_matrix(const float fov, const float near, const float far, const float w, const float h)
+mat4_t perspective(const float fov, const float near, const float far, const float ratio)
 {
-    mat4_t result = {0};
+    mat4_t m = {0};
     
-    // TODO radians?
+    float tanhalffov = tan(radians(fov) / 2.0f);
 
-    result.values[0][0] = cos(0.5 * fov) / sin(0.5 * fov);
-    result.values[1][1] = result.values[0][0] * h / w;
-    result.values[2][2] = (near - far) / (far - near);
-    result.values[2][3] = 1.0f;
-    result.values[3][2] = (2.0f * far * near) / (far - near);
+    m.values[0][0] = 1.0f / (ratio * tanhalffov);
+    m.values[1][1] = 1.0f  / tanhalffov;
+    m.values[2][2] = (far + near) / (near - far);
+    m.values[2][3] = -1.0f;
+    m.values[3][2] = -(2.0f * far * near) / (far - near);
 
-    return result;
+    return m;
 }
 
+/* QUARANTINE
 mat4_t create_identity_matrix()
 {
     mat4_t result;

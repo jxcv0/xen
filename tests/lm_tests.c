@@ -135,8 +135,8 @@ void normalize_vec3_test()
 
     vec3_t v = construct_vec3(1.0f, 1.0f, 1.0f);
     vec3_t e = construct_vec3(0.5773502691896258f,
-    						  0.5773502691896258f,
-    						  0.5773502691896258f);
+                              0.5773502691896258f,
+                              0.5773502691896258f);
     vec3_t a = normalize_vec3(v);
 
     if (!compare_vec3(e, a))
@@ -243,7 +243,7 @@ void cross_mat4_test()
     {
         for (int j = 0; j < 4; j++)
         {
-            if (fabs(a.values[i][j] - a.values[i][j]) > FLT_EPSILON) // there is no god
+            if (fabs(a.values[i][j] - e.values[i][j]) > FLT_EPSILON)
             {
                 test_fail();
                 return;
@@ -251,11 +251,46 @@ void cross_mat4_test()
         }
     }
     
-    // if (compare_mat4(a, e)) // WHHHYYYYYYYYYY
+    // if (compare_mat4(a, e))
     // {
         // test_fail();
         // return;
     // }
+
+    test_pass();
+}
+
+void perspective_test()
+{
+    test_start();
+
+    mat4_t a = perspective(45.0f, 0.1f, 100.0f, (800.0f/600.0f));
+
+    mat4_t e = {
+	.values = {
+	    {1.81066f, 0.0f, 0.0f, 0.0f},
+	    {0.0f, 2.41421f, 0.0f, 0.0f},
+	    {0.0f, 0.0f, -1.002f, -1.0f},
+	    {0.0f, 0.0f, -0.200f, 0.0f}
+	}
+    };
+
+    for(int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+	    // FIXME more rounding errors
+            if (fabs(a.values[i][j] - e.values[i][j]) > 0.001f)
+            {
+		printf("\nExpected:\n");
+		print_mat4(e);
+		printf("Actual:\n");
+		print_mat4(a);
+                test_fail();
+                return;
+            }
+        }
+    }
 
     test_pass();
 }
@@ -272,6 +307,7 @@ int main(void)
     dot_vec4_test();
     cross_vec3_test();
     cross_mat4_test();
+    perspective_test();
 
     return 0;
 }
