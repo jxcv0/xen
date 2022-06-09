@@ -4,6 +4,8 @@
 #define SCREEN_W 800
 #define SCREEN_H 600
 
+#include <stdio.h>
+
 int main()
 {
     window_init(SCREEN_W, SCREEN_H, "KV");
