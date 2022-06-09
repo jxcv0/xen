@@ -61,5 +61,6 @@ void main()
 	normal = normalize(TBN * normal);
 
 	vec3 result = calc_light(light, normal, view_dir);
-	frag_col = vec4(result, 1.0);
+	// frag_col = vec4(result, 1.0);
+	frag_col = vec4(1.0, 1.0, 1.0, 1.0);
 }

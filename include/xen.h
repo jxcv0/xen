@@ -242,21 +242,21 @@ void shader_set_uniformf(unsigned int shader, const char* uniform_name, const fl
 }
 
 // set shader uniform utility function
-void shader_set_uniform2fv(unsigned int shader, const char* uniform_name, const float v[2])
+void shader_set_uniform2fv(unsigned int shader, const char* uniform_name, const vec2_t v)
 {
-    glUniform2fv(glGetUniformLocation(shader, uniform_name), 1, &v[0]);
+    glUniform2fv(glGetUniformLocation(shader, uniform_name), 1, &v.values[0]);
 }
 
 // set shader uniform utility function
-void shader_set_uniform3fv(unsigned int shader, const char* uniform_name, const float v[3])
+void shader_set_uniform3fv(unsigned int shader, const char* uniform_name, const vec3_t v)
 {
-    glUniform3fv(glGetUniformLocation(shader, uniform_name), 1, &v[0]);
+    glUniform3fv(glGetUniformLocation(shader, uniform_name), 1, &v.values[0]);
 }
 
 // set shader uniform utility function
-void shader_set_uniform4fm(unsigned int shader, const char* uniform_name, const float m[4][4])
+void shader_set_uniform4fm(unsigned int shader, const char* uniform_name, const mat4_t m)
 {
-    glUniformMatrix4fv(glGetUniformLocation(shader, uniform_name), 1, GL_FALSE, &m[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(shader, uniform_name), 1, GL_FALSE, &m.values[0][0]);
 }
 
 typedef struct light_t
@@ -550,13 +550,13 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     if (rot_a > 50.0f) { rot_a = 50.0f; }
     if (rot_a < -50.0f) { rot_a = -50.0f; }
 
-    // TODO offset radius for 3rd person
-    float new_x = cos(radians(rot_b)) * cos(radians(rot_a));
-    float new_y = sin(radians(rot_a));
-    float new_z = sin(radians(rot_b)) * cos(radians(rot_a));
+    float rads_a = radians(rot_a);
+    float rads_b = radians(rot_b);
 
-    camera_dir = construct_vec3(new_x, new_y, new_z);
-    // xen_dbg();
+    // TODO offset radius for 3rd person
+    camera_dir = construct_vec3(cos(rads_b) * cos(rads_a),
+		    		sin(rads_a),
+				sin(rads_b) * cos(rads_a));
 }
 
 // generate a view matrix from the camera
@@ -632,7 +632,7 @@ void handle_input()
     }
 }
 
-bool should_close()
+bool window_should_close()
 {
     return glfwWindowShouldClose(window);
 }
