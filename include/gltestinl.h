@@ -112,7 +112,6 @@ int main()
     data = stbi_load("assets/textures/awesomeface.png", &width, &height, &nrChannels, 0);
     if (data)
     {
-        // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
@@ -122,14 +121,10 @@ int main()
     }
     stbi_image_free(data);
 
-    // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
-    // -------------------------------------------------------------------------------------------
     shader_use(shader); 
-    shader_set_uniformi(shader, "texture1", 0);
-    shader_set_uniformi(shader, "texture2", 1); // ??
+    shader_set_uniform(shader, "texture1", 0);
+    shader_set_uniform(shader, "texture2", 1); // ??
 
-    // render loop
-    // -----------
     while (!glfwWindowShouldClose(glfw_window))
     {
         // input
@@ -148,34 +143,27 @@ int main()
         glBindTexture(GL_TEXTURE_2D, texture2);
 
         // create transformations
-	mat4_t transform = construct_mat4(1.0f);
-        vec3_t transformation = construct_vec3(0.0f, -0.0f, 0.0f);
-	vec3_t up = construct_vec3(0.0f, 0.0f, 1.0f); 
+        mat4_t transform = construct_mat4(1.0f);
+        vec3_t transformation = construct_vec3(0.0f, 0.0f, 0.0f);
+        vec3_t up = construct_vec3(0.0f, 0.0f, 1.0f); 
         transform = translate(transform, transformation);
-        transform = rotate(transform, up, (float)glfwGetTime());
+        transform = rotate(transform, up, (float)glfwGetTime() * 10.0f);
 
         // get matrix's uniform location and set matrix
-        unsigned int transformLoc = glGetUniformLocation(shader, "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &transform.values[0][0]);
+        shader_set_uniform(shader, "transform", transform);
 
         // render container
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
         glfwSwapBuffers(glfw_window);
         glfwPollEvents();
     }
 
-    // optional: de-allocate all resources once they've outlived their purpose:
-    // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
 
-    // glfw: terminate, clearing all previously allocated GLFW resources.
-    // ------------------------------------------------------------------
     glfwTerminate();
     return 0;
 }
@@ -186,11 +174,7 @@ void processInput(GLFWwindow *window)
         glfwSetWindowShouldClose(window, true);
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
-    // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }

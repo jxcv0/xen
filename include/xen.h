@@ -229,32 +229,41 @@ void shader_use(unsigned int shader)
     glUseProgram(shader);
 }
 
+// lazy overloads
+#define shader_set_uniform(x, y, z) _Generic((z), \
+    int: shader_set_uniform_int, \
+    float: shader_set_uniform_float, \
+    vec2_t: shader_set_uniform_vec2, \
+    vec3_t: shader_set_uniform_vec3, \
+    mat4_t: shader_set_uniform_mat4 \
+    )(x, y, z)
+
 // set shader uniform utility function
-void shader_set_uniformi(unsigned int shader, const char* uniform_name, const int i)
+void shader_set_uniform_int(unsigned int shader, const char* uniform_name, const int i)
 {
     glUniform1i(glGetUniformLocation(shader, uniform_name), i);
 }
 
 // set shader uniform utility function
-void shader_set_uniformf(unsigned int shader, const char* uniform_name, const float f)
+void shader_set_uniform_float(unsigned int shader, const char* uniform_name, const float f)
 {
     glUniform1f(glGetUniformLocation(shader, uniform_name), f);
 }
 
 // set shader uniform utility function
-void shader_set_uniform2fv(unsigned int shader, const char* uniform_name, const vec2_t v)
+void shader_set_uniform_vec2(unsigned int shader, const char* uniform_name, const vec2_t v)
 {
     glUniform2fv(glGetUniformLocation(shader, uniform_name), 1, &v.values[0]);
 }
 
 // set shader uniform utility function
-void shader_set_uniform3fv(unsigned int shader, const char* uniform_name, const vec3_t v)
+void shader_set_uniform_vec3(unsigned int shader, const char* uniform_name, const vec3_t v)
 {
     glUniform3fv(glGetUniformLocation(shader, uniform_name), 1, &v.values[0]);
 }
 
 // set shader uniform utility function
-void shader_set_uniform4fm(unsigned int shader, const char* uniform_name, const mat4_t m)
+void shader_set_uniform_mat4(unsigned int shader, const char* uniform_name, const mat4_t m)
 {
     glUniformMatrix4fv(glGetUniformLocation(shader, uniform_name), 1, GL_FALSE, &m.values[0][0]);
 }
@@ -504,17 +513,17 @@ void draw_mesh(mesh_t* mesh, unsigned int shader)
 {
     // diff
     glActiveTexture(GL_TEXTURE1);
-    shader_set_uniformi(shader, "tex_diff", 0);
+    shader_set_uniform(shader, "tex_diff", 0);
     glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[0]);
 
     // spec
     glActiveTexture(GL_TEXTURE2);
-    shader_set_uniformi(shader, "tex_spec", 1);
+    shader_set_uniform(shader, "tex_spec", 1);
     glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[1]);
 
     // norm
     glActiveTexture(GL_TEXTURE3);
-    shader_set_uniformi(shader, "tex_norm", 2);
+    shader_set_uniform(shader, "tex_norm", 2);
     glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[2]);
 
     glBindVertexArray(mesh->VAO);

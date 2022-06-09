@@ -6,6 +6,9 @@
 
 #include <stdio.h>
 
+#include "gltestinl.h"
+
+/*
 int main()
 {
     window_init(SCREEN_W, SCREEN_H, "KV");
@@ -60,3 +63,4 @@ int main()
 
     return 0;
 }
+*/
