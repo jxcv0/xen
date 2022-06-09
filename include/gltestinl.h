@@ -84,7 +84,7 @@ int main()
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
 
-    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+    stbi_set_flip_vertically_on_load(true);
 
     unsigned char *data = stbi_load("assets/textures/container.jpeg", &width, &height, &nrChannels, 0);
     if (data)
@@ -117,7 +117,7 @@ int main()
     }
     else
     {
-	printf("Failed to load texture (%d)\n", __LINE__);
+        printf("Failed to load texture (%d)\n", __LINE__);
     }
     stbi_image_free(data);
 
@@ -128,11 +128,9 @@ int main()
     while (!glfwWindowShouldClose(glfw_window))
     {
         // input
-        // -----
         processInput(glfw_window);
 
         // render
-        // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 

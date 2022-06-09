@@ -312,7 +312,7 @@ unsigned int load_texture(const char* dir, const char* tex_name)
     strcpy(filepath, dir);
     strcat(filepath, tex_name);
 
-    unsigned int tex_id = 0;
+    unsigned int tex_id;
     glGenTextures(1, &tex_id);
 
     int w, h, n;
@@ -504,11 +504,13 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
     return 0;
 }
 
+// free mesh memory
 void free_mesh(mesh_t* mesh)
 {
     free(mesh->mem_block);
 }
 
+// draw a mesh
 void draw_mesh(mesh_t* mesh, unsigned int shader)
 {
     // diff
@@ -564,8 +566,11 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
 
     // TODO offset radius for 3rd person
     camera_dir = construct_vec3(cos(rads_b) * cos(rads_a),
-		    		sin(rads_a),
-				sin(rads_b) * cos(rads_a));
+                                sin(rads_a),
+                                sin(rads_b) * cos(rads_a));
+#ifdef XEN_DEBUG
+    print_vec3(camera_dir);
+#endif
 }
 
 // generate a view matrix from the camera
@@ -573,7 +578,6 @@ mat4_t camera_view_matrix(void)
 {
     return look_at(camera_pos, add_vec3(camera_pos, camera_dir), camera_up);
 }
-
 // window resize callback
 void on_resize(GLFWwindow* window, int width, int height)
 {
@@ -628,11 +632,7 @@ void window_init(float w, float h, const char* window_name)
 #endif
 }
 
-void close_window()
-{
-    glfwTerminate();
-}
-
+// get input from glfw window
 void handle_input()
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -641,17 +641,11 @@ void handle_input()
     }
 }
 
-bool window_should_close()
-{
-    return glfwWindowShouldClose(window);
-}
-
+// glfw function wrappers
 void swap_buffers() { glfwSwapBuffers(window); }
 void poll_events() { glfwPollEvents(); }
-
-void clear_buffers()
-{
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
+void clear_buffers() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+void close_window() { glfwTerminate(); }
+bool window_should_close() { return glfwWindowShouldClose(window); }
 
 #endif // XEN_H
