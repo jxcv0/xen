@@ -3,8 +3,6 @@
 
 #define XEN_DEBUG
 
-#include "lm.h"
-
 #include "glad.h"
 #include <GLFW/glfw3.h>
 
@@ -21,6 +19,8 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+#include "lm.h"
 
 // window
 static GLFWwindow* window;
@@ -315,6 +315,8 @@ unsigned int load_texture(const char* dir, const char* tex_name)
     unsigned int tex_id = 0;
     glGenTextures(1, &tex_id); // segfault
 
+    // printf("TEX ID: %d", tex_id);
+
     int w, h, n;
     unsigned char* data = stbi_load(filepath, &w, &h, &n, 0);
 
@@ -371,9 +373,9 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
         return 1;
     }
 
-    struct aiMesh* ai_mesh = scene->mMeshes[0];
-    mesh->n_vertices = ai_mesh->mNumVertices;
-    mesh->n_indices = ai_mesh->mNumFaces * 3;    // all faces are triangulated
+    struct aiMesh* ai_mesh = scene->mMeshes[0]; // only ever one mesh
+    mesh->n_vertices = ai_mesh->mNumVertices;   
+    mesh->n_indices = ai_mesh->mNumFaces * 3;   // all faces are triangulated
 
     // allocate block of memory for mesh
     size_t positions_size = sizeof(vec3_t) * mesh->n_vertices;
@@ -396,19 +398,29 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
     mesh->positions = (vec3_t*)mesh->mem_block;
 
     mesh->normals = (vec3_t*)(mesh->mem_block
-            + positions_size);
+                            + positions_size);
 
     mesh->tex_coords = (vec2_t*)(mesh->mem_block
-            + positions_size + normals_size);
+                               + positions_size
+                               + normals_size);
 
     mesh->tangents = (vec3_t*)(mesh->mem_block
-            + positions_size + normals_size + tex_coords_size);
+                             + positions_size
+                             + normals_size
+                             + tex_coords_size);
 
     mesh->bitangents = (vec3_t*)(mesh->mem_block
-            + positions_size + normals_size + tex_coords_size + tangents_size);
+                               + positions_size
+                               + normals_size
+                               + tex_coords_size
+                               + tangents_size);
 
     mesh->indices = (int*)(mesh->mem_block
-            + positions_size + normals_size + tex_coords_size + tangents_size + bitangents_size);
+                         + positions_size
+                         + normals_size
+                         + tex_coords_size
+                         + tangents_size
+                         + bitangents_size);
 
     for(int i = 0; i < ai_mesh->mNumVertices; i++)
     {
@@ -459,11 +471,17 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
     strcpy(norm, name);
     strcat(norm, "_norm.png");
 
-    if (scene->mMaterials[ai_mesh->mMaterialIndex]->mNumTextures > 0)
+    if (scene->mNumTextures > 0)
     {
         mesh->tex_ids[0] = load_texture(dir, diff);
         mesh->tex_ids[1] = load_texture(dir, spec);
         mesh->tex_ids[2] = load_texture(dir, norm);
+    }
+    else
+    {
+        mesh->tex_ids[0] = 0;
+        mesh->tex_ids[1] = 0;
+        mesh->tex_ids[2] = 0;
     }
 
     // gl buffers
@@ -571,9 +589,6 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     camera_dir = construct_vec3(cos(rads_b) * cos(rads_a),
                                 sin(rads_a),
                                 sin(rads_b) * cos(rads_a));
-#ifdef XEN_DEBUG
-    print_vec3(camera_dir);
-#endif
 }
 
 // generate a view matrix from the camera
@@ -581,6 +596,7 @@ mat4_t camera_view_matrix(void)
 {
     return look_at(camera_pos, add_vec3(camera_pos, camera_dir), camera_up);
 }
+
 // window resize callback
 void on_resize(GLFWwindow* window, int width, int height)
 {

@@ -4,4 +4,3 @@ gcc tests\model_tests.c src\glad.c -I include\ -o bin\model_tests -ggdb lib\glfw
 
 .\bin\lm_tests.exe
 .\bin\model_tests.exe
-

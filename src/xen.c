@@ -24,7 +24,8 @@ int main()
     mesh_t mesh;
     load_mesh_obj(&mesh, "assets/models/cyborg/", "cyborg");
 
-    // model matrix vec3_t v = construct_vec3(0.0f, 0.0f, 0.0f);
+    // model matrix
+    vec3_t v = construct_vec3(0.0f, 0.0f, 0.0f);
     vec3_t up = construct_vec3(0.0f, 1.0f, 0.0f);
     mat4_t m_mat = construct_mat4(1.0f);
     m_mat = translate(m_mat, v);
@@ -42,11 +43,16 @@ int main()
 
     while(!window_should_close())
     {
+        checkerr();
         clear_buffers();
+        checkerr();
 
         handle_input();
+        checkerr();
         swap_buffers();
+        checkerr();
         poll_events();
+        checkerr();
 
         draw_mesh(&mesh, shader);
         checkerr();

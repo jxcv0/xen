@@ -1,6 +1,7 @@
 #ifndef TESTING_H
 #define TESTING_H
 
+#include <stdio.h>
 #include <stdbool.h>
 #include <float.h>
 #include <assert.h>
