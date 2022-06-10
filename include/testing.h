@@ -25,6 +25,7 @@
 #define test_fail() printf("\033[0;31m"); \
                     printf("FAILURE (line: %d)\n", __LINE__); \
                     printf("\033[0m")
+
 #endif
 
 #endif // TESTING_H

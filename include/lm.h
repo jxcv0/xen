@@ -1,5 +1,5 @@
-#ifndef VEC_H
-#define VEC_H
+#ifndef LM_H
+#define LM_H
 
 #include <math.h>
 #include <float.h>
@@ -368,4 +368,4 @@ mat4_t look_at(const vec3_t eye, const vec3_t ctr, const vec3_t up)
     return m;
 }
 
-#endif // VEC_H
+#endif // LM_H

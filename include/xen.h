@@ -168,7 +168,7 @@ unsigned int shader_load(const char* vert_path, const char* frag_path)
     }
     else
     {
-        fprintf(stderr, "unable to open vertex shader file | %s", vert_path);
+        fprintf(stderr, "Unable to open vertex shader file | %s", vert_path);
         return -1;
     }
 
@@ -312,8 +312,8 @@ unsigned int load_texture(const char* dir, const char* tex_name)
     strcpy(filepath, dir);
     strcat(filepath, tex_name);
 
-    unsigned int tex_id;
-    glGenTextures(1, &tex_id);
+    unsigned int tex_id = 0;
+    glGenTextures(1, &tex_id); // segfault
 
     int w, h, n;
     unsigned char* data = stbi_load(filepath, &w, &h, &n, 0);
