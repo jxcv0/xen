@@ -556,7 +556,6 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
 
     if (first_mouse)
     {
-        printf("fm: true\n");
         prev_x = mouse_x;
         prev_y = mouse_y;
         first_mouse = false;
