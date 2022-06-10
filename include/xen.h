@@ -459,9 +459,12 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
     strcpy(norm, name);
     strcat(norm, "_norm.png");
 
-    mesh->tex_ids[0] = load_texture(dir, diff);
-    mesh->tex_ids[1] = load_texture(dir, spec);
-    mesh->tex_ids[2] = load_texture(dir, norm);
+    if (scene->mMaterials[ai_mesh->mMaterialIndex]->mNumTextures > 0)
+    {
+        mesh->tex_ids[0] = load_texture(dir, diff);
+        mesh->tex_ids[1] = load_texture(dir, spec);
+        mesh->tex_ids[2] = load_texture(dir, norm);
+    }
 
     // gl buffers
     glGenVertexArrays(1, &mesh->VAO);
