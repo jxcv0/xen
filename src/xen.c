@@ -8,8 +8,10 @@
 
 int main()
 {
+    // window
     window_init(SCREEN_W, SCREEN_H, "KV");
 
+    // shader
     unsigned int shader = shader_load("assets/shaders/ubershader.vert", "assets/shaders/ubershader.frag");
     shader_use(shader);
 
@@ -21,6 +23,7 @@ int main()
     mat4_t v_mat = camera_view_matrix();
     shader_set_uniform(shader, "view", v_mat);
 
+    // mesh
     mesh_t mesh;
     load_mesh_obj(&mesh, "assets/models/cyborg/", "cyborg");
 
@@ -32,6 +35,7 @@ int main()
     m_mat = rotate(m_mat, up, 0.0f);
     shader_set_uniform(shader, "model", m_mat);
 
+    // light
     light_t light = create_default_light();
     shader_set_uniform(shader, "light.color", light.color);
     shader_set_uniform(shader, "light.position", light.position);
@@ -43,23 +47,17 @@ int main()
 
     while(!window_should_close())
     {
-        checkerr();
         clear_buffers();
-        checkerr();
 
         handle_input();
-        checkerr();
         swap_buffers();
-        checkerr();
         poll_events();
-        checkerr();
 
         draw_mesh(&mesh, shader);
         checkerr();
     }
 
     free_mesh(&mesh);
-
     close_window();
 
     return 0;

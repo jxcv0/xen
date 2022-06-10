@@ -12,7 +12,7 @@
 
 float radians(float x)
 {
-    return x * (M_PI / 180.0f);
+    return x * 0.0174533;
 }
 
 typedef struct vec2_t
