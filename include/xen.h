@@ -581,6 +581,7 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     camera_dir = normalize_vec3(construct_vec3(cos(rads_b) * cos(rads_a),
                                 sin(rads_a),
                                 sin(rads_b) * cos(rads_a)));
+
 }
 
 // generate a view matrix from the camera

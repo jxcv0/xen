@@ -19,10 +19,6 @@ int main()
     mat4_t p_mat = perspective(180.0f, 0.1f, 100.0f, ((float)SCREEN_H/(float)SCREEN_H));
     shader_set_uniform(shader, "perspective", p_mat);
     
-    // view matrix
-    mat4_t v_mat = camera_view_matrix();
-    shader_set_uniform(shader, "view", v_mat);
-
     // mesh
     mesh_t mesh;
     load_mesh_obj(&mesh, "assets/models/cyborg/", "cyborg");
@@ -48,8 +44,20 @@ int main()
     while(!window_should_close())
     {
         clear_buffers();
-
         handle_input();
+
+        // view matrix
+        mat4_t v_mat = camera_view_matrix();
+        shader_set_uniform(shader, "view", v_mat);
+
+        // print_mat4(v_mat);
+
+        // model matrix
+        mat4_t m_mat = construct_mat4(1.0f);
+        m_mat = translate(m_mat, v);
+        m_mat = rotate(m_mat, up, 0.0f);
+        shader_set_uniform(shader, "model", m_mat);
+
         swap_buffers();
         poll_events();
 
