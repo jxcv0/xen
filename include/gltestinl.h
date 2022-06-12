@@ -34,7 +34,7 @@ int main()
 
     // build and compile our shader zprogram
     unsigned int shader = shader_load("assets/shaders/transform.vs",
-		                      "assets/shaders/transform.fs");
+		                              "assets/shaders/transform.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     float vertices[] = {

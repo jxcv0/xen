@@ -305,9 +305,7 @@ unsigned int load_texture(const char* dir, const char* tex_name)
     strcat(filepath, tex_name);
 
     unsigned int tex_id = 0;
-    glGenTextures(1, &tex_id); // segfault
-
-    // printf("TEX ID: %d", tex_id);
+    glGenTextures(1, &tex_id);
 
     int w, h, n;
     unsigned char* data = stbi_load(filepath, &w, &h, &n, 0);
@@ -327,7 +325,7 @@ unsigned int load_texture(const char* dir, const char* tex_name)
 
         glBindTexture(GL_TEXTURE_2D, tex_id);
         glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, GL_UNSIGNED_BYTE, data);
-        // glGenerateMipMap(GL_TEXTURE_2D);
+        glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -492,24 +490,24 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->n_indices * sizeof(unsigned int), &mesh->indices[0], GL_STATIC_DRAW);
 
     // positions
-    glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->positions);
+    glEnableVertexAttribArray(0);
     
     // normals
-    glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)mesh->normals);
+    glEnableVertexAttribArray(1);
 
     // tex_coords
-    glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->tex_coords);
+    glEnableVertexAttribArray(2);
 
     // tangent
-    glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->tangents);
+    glEnableVertexAttribArray(3);
 
     // bitangent
-    glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->bitangents);
+    glEnableVertexAttribArray(4);
 
     // unbind
     glBindVertexArray(0);
@@ -581,7 +579,6 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     camera_dir = normalize_vec3(construct_vec3(cos(rads_b) * cos(rads_a),
                                 sin(rads_a),
                                 sin(rads_b) * cos(rads_a)));
-
 }
 
 // generate a view matrix from the camera
