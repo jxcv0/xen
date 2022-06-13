@@ -3,6 +3,8 @@
 
 #define XEN_DEBUG
 
+#include "lm.h"
+
 #include "glad.h"
 #include <GLFW/glfw3.h>
 
@@ -20,8 +22,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#include "lm.h"
-
 // window
 static GLFWwindow* window;
 static float window_w;
@@ -32,10 +32,18 @@ static vec3_t camera_pos = { .values = {0.0f, 3.0f, 3.0f} };
 static vec3_t camera_dir = { .values = {0.0f, 0.0f, -1.0f} };
 static vec3_t camera_up = { .values = {0.0f, 1.0f, 0.0f} };
 static bool first_mouse = true;
-static float rot_a = 0.0f;  // rotation about x axis
-static float rot_b = 90.0f; // rotation about y axis
-static float prev_x = 0;
-static float prev_y = 0;
+float rot_a = 0.0f;  // rotation about x axis
+float rot_b = 90.0f; // rotation about y axis
+float prev_x = 0;
+float prev_y = 0;
+
+void xen_dbg()
+{
+    printf("camera pos: %f, %f, %f\n", camera_pos.values[0], camera_pos.values[1], camera_pos.values[2]);
+    printf("camera dir: %f, %f, %f\n", camera_dir.values[0], camera_dir.values[1], camera_dir.values[2]);
+    printf("camera up: %f, %f, %f\n", camera_up.values[0], camera_up.values[1], camera_up.values[2]);
+    printf("\n");
+}
 
 GLenum checkerror_(const char *file, int line)
 {
@@ -160,7 +168,7 @@ unsigned int shader_load(const char* vert_path, const char* frag_path)
     }
     else
     {
-        fprintf(stderr, "Unable to open vertex shader file | %s", vert_path);
+        fprintf(stderr, "unable to open vertex shader file | %s", vert_path);
         return -1;
     }
 
@@ -304,7 +312,7 @@ unsigned int load_texture(const char* dir, const char* tex_name)
     strcpy(filepath, dir);
     strcat(filepath, tex_name);
 
-    unsigned int tex_id = 0;
+    unsigned int tex_id;
     glGenTextures(1, &tex_id);
 
     int w, h, n;
@@ -325,7 +333,7 @@ unsigned int load_texture(const char* dir, const char* tex_name)
 
         glBindTexture(GL_TEXTURE_2D, tex_id);
         glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        // glGenerateMipMap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -363,9 +371,9 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
         return 1;
     }
 
-    struct aiMesh* ai_mesh = scene->mMeshes[0]; // only ever one mesh
-    mesh->n_vertices = ai_mesh->mNumVertices;   
-    mesh->n_indices = ai_mesh->mNumFaces * 3;   // all faces are triangulated
+    struct aiMesh* ai_mesh = scene->mMeshes[0];
+    mesh->n_vertices = ai_mesh->mNumVertices;
+    mesh->n_indices = ai_mesh->mNumFaces * 3;    // all faces are triangulated
 
     // allocate block of memory for mesh
     size_t positions_size = sizeof(vec3_t) * mesh->n_vertices;
@@ -388,29 +396,19 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
     mesh->positions = (vec3_t*)mesh->mem_block;
 
     mesh->normals = (vec3_t*)(mesh->mem_block
-                            + positions_size);
+            + positions_size);
 
     mesh->tex_coords = (vec2_t*)(mesh->mem_block
-                               + positions_size
-                               + normals_size);
+            + positions_size + normals_size);
 
     mesh->tangents = (vec3_t*)(mesh->mem_block
-                             + positions_size
-                             + normals_size
-                             + tex_coords_size);
+            + positions_size + normals_size + tex_coords_size);
 
     mesh->bitangents = (vec3_t*)(mesh->mem_block
-                               + positions_size
-                               + normals_size
-                               + tex_coords_size
-                               + tangents_size);
+            + positions_size + normals_size + tex_coords_size + tangents_size);
 
     mesh->indices = (int*)(mesh->mem_block
-                         + positions_size
-                         + normals_size
-                         + tex_coords_size
-                         + tangents_size
-                         + bitangents_size);
+            + positions_size + normals_size + tex_coords_size + tangents_size + bitangents_size);
 
     for(int i = 0; i < ai_mesh->mNumVertices; i++)
     {
@@ -461,18 +459,9 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
     strcpy(norm, name);
     strcat(norm, "_norm.png");
 
-    if (scene->mNumTextures > 0)
-    {
-        mesh->tex_ids[0] = load_texture(dir, diff);
-        mesh->tex_ids[1] = load_texture(dir, spec);
-        mesh->tex_ids[2] = load_texture(dir, norm);
-    }
-    else
-    {
-        mesh->tex_ids[0] = 0;
-        mesh->tex_ids[1] = 0;
-        mesh->tex_ids[2] = 0;
-    }
+    mesh->tex_ids[0] = load_texture(dir, diff);
+    mesh->tex_ids[1] = load_texture(dir, spec);
+    mesh->tex_ids[2] = load_texture(dir, norm);
 
     // gl buffers
     glGenVertexArrays(1, &mesh->VAO);
@@ -490,24 +479,24 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->n_indices * sizeof(unsigned int), &mesh->indices[0], GL_STATIC_DRAW);
 
     // positions
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->positions);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->positions);
     
     // normals
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)mesh->normals);
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)mesh->normals);
 
     // tex_coords
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->tex_coords);
     glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->tex_coords);
 
     // tangent
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->tangents);
     glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->tangents);
 
     // bitangent
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->bitangents);
     glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->bitangents);
 
     // unbind
     glBindVertexArray(0);
@@ -560,10 +549,10 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     }
 
     float delta_x = mouse_x - prev_x;
-    float delta_y = mouse_y - prev_y;
+    float delta_y = prev_y - mouse_y;
 
-    prev_x = mouse_x;
-    prev_y = mouse_y;
+    prev_x = delta_x;
+    prev_y = delta_y;
 
     // TODO make sensitivity adjustable
     rot_b += delta_x * 0.1f;
@@ -576,9 +565,12 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     float rads_b = radians(rot_b);
 
     // TODO offset radius for 3rd person
-    camera_dir = normalize_vec3(construct_vec3(cos(rads_b) * cos(rads_a),
+    camera_dir = construct_vec3(cos(rads_b) * cos(rads_a),
                                 sin(rads_a),
-                                sin(rads_b) * cos(rads_a)));
+                                sin(rads_b) * cos(rads_a));
+#ifdef XEN_DEBUG
+    // print_vec3(camera_dir);
+#endif
 }
 
 // generate a view matrix from the camera
@@ -586,7 +578,6 @@ mat4_t camera_view_matrix(void)
 {
     return look_at(camera_pos, add_vec3(camera_pos, camera_dir), camera_up);
 }
-
 // window resize callback
 void on_resize(GLFWwindow* window, int width, int height)
 {
@@ -650,15 +641,11 @@ void handle_input()
     }
 }
 
-// gl/glfw function wrappers
+// glfw function wrappers
 void swap_buffers() { glfwSwapBuffers(window); }
 void poll_events() { glfwPollEvents(); }
+void clear_buffers() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
 void close_window() { glfwTerminate(); }
 bool window_should_close() { return glfwWindowShouldClose(window); }
-void clear_buffers()
-{
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
 
 #endif // XEN_H

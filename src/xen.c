@@ -6,6 +6,8 @@
 
 #include <stdio.h>
 
+#include "gltestinl.h"
+/*
 int main()
 {
     // window
@@ -63,3 +65,4 @@ int main()
 
     return 0;
 }
+*/
