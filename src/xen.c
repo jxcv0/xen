@@ -6,7 +6,6 @@
 
 #include <stdio.h>
 
-#include "gltestinl.h"
 /*
 int main()
 {
@@ -27,6 +26,9 @@ int main()
     shader_set_uniform(shader, "projection", p_mat);
     checkerr();
 
+    light_t light = create_default_light();
+
+    // TODO will be producer loop
     while(!window_should_close())
     {
         clear_buffers();
@@ -46,7 +48,6 @@ int main()
         shader_set_uniform(shader, "model", m_mat);
 
         // light
-        light_t light = create_default_light();
         shader_set_uniform(shader, "light.color", light.color);
         shader_set_uniform(shader, "light.position", light.position);
         shader_set_uniform(shader, "light.constant", light.constant);
@@ -68,3 +69,5 @@ int main()
     return 0;
 }
 */
+
+#include "gltestinl.h"

@@ -8,7 +8,6 @@ const unsigned int SCR_HEIGHT = 600;
 float deltaTime = 0.0f;	
 float lastFrame = 0.0f;
 
-
 int main()
 {
     // lighting
@@ -80,7 +79,6 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-
     // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
     unsigned int lightCubeVAO;
     glGenVertexArrays(1, &lightCubeVAO);
@@ -91,32 +89,27 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-
     // render loop
-    // -----------
     while (!glfwWindowShouldClose(window))
     {
         // per-frame time logic
-        // --------------------
         float currentFrame = (float)glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-	handle_input();
+	    handle_input();
 
         // input
-        // -----
 
         // render
-        // ------
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // be sure to activate shader when setting uniforms/drawing objects
-	shader_use(lighting_shader);
-	vec3_t obj_col = construct_vec3(1.0f, 0.5f, 0.31f);
+	    shader_use(lighting_shader);
+	    vec3_t obj_col = construct_vec3(1.0f, 0.5f, 0.31f);
         shader_set_uniform(lighting_shader, "objectColor", obj_col);
-	vec3_t light_col = construct_vec3(1.0f, 1.0f, 1.0f);
+	    vec3_t light_col = construct_vec3(1.0f, 1.0f, 1.0f);
         shader_set_uniform(lighting_shader, "lightColor", light_col);
         shader_set_uniform(lighting_shader, "lightPos", lightPos);
 
@@ -136,31 +129,27 @@ int main()
 
 
         // also draw the lamp object
-	shader_use(cube_shader);
+	    shader_use(cube_shader);
         shader_set_uniform(cube_shader, "projection", projection);
         shader_set_uniform(cube_shader, "view", view);
-	model = construct_mat4(1.0f);
+	    model = construct_mat4(1.0f);
         model = translate(model, lightPos);
         shader_set_uniform(cube_shader, "model", model);
 
         glBindVertexArray(lightCubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
     // optional: de-allocate all resources once they've outlived their purpose:
-    // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &cubeVAO);
     glDeleteVertexArrays(1, &lightCubeVAO);
     glDeleteBuffers(1, &VBO);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
-    // ------------------------------------------------------------------
     glfwTerminate();
     return 0;
 }

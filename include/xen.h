@@ -28,7 +28,7 @@ static float window_w;
 static float window_h;
 
 // camera
-static vec3_t camera_pos = { .values = {0.0f, 3.0f, 3.0f} };
+static vec3_t camera_pos = { .values = {3.0f, 3.0f, 3.0f} };
 static vec3_t camera_dir = { .values = {0.0f, 0.0f, -1.0f} };
 static vec3_t camera_up = { .values = {0.0f, 1.0f, 0.0f} };
 static vec3_t camera_right = { .values = {1.0f, 0.0f, 0.0f} };
@@ -38,14 +38,6 @@ float rot_a = 0.0f;  // rotation about x axis
 float rot_b = 90.0f; // rotation about y axis
 float prev_x = 0;
 float prev_y = 0;
-
-void xen_dbg()
-{
-    printf("camera pos: %f, %f, %f\n", camera_pos.values[0], camera_pos.values[1], camera_pos.values[2]);
-    printf("camera dir: %f, %f, %f\n", camera_dir.values[0], camera_dir.values[1], camera_dir.values[2]);
-    printf("camera up: %f, %f, %f\n", camera_up.values[0], camera_up.values[1], camera_up.values[2]);
-    printf("\n");
-}
 
 GLenum checkerror_(const char *file, int line)
 {
@@ -509,6 +501,8 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
 // free mesh memory
 void free_mesh(mesh_t* mesh)
 {
+    glDeleteVertexArrays(1, &mesh->VAO);
+    glDeleteBuffers(1, &mesh->VBO);
     free(mesh->mem_block);
 }
 
@@ -553,8 +547,8 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     float delta_x = mouse_x - prev_x;
     float delta_y = prev_y - mouse_y;
 
-    prev_x = delta_x;
-    prev_y = delta_y;
+    prev_x = mouse_x;
+    prev_y = mouse_y;
 
     // TODO make sensitivity adjustable
     rot_b += delta_x * 0.1f;
@@ -567,10 +561,11 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     float rads_b = radians(rot_b);
 
     // TODO offset radius for 3rd person
-    camera_dir = normalize_vec3(construct_vec3(cos(rads_b) * cos(rads_a),
-                                               sin(rads_a),
-					       sin(rads_b) * cos(rads_a)));
+    camera_dir = construct_vec3(cos(rads_b) * cos(rads_a),
+                                sin(rads_a),
+                                sin(rads_b) * cos(rads_a));
 
+    camera_dir = normalize_vec3(camera_dir);
     camera_up = normalize_vec3(cross_vec3(camera_dir, world_up));
     camera_right = normalize_vec3(cross_vec3(camera_dir, camera_up));
 }
@@ -647,8 +642,12 @@ void handle_input()
 // glfw function wrappers
 void swap_buffers() { glfwSwapBuffers(window); }
 void poll_events() { glfwPollEvents(); }
-void clear_buffers() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
 void close_window() { glfwTerminate(); }
 bool window_should_close() { return glfwWindowShouldClose(window); }
+void clear_buffers()
+{
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
 #endif // XEN_H
