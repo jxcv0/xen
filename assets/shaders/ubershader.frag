@@ -17,7 +17,7 @@ uniform vec3 view_pos;
 struct light_t
 {
 	vec3 position;
-	vec3 colour;
+	vec3 color;
 
 	// attenuation constants
 	float constant;
@@ -35,7 +35,7 @@ vec3 calc_light(light_t light, vec3 normal, vec3 view_dir)
 
 	// ambient
 	float ambientStrength = 0.1;	// get this from where?
-	vec3 ambient = ambientStrength * light.colour;
+	vec3 ambient = ambientStrength * light.color;
 
 	// extra normal normals
 	vec3 norm = normalize(normal);
@@ -43,12 +43,12 @@ vec3 calc_light(light_t light, vec3 normal, vec3 view_dir)
 
 	// diffuse
 	float diff = max(dot(norm, light_dir), 0.0);
-	vec3 diffuse = diff * light.colour * texture(tex_diff, tex_coord).rgb;
+	vec3 diffuse = diff * light.color * texture(tex_diff, tex_coord).rgb;
 
 	// specular
 	vec3 reflect_dir = reflect(-light_dir, norm);
 	float spec = pow(max(dot(view_dir, reflect_dir), 0.0), shininess);
-	vec3 specular = spec * light.colour * texture(tex_spec, tex_coord).rgb;
+	vec3 specular = spec * light.color * texture(tex_spec, tex_coord).rgb;
 
 	return (ambient + diffuse + specular) * attenuation;
 }

@@ -1,8 +1,8 @@
 #define XEN_DEBUG
 #include "xen.h"
 
-#define SCREEN_W 800
-#define SCREEN_H 600
+#define SCREEN_W 800.0f
+#define SCREEN_H 600.0f
 
 #include <stdio.h>
 
@@ -22,6 +22,11 @@ int main()
     load_mesh_obj(&mesh, "assets/models/cyborg/", "cyborg");
     checkerr();
 
+    // projection matrix
+    mat4_t p_mat = perspective(45.0f, 0.1f, 100.0f, (SCREEN_H/SCREEN_W));
+    shader_set_uniform(shader, "projection", p_mat);
+    checkerr();
+
     while(!window_should_close())
     {
         clear_buffers();
@@ -32,10 +37,6 @@ int main()
         shader_set_uniform(shader, "view", v_mat);
         shader_set_uniform(shader, "view_pos", camera_pos);
 
-        // projection matrix
-        mat4_t p_mat = perspective(180.0f, 0.1f, 100.0f, ((float)SCREEN_H/(float)SCREEN_W));
-        shader_set_uniform(shader, "perspective", p_mat);
-        
         // model matrix
         vec3_t mesh_pos = construct_vec3(0.0f, 0.0f, 0.0f);
         vec3_t up = construct_vec3(0.0f, 1.0f, 0.0f);
@@ -55,6 +56,7 @@ int main()
 
         // draw
         draw_mesh(&mesh, shader);
+
         swap_buffers();
         poll_events();
         checkerr();
