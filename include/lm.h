@@ -6,10 +6,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-// TODO
-// rewrite all this 
-// make tests
-
 float radians(float x)
 {
     return x * 0.0174533;
@@ -342,6 +338,7 @@ mat4_t rotate(const mat4_t m, const vec3_t axis, const float a)
 }
 
 // create view matrix
+// FIXME is the this the correct handedness?
 mat4_t look_at(const vec3_t eye, const vec3_t ctr, const vec3_t up)
 {
     vec3_t f = normalize_vec3(subtract_vec3(ctr, eye));
@@ -355,11 +352,11 @@ mat4_t look_at(const vec3_t eye, const vec3_t ctr, const vec3_t up)
 
     m.values[0][1] = u.values[0];
     m.values[1][1] = u.values[1];
-    m.values[2][1] = u.values[2]; //
+    m.values[2][1] = u.values[2];
 
     m.values[0][2] = -f.values[0];
     m.values[1][2] = -f.values[1];
-    m.values[2][2] = -f.values[2]; //
+    m.values[2][2] = -f.values[2];
 
     m.values[3][0] = -dot_vec3(s, eye);
     m.values[3][1] = -dot_vec3(u, eye);

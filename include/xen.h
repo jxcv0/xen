@@ -27,7 +27,7 @@ static GLFWwindow* window;
 static float window_w;
 static float window_h;
 
-// camera
+// camera FIXME why is camera on side??
 static vec3_t camera_pos = { .values = {3.0f, 3.0f, 3.0f} };
 static vec3_t camera_dir = { .values = {0.0f, 0.0f, -1.0f} };
 static vec3_t camera_up = { .values = {0.0f, 1.0f, 0.0f} };
