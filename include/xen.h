@@ -31,6 +31,8 @@ static float window_h;
 static vec3_t camera_pos = { .values = {0.0f, 3.0f, 3.0f} };
 static vec3_t camera_dir = { .values = {0.0f, 0.0f, -1.0f} };
 static vec3_t camera_up = { .values = {0.0f, 1.0f, 0.0f} };
+static vec3_t camera_right = { .values = {1.0f, 0.0f, 0.0f} };
+static vec3_t world_up = { .values = {0.0f, 1.0f, 0.0f} };
 static bool first_mouse = true;
 float rot_a = 0.0f;  // rotation about x axis
 float rot_b = 90.0f; // rotation about y axis
@@ -565,18 +567,19 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     float rads_b = radians(rot_b);
 
     // TODO offset radius for 3rd person
-    camera_dir = construct_vec3(cos(rads_b) * cos(rads_a),
-                                sin(rads_a),
-                                sin(rads_b) * cos(rads_a));
-#ifdef XEN_DEBUG
-    // print_vec3(camera_dir);
-#endif
+    camera_dir = normalize_vec3(construct_vec3(cos(rads_b) * cos(rads_a),
+                                               sin(rads_a),
+					       sin(rads_b) * cos(rads_a)));
+
+    camera_up = normalize_vec3(cross_vec3(camera_dir, world_up));
+    camera_right = normalize_vec3(cross_vec3(camera_dir, camera_up));
 }
 
 // generate a view matrix from the camera
 mat4_t camera_view_matrix(void)
 {
-    return look_at(camera_pos, add_vec3(camera_pos, camera_dir), camera_up);
+    vec3_t dir = add_vec3(camera_pos, camera_dir);
+    return look_at(camera_pos, dir, camera_up);
 }
 // window resize callback
 void on_resize(GLFWwindow* window, int width, int height)
