@@ -613,7 +613,7 @@ void window_init(float w, float h, const char* window_name)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    glCullFace(GL_FRONT);
 
 #ifdef XEN_DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
