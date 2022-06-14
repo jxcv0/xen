@@ -561,9 +561,9 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     float rads_b = radians(rot_b);
 
     // TODO offset radius for 3rd person
-    camera_dir = construct_vec3(cos(rads_a) * cos(rads_b),
-                                sin(rads_b),
-                                sin(rads_a) * cos(rads_b));
+    camera_dir = construct_vec3(cos(rads_b) * cos(rads_a),
+                                sin(rads_a),
+                                sin(rads_b) * cos(rads_a));
 
     camera_dir = normalize_vec3(camera_dir);
     camera_up = normalize_vec3(cross_vec3(camera_dir, world_up));

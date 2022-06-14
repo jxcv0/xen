@@ -115,8 +115,8 @@ int main()
 
         // view/projection transformations
         mat4_t projection = perspective(45.0f, 0.1f, 100.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT);
+	    projection = rotate(projection, camera_dir, 90.0f);
         mat4_t view = camera_view_matrix();
-	// view = rotate(view, camera_dir, 90.0f);
         shader_set_uniform(lighting_shader, "projection", projection);
         shader_set_uniform(lighting_shader, "view", view);
 
