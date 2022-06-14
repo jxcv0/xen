@@ -613,8 +613,7 @@ void window_init(float w, float h, const char* window_name)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
-    // glCullFace(GL_BACK);
-    glCullFace(GL_FRONT); // FIXME something has gone very badly wrong here
+    glCullFace(GL_BACK); // FIXME something is very wrong
 
 #ifdef XEN_DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
