@@ -35,7 +35,7 @@ static vec3_t camera_right = { .values = {1.0f, 0.0f, 0.0f} };
 static vec3_t world_up = { .values = {0.0f, 1.0f, 0.0f} };
 static bool first_mouse = true;
 float rot_a = 0.0f;  // rotation about x axis
-float rot_b = 0.0f; // rotation about y axis
+float rot_b = -90.0f; // rotation about y axis
 float prev_x = 0;
 float prev_y = 0;
 
@@ -534,7 +534,6 @@ void draw_mesh(mesh_t* mesh, unsigned int shader)
 // update the camera direction based on a change in mouse position
 void camera_update_dir(GLFWwindow* window, double x, double y)
 {
-    // print_vec3(camera_up);
     float mouse_x = (float)x;
     float mouse_y = (float)y;
 
@@ -567,7 +566,7 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
                                 sin(rads_b) * cos(rads_a));
 
     camera_dir = normalize_vec3(camera_dir);
-    camera_right = normalize_vec3(cross_vec3(camera_dir, world_up));
+    camera_right = normalize_vec3(cross_vec3(world_up, camera_dir));
     camera_up = normalize_vec3(cross_vec3(camera_dir, camera_right));
 }
 
