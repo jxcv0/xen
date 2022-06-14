@@ -8,6 +8,8 @@ const unsigned int SCR_HEIGHT = 600;
 float deltaTime = 0.0f;	
 float lastFrame = 0.0f;
 
+float prev_frame = 0.0f;
+
 int main()
 {
     // lighting
@@ -97,7 +99,7 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-	    handle_input();
+	    handle_input(deltaTime);
 
         // input
 

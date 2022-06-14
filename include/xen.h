@@ -613,7 +613,8 @@ void window_init(float w, float h, const char* window_name)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK); // FIXME something is very wrong
+    // glCullFace(GL_BACK); // FIXME something is very wrong
+    glCullFace(GL_FRONT);
 
 #ifdef XEN_DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
@@ -631,11 +632,18 @@ void window_init(float w, float h, const char* window_name)
 }
 
 // get input from glfw window
-void handle_input()
+void handle_input(float delta_t)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(window, true);
+        return;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        // TODO scale this
+        camera_pos = add_vec3(camera_pos, camera_dir);
     }
 }
 
