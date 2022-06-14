@@ -568,6 +568,7 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     camera_dir = normalize_vec3(camera_dir);
     camera_up = normalize_vec3(cross_vec3(camera_dir, world_up));
     camera_right = normalize_vec3(cross_vec3(camera_dir, camera_up));
+    printf("%f, %f\n", rot_a, rot_b);
 }
 
 // generate a view matrix from the camera
