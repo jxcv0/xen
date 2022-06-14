@@ -534,6 +534,7 @@ void draw_mesh(mesh_t* mesh, unsigned int shader)
 // update the camera direction based on a change in mouse position
 void camera_update_dir(GLFWwindow* window, double x, double y)
 {
+    // print_vec3(camera_up);
     float mouse_x = (float)x;
     float mouse_y = (float)y;
 
@@ -566,8 +567,8 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
                                 sin(rads_b) * cos(rads_a));
 
     camera_dir = normalize_vec3(camera_dir);
-    camera_up = normalize_vec3(cross_vec3(camera_dir, world_up));
-    camera_right = normalize_vec3(cross_vec3(camera_dir, camera_up));
+    camera_right = normalize_vec3(cross_vec3(camera_dir, world_up));
+    camera_up = normalize_vec3(cross_vec3(camera_dir, camera_right));
 }
 
 // generate a view matrix from the camera
@@ -613,7 +614,8 @@ void window_init(float w, float h, const char* window_name)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
+    // glCullFace(GL_BACK);
+    glCullFace(GL_FRONT); // FIXME something has gone very badly wrong here
 
 #ifdef XEN_DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);

@@ -134,6 +134,7 @@ int main()
         shader_set_uniform(cube_shader, "view", view);
 	    model = construct_mat4(1.0f);
         model = translate(model, lightPos);
+        model = rotate(model, world_up, 0.0f);
         shader_set_uniform(cube_shader, "model", model);
 
         glBindVertexArray(lightCubeVAO);

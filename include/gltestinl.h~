@@ -115,7 +115,6 @@ int main()
 
         // view/projection transformations
         mat4_t projection = perspective(45.0f, 0.1f, 100.0f, (float)SCR_WIDTH / (float)SCR_HEIGHT);
-	    projection = rotate(projection, camera_dir, 90.0f);
         mat4_t view = camera_view_matrix();
         shader_set_uniform(lighting_shader, "projection", projection);
         shader_set_uniform(lighting_shader, "view", view);
@@ -133,8 +132,10 @@ int main()
 	    shader_use(cube_shader);
         shader_set_uniform(cube_shader, "projection", projection);
         shader_set_uniform(cube_shader, "view", view);
+        vec3_t rotation = construct_vec3(0.0f, 0.0f, 0.0f);
 	    model = construct_mat4(1.0f);
         model = translate(model, lightPos);
+        model = rotate(model, world_up, rotation);
         shader_set_uniform(cube_shader, "model", model);
 
         glBindVertexArray(lightCubeVAO);
