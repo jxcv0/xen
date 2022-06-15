@@ -327,7 +327,7 @@ unsigned int load_texture(const char* dir, const char* tex_name)
 
         glBindTexture(GL_TEXTURE_2D, tex_id);
         glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        // glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -488,7 +488,7 @@ int mesh_load(mesh_t* mesh, const char* dir, const char* name)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)offset);
     
     // normals
-    offset = (void*)mesh->tex_coords- mesh->mem_block;
+    offset = (void*)mesh->tex_coords - mesh->mem_block;
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)offset);
 
@@ -570,8 +570,8 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     rot_b += delta_x * 0.1f;
     rot_a += delta_y * 0.1f;
 
-    if (rot_a > 50.0f) { rot_a = 50.0f; }
-    if (rot_a < -50.0f) { rot_a = -50.0f; }
+    if (rot_a > 89.0f) { rot_a = 89.0f; }
+    if (rot_a < -89.0f) { rot_a = -89.0f; }
 
     float rads_a = radians(rot_a);
     float rads_b = radians(rot_b);
@@ -676,6 +676,18 @@ void handle_input(float delta_t)
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
         vec3_t dist = scale_vec3(camera_right, delta_t * 2.0f);
+        camera_pos = add_vec3(camera_pos, dist);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        vec3_t dist = scale_vec3(world_up, delta_t * 2.0f);
+        camera_pos = add_vec3(camera_pos, dist);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+    {
+        vec3_t dist = scale_vec3(world_up, -delta_t * 2.0f);
         camera_pos = add_vec3(camera_pos, dist);
     }
 }

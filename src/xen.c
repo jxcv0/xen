@@ -14,9 +14,6 @@ int main()
     // window
     window_init(SCREEN_W, SCREEN_H, "KV");
 
-    // TODO remove
-    camera_dir = normalize_vec3(construct_vec3(-0.7f, -0.2f, -0.7f));
-
     // shader
     unsigned int shader = shader_load("assets/shaders/ubershader.vert", "assets/shaders/ubershader.frag");
     shader_use(shader);
