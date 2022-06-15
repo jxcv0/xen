@@ -27,7 +27,7 @@ int main()
     checkerr();
 
     // projection matrix
-    mat4_t p_mat = perspective(45.0f, 0.1f, 100.0f, (SCREEN_H/SCREEN_W));
+    mat4_t p_mat = perspective(45.0f, 0.1f, 100.0f, (SCREEN_W/SCREEN_H));
     shader_set_uniform(shader, "projection", p_mat);
     checkerr();
 
