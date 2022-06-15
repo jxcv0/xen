@@ -6,11 +6,16 @@
 
 #include <stdio.h>
 
-/*
+// #include "gltestinl.h"
+// /*
+
 int main()
 {
     // window
     window_init(SCREEN_W, SCREEN_H, "KV");
+
+    // TODO remove
+    camera_dir = normalize_vec3(construct_vec3(-0.7f, -0.2f, -0.7f));
 
     // shader
     unsigned int shader = shader_load("assets/shaders/ubershader.vert", "assets/shaders/ubershader.frag");
@@ -18,7 +23,7 @@ int main()
     
     // mesh
     mesh_t mesh;
-    load_mesh_obj(&mesh, "assets/models/cyborg/", "cyborg");
+    load_mesh(&mesh, "assets/models/cyborg/", "cyborg");
     checkerr();
 
     // projection matrix
@@ -28,11 +33,17 @@ int main()
 
     light_t light = create_default_light();
 
+    float last_frame = 0.0f;
+
     // TODO will be producer loop
     while(!window_should_close())
     {
+        float current_frame = (float)glfwGetTime();
+        float delta_time = current_frame - last_frame;
+        last_frame = current_frame;
+
+        handle_input(delta_time);
         clear_buffers();
-        handle_input();
 
         // view matrix
         mat4_t v_mat = camera_view_matrix();
@@ -68,6 +79,4 @@ int main()
 
     return 0;
 }
-*/
-
-#include "gltestinl.h"
+// */

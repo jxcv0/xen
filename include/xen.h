@@ -327,7 +327,7 @@ unsigned int load_texture(const char* dir, const char* tex_name)
 
         glBindTexture(GL_TEXTURE_2D, tex_id);
         glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, GL_UNSIGNED_BYTE, data);
-        // glGenerateMipMap(GL_TEXTURE_2D);
+        glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -347,7 +347,7 @@ unsigned int load_texture(const char* dir, const char* tex_name)
 // for now we assume that each model has 3 texture maps in the same dir, the file is .obj and all 3
 // textures are .png
 // TODO lots of strange string things going on here
-int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
+int load_mesh(mesh_t* mesh, const char* dir, const char* name)
 {
     char filepath[strlen(dir) + strlen(name)];
     strcpy(filepath, dir);
@@ -387,22 +387,32 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
     mesh->mem_block = malloc(mem_size);
 
     // memory offsets into mesh memory
-    mesh->positions = (vec3_t*)mesh->mem_block;
+    mesh->positions = (vec3_t*)(mesh->mem_block);
 
     mesh->normals = (vec3_t*)(mesh->mem_block
-            + positions_size);
+                            + positions_size);
 
     mesh->tex_coords = (vec2_t*)(mesh->mem_block
-            + positions_size + normals_size);
+                               + positions_size
+                               + normals_size);
 
     mesh->tangents = (vec3_t*)(mesh->mem_block
-            + positions_size + normals_size + tex_coords_size);
+                             + positions_size
+                             + normals_size
+                             + tex_coords_size);
 
     mesh->bitangents = (vec3_t*)(mesh->mem_block
-            + positions_size + normals_size + tex_coords_size + tangents_size);
+                               + positions_size
+                               + normals_size
+                               + tex_coords_size
+                               + tangents_size);
 
     mesh->indices = (int*)(mesh->mem_block
-            + positions_size + normals_size + tex_coords_size + tangents_size + bitangents_size);
+                         + positions_size
+                         + normals_size
+                         + tex_coords_size
+                         + tangents_size
+                         + bitangents_size);
 
     for(int i = 0; i < ai_mesh->mNumVertices; i++)
     {
@@ -473,28 +483,32 @@ int load_mesh_obj(mesh_t* mesh, const char* dir, const char* name)
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->n_indices * sizeof(unsigned int), &mesh->indices[0], GL_STATIC_DRAW);
 
     // positions
+    ptrdiff_t offset = (void*)mesh->positions - mesh->mem_block;
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->positions);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)offset);
     
     // normals
+    offset = (void*)mesh->normals - mesh->mem_block;
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)mesh->normals);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)offset);
 
     // tex_coords
+    offset = (void*)mesh->tex_coords - mesh->mem_block;
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->tex_coords);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)offset);
 
     // tangent
+    offset = (void*)mesh->tangents - mesh->mem_block;
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->tangents);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void*)offset);
 
     // bitangent
+    offset = (void*)mesh->bitangents - mesh->mem_block;
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*)mesh->bitangents);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*)offset);
 
     // unbind
     glBindVertexArray(0);
-
     return 0;
 }
 
@@ -509,18 +523,20 @@ void free_mesh(mesh_t* mesh)
 // draw a mesh
 void draw_mesh(mesh_t* mesh, unsigned int shader)
 {
+    shader_use(shader);
+
     // diff
-    glActiveTexture(GL_TEXTURE1);
+    glActiveTexture(GL_TEXTURE0);
     shader_set_uniform(shader, "tex_diff", 0);
     glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[0]);
 
     // spec
-    glActiveTexture(GL_TEXTURE2);
+    glActiveTexture(GL_TEXTURE1);
     shader_set_uniform(shader, "tex_spec", 1);
     glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[1]);
 
     // norm
-    glActiveTexture(GL_TEXTURE3);
+    glActiveTexture(GL_TEXTURE2);
     shader_set_uniform(shader, "tex_norm", 2);
     glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[2]);
 
@@ -641,25 +657,25 @@ void handle_input(float delta_t)
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        vec3_t dist = scale_vec3(camera_dir, 0.1f);
+        vec3_t dist = scale_vec3(camera_dir, delta_t * 2.0f);
         camera_pos = add_vec3(camera_pos, dist);
     }
 
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        vec3_t dist = scale_vec3(camera_dir, -0.1f);
+        vec3_t dist = scale_vec3(camera_dir, -delta_t * 2.0f);
         camera_pos = add_vec3(camera_pos, dist);
     }
 
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        vec3_t dist = scale_vec3(camera_right, -0.1f);
+        vec3_t dist = scale_vec3(camera_right, -delta_t * 2.0f);
         camera_pos = add_vec3(camera_pos, dist);
     }
 
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        vec3_t dist = scale_vec3(camera_right, 0.1f);
+        vec3_t dist = scale_vec3(camera_right, delta_t * 2.0f);
         camera_pos = add_vec3(camera_pos, dist);
     }
 }

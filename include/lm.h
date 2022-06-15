@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+// TODO SIMD
+
 float radians(float x)
 {
     return x * 0.0174533;

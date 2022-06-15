@@ -16,9 +16,9 @@ uniform mat4 model;
 
 void main()
 {
-	vec3 T = normalize(vec3(model * vec4(in_tangent, 0.0)));
-	vec3 B = normalize(vec3(model * vec4(in_bitangent, 0.0)));
-	vec3 N = normalize(vec3(model * vec4(in_normal, 0.0)));
+	vec3 T = normalize(vec3(model * vec4(in_tangent, 0.0f)));
+	vec3 B = normalize(vec3(model * vec4(in_bitangent, 0.0f)));
+	vec3 N = normalize(vec3(model * vec4(in_normal, 0.0f)));
 	TBN = mat3(T, B, N);
 
 	frag_pos = vec3(model * vec4(in_pos, 1.0f));

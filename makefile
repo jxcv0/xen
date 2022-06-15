@@ -5,8 +5,8 @@ mktests: mkbin
 	@if [ ! -d "bin/tests" ]; then mkdir bin/tests; fi
 
 build_tests: mktests tests/lm_tests.c tests/model_tests.c src/glad.c
-	@gcc tests/lm_tests.c src/glad.c -I include/ -o bin/tests/lm_tests -ggdb -lm
-	@gcc tests/model_tests.c src/glad.c -I include/ -o bin/tests/model_tests -ggdb -lm -lglfw -lassimp
+	@gcc tests/lm_tests.c src/glad.c -I include/ -o bin/tests/lm_tests -ggdb -ldl -lm
+	@gcc tests/model_tests.c src/glad.c -I include/ -o bin/tests/model_tests -ggdb -ldl -lm -lglfw -lassimp
 
 run_tests: build_tests
 	@./bin/tests/lm_tests
