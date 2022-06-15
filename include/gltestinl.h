@@ -14,6 +14,8 @@ int main()
 {
     // lighting
     vec3_t lightPos = construct_vec3(1.2f, 1.0f, 2.0f);
+    camera_pos = construct_vec3(-4.0f, -0.3f, 4.5f);
+    camera_dir = construct_vec3(0.8f, 0.2f, -0.6f);
 
     window_init(SCR_WIDTH, SCR_HEIGHT, "gltestinl");
 

@@ -89,6 +89,14 @@ void print_mat4(const mat4_t m)
     }
 }
 
+// scale a vec3
+vec3_t scale_vec3(const vec3_t v, const float s)
+{
+    return construct_vec3(v.values[0] * s,
+                          v.values[1] * s,
+                          v.values[2] * s);
+}
+
 // get a column of a 4x4 matrix as a vec4
 vec4_t col_mat4(const mat4_t m, int n)
 {

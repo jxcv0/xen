@@ -613,8 +613,7 @@ void window_init(float w, float h, const char* window_name)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
-    // glCullFace(GL_BACK); // FIXME something is very wrong
-    glCullFace(GL_FRONT);
+    glCullFace(GL_BACK);
 
 #ifdef XEN_DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
@@ -642,8 +641,26 @@ void handle_input(float delta_t)
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        // TODO scale this
-        camera_pos = add_vec3(camera_pos, camera_dir);
+        vec3_t dist = scale_vec3(camera_dir, 0.1f);
+        camera_pos = add_vec3(camera_pos, dist);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        vec3_t dist = scale_vec3(camera_dir, -0.1f);
+        camera_pos = add_vec3(camera_pos, dist);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        vec3_t dist = scale_vec3(camera_right, -0.1f);
+        camera_pos = add_vec3(camera_pos, dist);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        vec3_t dist = scale_vec3(camera_right, 0.1f);
+        camera_pos = add_vec3(camera_pos, dist);
     }
 }
 
