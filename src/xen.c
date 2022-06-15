@@ -23,7 +23,7 @@ int main()
     
     // mesh
     mesh_t mesh;
-    load_mesh(&mesh, "assets/models/cyborg/", "cyborg");
+    mesh_load(&mesh, "assets/models/cyborg/", "cyborg");
     checkerr();
 
     // projection matrix
