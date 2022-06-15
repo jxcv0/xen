@@ -488,12 +488,12 @@ int mesh_load(mesh_t* mesh, const char* dir, const char* name)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)offset);
     
     // normals
-    offset = (void*)mesh->normals - mesh->mem_block;
+    offset = (void*)mesh->tex_coords- mesh->mem_block;
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)offset);
 
     // tex_coords
-    offset = (void*)mesh->tex_coords - mesh->mem_block;
+    offset = (void*)mesh->normals - mesh->mem_block;
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)offset);
 
