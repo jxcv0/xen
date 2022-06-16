@@ -277,7 +277,7 @@ light_t create_default_light()
 {
     light_t result = {
         .color.values = {1.0f, 1.0f, 1.0f},
-        .position.values = {3.0f, 3.0f, 3.0f},
+        .position.values = {1.0f, 3.0f, -1.0f},
         .constant = 1.0f,
         .linear = 0.09f,
         .quadratic = 0.032
@@ -762,7 +762,7 @@ void handle_input(float delta_t)
             camera_pos = add_vec3(camera_pos, dist);
         }
 
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         {
             vec3_t dist = scale_vec3(world_up, -delta_t * 2.0f);
             camera_pos = add_vec3(camera_pos, dist);

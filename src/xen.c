@@ -36,7 +36,6 @@ int main()
         last_frame = current_frame;
 
         handle_input(delta_time);
-        clear_buffers();
 
         // view matrix
         shader_set_uniform(shader, "view", camera_view_matrix());
@@ -51,9 +50,10 @@ int main()
         shader_set_uniform(shader, "light.constant", light.constant);
         shader_set_uniform(shader, "light.linear", light.linear);
         shader_set_uniform(shader, "light.quadratic", light.quadratic);
-        shader_set_uniform(shader, "shininess", 32.0f);
+        shader_set_uniform(shader, "shininess", 8.0f);
 
         // draw
+        clear_buffers();
         draw_mesh(&mesh, shader);
 
         swap_buffers();
