@@ -1,15 +1,12 @@
 #define XEN_DEBUG
 #include "xen.h"
 
-#define SCREEN_W 800.0f
-#define SCREEN_H 600.0f
-
 #include <stdio.h>
 
 int main()
 {
     // window
-    window_init(SCREEN_W, SCREEN_H, "KV");
+    xen_init();
 
     // shader
     unsigned int shader = shader_load("assets/shaders/ubershader.vert", "assets/shaders/ubershader.frag");
@@ -21,7 +18,7 @@ int main()
     checkerr();
 
     // projection matrix
-    mat4_t p_mat = perspective(55.0f, 0.1f, 100.0f, (SCREEN_W/SCREEN_H));
+    mat4_t p_mat = perspective(55.0f, 0.1f, 100.0f, (screen_w/screen_h));
     shader_set_uniform(shader, "projection", p_mat);
     checkerr();
 
@@ -29,7 +26,7 @@ int main()
 
     float last_frame = 0.0f;
     
-    camera_update_dir(window, (double)SCREEN_W/2.0, (double)SCREEN_H/2.0);
+    camera_update_dir(window, (double)screen_w/2.0, (double)screen_h/2.0);
 
     // TODO will be producer loop
     while(!window_should_close())
@@ -42,8 +39,7 @@ int main()
         clear_buffers();
 
         // view matrix
-        mat4_t v_mat = camera_view_matrix();
-        shader_set_uniform(shader, "view", v_mat);
+        shader_set_uniform(shader, "view", camera_view_matrix());
         shader_set_uniform(shader, "view_pos", camera_pos);
 
         // model matrix

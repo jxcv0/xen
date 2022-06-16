@@ -24,8 +24,8 @@
 
 // window
 GLFWwindow* window;
-float window_w;
-float window_h;
+float screen_w = 800.0f;
+float screen_h = 600.0f;
 
 // camera
 vec3_t camera_pos = { .values = {0.0f, 0.0f, 0.0f} };
@@ -277,7 +277,7 @@ light_t create_default_light()
 {
     light_t result = {
         .color.values = {1.0f, 1.0f, 1.0f},
-        .position.values = {1.0f, 3.0f, 2.0f},
+        .position.values = {3.0f, 3.0f, 3.0f},
         .constant = 1.0f,
         .linear = 0.09f,
         .quadratic = 0.032
@@ -644,9 +644,7 @@ void camera_update_dir_debug(GLFWwindow* window, double x, double y)
 mat4_t mesh_model_matrix(const mesh_t* mesh)
 {
         mat4_t m = construct_mat4(1.0f);
-        m = translate(m, mesh->world_position);
-        return rotate(m, world_up, mesh->rot_b);
-}
+        m = translate(m, mesh->world_position); return rotate(m, world_up, mesh->rot_b); }
 
 // generate a view matrix from the camera
 mat4_t camera_view_matrix(void)
@@ -661,15 +659,13 @@ void on_resize(GLFWwindow* window, int width, int height)
 }
 
 // initialize window and opengl
-void window_init(float w, float h, const char* window_name)
+void xen_init()
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 
-    window_w = w;
-    window_h = h;
-    window = glfwCreateWindow(window_w, window_h, window_name, NULL, NULL);
+    window = glfwCreateWindow(800.0f, 600.0f, "KV", NULL, NULL);
 
     if (!window)
     {
@@ -687,6 +683,9 @@ void window_init(float w, float h, const char* window_name)
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, camera_update_dir);
+
+    glfwWindowHint(GLFW_SAMPLES, 4);
+    glEnable(GL_MULTISAMPLE);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
