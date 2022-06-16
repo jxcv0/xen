@@ -644,7 +644,8 @@ void camera_update_dir_debug(GLFWwindow* window, double x, double y)
 mat4_t mesh_model_matrix(const mesh_t* mesh)
 {
         mat4_t m = construct_mat4(1.0f);
-        m = translate(m, mesh->world_position); return rotate(m, world_up, mesh->rot_b); }
+        m = translate(m, mesh->world_position); return rotate(m, world_up, mesh->rot_b);
+}
 
 // generate a view matrix from the camera
 mat4_t camera_view_matrix(void)
@@ -652,6 +653,7 @@ mat4_t camera_view_matrix(void)
     vec3_t dir = add_vec3(camera_pos, camera_dir);
     return look_at(camera_pos, dir, camera_up);
 }
+
 // window resize callback
 void on_resize(GLFWwindow* window, int width, int height)
 {
