@@ -23,21 +23,23 @@
 #include "stb_image.h"
 
 // window
-static GLFWwindow* window;
-static float window_w;
-static float window_h;
+GLFWwindow* window;
+float window_w;
+float window_h;
 
-// camera FIXME why is camera on side??
-static vec3_t camera_pos = { .values = {3.0f, 3.0f, 3.0f} };
-static vec3_t camera_dir = { .values = {0.0f, 0.0f, -1.0f} };
-static vec3_t camera_up = { .values = {0.0f, 1.0f, 0.0f} };
-static vec3_t camera_right = { .values = {1.0f, 0.0f, 0.0f} };
-static vec3_t world_up = { .values = {0.0f, 1.0f, 0.0f} };
-static bool first_mouse = true;
+// camera
+vec3_t camera_pos = { .values = {0.0f, 0.0f, 0.0f} };
+vec3_t camera_dir = { .values = {0.0f, 0.0f, -1.0f} };
+vec3_t camera_up = { .values = {0.0f, 1.0f, 0.0f} };
+vec3_t camera_right = { .values = {1.0f, 0.0f, 0.0f} };
+vec3_t world_up = { .values = {0.0f, 1.0f, 0.0f} };
+bool camera_movement_debug = false;
+bool first_mouse = true;
 float rot_a = 0.0f;  // rotation about x axis
 float rot_b = -90.0f; // rotation about y axis
 float prev_x = 0;
 float prev_y = 0;
+float offset_rad = 3.0f;
 
 GLenum checkerror_(const char *file, int line)
 {
@@ -298,6 +300,9 @@ typedef struct mesh_t
     size_t n_indices;
 
     unsigned int tex_ids[3];
+    
+    vec3_t world_position;
+    float rot_b;
 } mesh_t;
 
 unsigned int load_texture(const char* dir, const char* tex_name)
@@ -365,6 +370,9 @@ int mesh_load(mesh_t* mesh, const char* dir, const char* name)
         fprintf(stderr, "Unable to open model file | %s\n", filepath);
         return 1;
     }
+
+    mesh->world_position = construct_vec3(0.0f, 0.0f, 0.0f);
+    mesh->rot_b = 180.0f;   // facing -z
 
     struct aiMesh* ai_mesh = scene->mMeshes[0];
     mesh->n_vertices = ai_mesh->mNumVertices;
@@ -452,7 +460,7 @@ int mesh_load(mesh_t* mesh, const char* dir, const char* name)
     // textures
     size_t namelen = strlen(name);
 
-    char diff[namelen + 9]; /* name + "_type.png" */
+    char diff[namelen + 9]; // name + "_type.png"
     strcpy(diff, name);
     strcat(diff, "_diff.png");
 
@@ -549,6 +557,7 @@ void draw_mesh(mesh_t* mesh, unsigned int shader)
 }
 
 // update the camera direction based on a change in mouse position
+// default version rotates about world origin
 void camera_update_dir(GLFWwindow* window, double x, double y)
 {
     float mouse_x = (float)x;
@@ -577,7 +586,51 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     float rads_a = radians(rot_a);
     float rads_b = radians(rot_b);
 
-    // TODO offset radius for 3rd person
+    camera_pos = construct_vec3(-offset_rad * (cos(rads_b) * cos(rads_a)),
+                                -offset_rad * (sin(rads_a)),
+                                -offset_rad * (sin(rads_b) * cos(rads_a)));
+
+    camera_pos.values[1] += 3.5f;
+
+    camera_dir = construct_vec3(cos(rads_b) * cos(rads_a),
+                                sin(rads_a),
+                                sin(rads_b) * cos(rads_a));
+    
+    camera_dir = normalize_vec3(camera_dir);
+    camera_right = normalize_vec3(cross_vec3(world_up, camera_dir));
+    camera_up = normalize_vec3(cross_vec3(camera_dir, camera_right));
+}
+
+// update the camera direction based on a change in mouse position
+// debug version rotates about camera_pos
+void camera_update_dir_debug(GLFWwindow* window, double x, double y)
+{
+    float mouse_x = (float)x;
+    float mouse_y = (float)y;
+
+    if (first_mouse)
+    {
+        prev_x = mouse_x;
+        prev_y = mouse_y;
+        first_mouse = false;
+    }
+
+    float delta_x = mouse_x - prev_x;
+    float delta_y = prev_y - mouse_y;
+
+    prev_x = mouse_x;
+    prev_y = mouse_y;
+
+    // TODO make sensitivity adjustable
+    rot_b += delta_x * 0.1f;
+    rot_a += delta_y * 0.1f;
+
+    if (rot_a > 89.0f) { rot_a = 89.0f; }
+    if (rot_a < -89.0f) { rot_a = -89.0f; }
+
+    float rads_a = radians(rot_a);
+    float rads_b = radians(rot_b);
+
     camera_dir = construct_vec3(cos(rads_b) * cos(rads_a),
                                 sin(rads_a),
                                 sin(rads_b) * cos(rads_a));
@@ -585,6 +638,14 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     camera_dir = normalize_vec3(camera_dir);
     camera_right = normalize_vec3(cross_vec3(world_up, camera_dir));
     camera_up = normalize_vec3(cross_vec3(camera_dir, camera_right));
+}
+
+// create a model matrix from a mesh position and rotation
+mat4_t mesh_model_matrix(const mesh_t* mesh)
+{
+        mat4_t m = construct_mat4(1.0f);
+        m = translate(m, mesh->world_position);
+        return rotate(m, world_up, mesh->rot_b);
 }
 
 // generate a view matrix from the camera
@@ -656,41 +717,62 @@ void handle_input(float delta_t)
         return;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    // debug camera
+    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS)
     {
-        vec3_t dist = scale_vec3(camera_dir, delta_t * 2.0f);
-        camera_pos = add_vec3(camera_pos, dist);
+        camera_movement_debug = !camera_movement_debug;
+        if (camera_movement_debug)
+        {
+            glfwSetCursorPosCallback(window, camera_update_dir_debug);
+        }
+        else
+        {
+            glfwSetCursorPosCallback(window, camera_update_dir);
+        }
     }
 
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    if (camera_movement_debug)
     {
-        vec3_t dist = scale_vec3(camera_dir, -delta_t * 2.0f);
-        camera_pos = add_vec3(camera_pos, dist);
-    }
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        {
+            vec3_t dist = scale_vec3(camera_dir, delta_t * 2.0f);
+            camera_pos = add_vec3(camera_pos, dist);
+        }
 
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    {
-        vec3_t dist = scale_vec3(camera_right, -delta_t * 2.0f);
-        camera_pos = add_vec3(camera_pos, dist);
-    }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        {
+            vec3_t dist = scale_vec3(camera_dir, -delta_t * 2.0f);
+            camera_pos = add_vec3(camera_pos, dist);
+        }
 
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    {
-        vec3_t dist = scale_vec3(camera_right, delta_t * 2.0f);
-        camera_pos = add_vec3(camera_pos, dist);
-    }
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        {
+            vec3_t dist = scale_vec3(camera_right, -delta_t * 2.0f);
+            camera_pos = add_vec3(camera_pos, dist);
+        }
 
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-    {
-        vec3_t dist = scale_vec3(world_up, delta_t * 2.0f);
-        camera_pos = add_vec3(camera_pos, dist);
-    }
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        {
+            vec3_t dist = scale_vec3(camera_right, delta_t * 2.0f);
+            camera_pos = add_vec3(camera_pos, dist);
+        }
 
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-    {
-        vec3_t dist = scale_vec3(world_up, -delta_t * 2.0f);
-        camera_pos = add_vec3(camera_pos, dist);
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        {
+            vec3_t dist = scale_vec3(world_up, delta_t * 2.0f);
+            camera_pos = add_vec3(camera_pos, dist);
+        }
+
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        {
+            vec3_t dist = scale_vec3(world_up, -delta_t * 2.0f);
+            camera_pos = add_vec3(camera_pos, dist);
+        }
+
+        return;
     }
+    
+    // TODO player controls
 }
 
 // glfw function wrappers

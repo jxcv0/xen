@@ -6,9 +6,6 @@
 
 #include <stdio.h>
 
-// #include "gltestinl.h"
-// /*
-
 int main()
 {
     // window
@@ -24,13 +21,15 @@ int main()
     checkerr();
 
     // projection matrix
-    mat4_t p_mat = perspective(45.0f, 0.1f, 100.0f, (SCREEN_W/SCREEN_H));
+    mat4_t p_mat = perspective(55.0f, 0.1f, 100.0f, (SCREEN_W/SCREEN_H));
     shader_set_uniform(shader, "projection", p_mat);
     checkerr();
 
     light_t light = create_default_light();
 
     float last_frame = 0.0f;
+    
+    camera_update_dir(window, (double)SCREEN_W/2.0, (double)SCREEN_H/2.0);
 
     // TODO will be producer loop
     while(!window_should_close())
@@ -48,12 +47,7 @@ int main()
         shader_set_uniform(shader, "view_pos", camera_pos);
 
         // model matrix
-        vec3_t mesh_pos = construct_vec3(0.0f, 0.0f, 0.0f);
-        vec3_t up = construct_vec3(0.0f, 1.0f, 0.0f);
-        mat4_t m_mat = construct_mat4(1.0f);
-        m_mat = translate(m_mat, mesh_pos);
-        m_mat = rotate(m_mat, up, 0.0f);
-        shader_set_uniform(shader, "model", m_mat);
+        shader_set_uniform(shader, "model", mesh_model_matrix(&mesh));
 
         // light
         shader_set_uniform(shader, "light.color", light.color);
@@ -76,4 +70,3 @@ int main()
 
     return 0;
 }
-// */
