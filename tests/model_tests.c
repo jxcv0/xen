@@ -43,7 +43,7 @@ void tex_coords_test()
 int main(void)
 {
     window_init(100.0f, 100.0f, "test");
-    load_mesh(&mesh, "assets/models/cyborg/", "cyborg");
+    mesh_load(&mesh, "assets/models/cyborg/", "cyborg");
 
     tex_coords_test();
     return 0;

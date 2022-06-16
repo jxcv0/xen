@@ -451,7 +451,7 @@ int mesh_load(mesh_t* mesh, const char* dir, const char* name)
     // textures
     size_t namelen = strlen(name);
 
-    char diff[namelen + 9]; // name + "_type.png"
+    char diff[namelen + 9]; /* name + "_type.png" */
     strcpy(diff, name);
     strcat(diff, "_diff.png");
 
