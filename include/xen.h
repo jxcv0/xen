@@ -355,9 +355,10 @@ int mesh_load(mesh_t* mesh, const char* dir, const char* name)
     strcat(filepath, ".obj");
 
     const struct aiScene* scene = aiImportFile(filepath,
-        aiProcess_CalcTangentSpace      | 
-        aiProcess_Triangulate           |
-        aiProcess_JoinIdenticalVertices );
+        aiProcess_Triangulate      |
+        aiProcess_GenSmoothNormals |
+        aiProcess_FlipUVs          |
+        aiProcess_CalcTangentSpace );
 
     if (!scene)
     {
