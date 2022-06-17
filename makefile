@@ -14,10 +14,11 @@ run_tests: build_tests
 
 debug: mkbin src/xen.c src/glad.c
 	@gcc src/xen.c src/glad.c -I include/ -Wall -Werror -o bin/xen -ggdb -ldl -lm -lglfw -lpthread -lassimp
-	@./bin/xen
 
 fast: mkbin src/xen.c src/glad.c
 	@gcc src/xen.c src/glad.c -I include/ -o bin/xen -O3 -ldl -lm -lglfw -lpthread -lassimp
+
+run:
 	@./bin/xen
 
 clean:
