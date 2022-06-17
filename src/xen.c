@@ -10,22 +10,22 @@
 
 // window
 GLFWwindow* window;
-float screen_w = 800.0f;
-float screen_h = 600.0f;
+static float screen_w = 800.0f;
+static float screen_h = 600.0f;
 
 // camera
-vec3_t camera_pos = { .values = {0.0f, 0.0f, 0.0f} };
-vec3_t camera_dir = { .values = {0.0f, 0.0f, -1.0f} };
-vec3_t camera_up = { .values = {0.0f, 1.0f, 0.0f} };
-vec3_t camera_right = { .values = {1.0f, 0.0f, 0.0f} };
-vec3_t world_up = { .values = {0.0f, 1.0f, 0.0f} };
-bool camera_movement_debug = false;
-bool first_mouse = true;
-float rot_a = 0.0f;  // rotation about x axis
-float rot_b = -90.0f; // rotation about y axis
-float prev_x = 0;
-float prev_y = 0;
-float offset_rad = 3.0f;
+static vec3_t camera_pos = { .values = {0.0f, 0.0f, 0.0f} };
+static vec3_t camera_dir = { .values = {0.0f, 0.0f, -1.0f} };
+static vec3_t camera_up = { .values = {0.0f, 1.0f, 0.0f} };
+static vec3_t camera_right = { .values = {1.0f, 0.0f, 0.0f} };
+static vec3_t world_up = { .values = {0.0f, 1.0f, 0.0f} };
+static bool camera_movement_debug = false;
+static bool first_mouse = true;
+static float rot_a = 0.0f;  // rotation about x axis
+static float rot_b = -90.0f; // rotation about y axis
+static float prev_x = 0;
+static float prev_y = 0;
+static float offset_rad = 3.0f;
 
 // check for gl errs
 GLenum checkerror_(const char *file, int line)
@@ -675,6 +675,7 @@ void handle_input(float delta_t)
     // TODO player controls
 }
 
+// main setup and game loop
 int main()
 {
     // window

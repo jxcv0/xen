@@ -13,7 +13,7 @@
 
 // TODO SIMD
 
-float radians(float x)
+static inline float radians(float x)
 {
     return x * 0.0174533;
 }
@@ -39,19 +39,19 @@ typedef struct mat4_t
 } mat4_t;
 
 // convenience printf function
-void print_vec3(const vec3_t v)
+static inline void print_vec3(const vec3_t v)
 {
     printf("| %f, %f, %f |\n", v.values[0], v.values[1], v.values[2]);
 }
 
 // convenience printf function
-void print_vec4(const vec4_t v)
+static inline void print_vec4(const vec4_t v)
 {
     printf("| %f, %f, %f, %f |\n", v.values[0], v.values[1], v.values[2], v.values[3]);
 }
 
 // construct a 3 dimensional vector
-vec3_t construct_vec3(float x, float y, float z)
+static inline vec3_t construct_vec3(float x, float y, float z)
 {
     vec3_t v = {
         .values = {x, y, z}
@@ -60,7 +60,7 @@ vec3_t construct_vec3(float x, float y, float z)
 }
 
 // construct a 4 dimensional vector
-vec4_t construct_vec4(float x, float y, float z, float w)
+static inline vec4_t construct_vec4(float x, float y, float z, float w)
 {
     vec4_t v = {
         .values = {x, y, z, w}
@@ -69,7 +69,7 @@ vec4_t construct_vec4(float x, float y, float z, float w)
 }
 
 // construct 4x4 matrix
-mat4_t construct_mat4(float x)
+static inline mat4_t construct_mat4(float x)
 {
     mat4_t m = {0};
     m.values[0][0] = x;
@@ -80,14 +80,14 @@ mat4_t construct_mat4(float x)
 }
 
 // get a row of a 4x4 matrix as a vec4
-vec4_t row_mat4(const mat4_t m, int n)
+static inline vec4_t row_mat4(const mat4_t m, int n)
 {
     vec4_t v = construct_vec4(m.values[n][0], m.values[n][1], m.values[n][2], m.values[n][3]);
     return v;
 }
 
 // convenience printf function
-void print_mat4(const mat4_t m)
+static inline void print_mat4(const mat4_t m)
 {
     for (int i = 0; i < 4; i++)
     {
@@ -97,7 +97,7 @@ void print_mat4(const mat4_t m)
 }
 
 // scale a vec3
-vec3_t scale_vec3(const vec3_t v, const float s)
+static inline vec3_t scale_vec3(const vec3_t v, const float s)
 {
     return construct_vec3(v.values[0] * s,
                           v.values[1] * s,
@@ -105,21 +105,21 @@ vec3_t scale_vec3(const vec3_t v, const float s)
 }
 
 // get a column of a 4x4 matrix as a vec4
-vec4_t col_mat4(const mat4_t m, int n)
+static inline vec4_t col_mat4(const mat4_t m, int n)
 {
     vec4_t v = construct_vec4(m.values[0][n], m.values[1][n], m.values[2][n], m.values[3][n]);
     return v;
 }
 
 // compare 2 floats TODO why does this not work sometimes
-bool fequal(const float a, const float b)
+static inline bool fequal(const float a, const float b)
 {
     if (fabs(a - b) > FLT_EPSILON) { return false; }
     else { return true; }
 }
 
 // compare 2 vec3s
-bool compare_vec3(const vec3_t v1, const vec3_t v2)
+static inline bool compare_vec3(const vec3_t v1, const vec3_t v2)
 {
     for (int i = 0; i < 3; i++)
     {
@@ -132,7 +132,7 @@ bool compare_vec3(const vec3_t v1, const vec3_t v2)
 }
 
 // compare 2 vec4s
-bool compare_vec4(const vec4_t v1, const vec4_t v2)
+static inline bool compare_vec4(const vec4_t v1, const vec4_t v2)
 {
     for (int i = 0; i < 4; i++)
     {
@@ -145,7 +145,7 @@ bool compare_vec4(const vec4_t v1, const vec4_t v2)
 }
 
 // compare 2 mat4s
-bool compare_mat4(const mat4_t m1, const mat4_t m2)
+static inline bool compare_mat4(const mat4_t m1, const mat4_t m2)
 {
     for(int i = 0; i < 4; i++)
     {
@@ -161,7 +161,7 @@ bool compare_mat4(const mat4_t m1, const mat4_t m2)
 }
 
 // make the magnitude of a vec3 equal to 1
-vec3_t normalize_vec3(const vec3_t v)
+static inline vec3_t normalize_vec3(const vec3_t v)
 {
     vec3_t nv = {0};
 
@@ -178,7 +178,7 @@ vec3_t normalize_vec3(const vec3_t v)
 }
 
 // get the sum of 2 vec3s
-vec3_t add_vec3(const vec3_t v1, const vec3_t v2)
+static inline vec3_t add_vec3(const vec3_t v1, const vec3_t v2)
 {
     return construct_vec3((v1.values[0] + v2.values[0]),
                           (v1.values[1] + v2.values[1]),
@@ -186,7 +186,7 @@ vec3_t add_vec3(const vec3_t v1, const vec3_t v2)
 }
 
 // get the sum of 2 vec4s
-vec4_t add_vec4(const vec4_t v1, const vec4_t v2)
+static inline vec4_t add_vec4(const vec4_t v1, const vec4_t v2)
 {
     return construct_vec4((v1.values[0] + v2.values[0]),
                           (v1.values[1] + v2.values[1]),
@@ -195,7 +195,7 @@ vec4_t add_vec4(const vec4_t v1, const vec4_t v2)
 }
 
 // get the difference of 2 vec3s
-vec3_t subtract_vec3(const vec3_t v1, const vec3_t v2)
+static inline vec3_t subtract_vec3(const vec3_t v1, const vec3_t v2)
 {
     return construct_vec3((v1.values[0] - v2.values[0]),
                           (v1.values[1] - v2.values[1]),
@@ -203,7 +203,7 @@ vec3_t subtract_vec3(const vec3_t v1, const vec3_t v2)
 }
 
 // get the difference of 2 vec4s
-vec4_t subtract_vec4(const vec4_t v1, const vec4_t v2)
+static inline vec4_t subtract_vec4(const vec4_t v1, const vec4_t v2)
 {
     return construct_vec4((v1.values[0] - v2.values[0]),
                           (v1.values[1] - v2.values[1]),
@@ -212,7 +212,7 @@ vec4_t subtract_vec4(const vec4_t v1, const vec4_t v2)
 }
 
 // get the dot product of 2 vec3s
-float dot_vec3(const vec3_t v1, const vec3_t v2)
+static inline float dot_vec3(const vec3_t v1, const vec3_t v2)
 {
     return (v1.values[0] * v2.values[0])
          + (v1.values[1] * v2.values[1])
@@ -220,7 +220,7 @@ float dot_vec3(const vec3_t v1, const vec3_t v2)
 }
 
 // get the dot product of 2 vec4s
-float dot_vec4(const vec4_t v1, const vec4_t v2)
+static inline float dot_vec4(const vec4_t v1, const vec4_t v2)
 {
     return (v1.values[0] * v2.values[0])
          + (v1.values[1] * v2.values[1])
@@ -229,7 +229,7 @@ float dot_vec4(const vec4_t v1, const vec4_t v2)
 }
 
 // multiply a vec3 by a scalar
-vec3_t scalar_vec3(const vec3_t v, float s)
+static inline vec3_t scalar_vec3(const vec3_t v, float s)
 {
     vec3_t sv = {
         .values ={
@@ -242,7 +242,7 @@ vec3_t scalar_vec3(const vec3_t v, float s)
 }
 
 // multiply a vec4 by a scalar
-vec4_t scalar_vec4(const vec4_t v, float s)
+static inline vec4_t scalar_vec4(const vec4_t v, float s)
 {
     vec4_t sv = {
         .values = {
@@ -256,7 +256,7 @@ vec4_t scalar_vec4(const vec4_t v, float s)
 }
 
 // get the cross product of 2 vec3s
-vec3_t cross_vec3(const vec3_t v1, const vec3_t v2)
+static inline vec3_t cross_vec3(const vec3_t v1, const vec3_t v2)
 {
     vec3_t v = {0};
 
@@ -268,7 +268,7 @@ vec3_t cross_vec3(const vec3_t v1, const vec3_t v2)
 }
 
 // get the cross product of 2 mat4s
-mat4_t cross_mat4(const mat4_t m1, const mat4_t m2)
+static inline mat4_t cross_mat4(const mat4_t m1, const mat4_t m2)
 {
     mat4_t m = {0};
 
@@ -296,7 +296,7 @@ mat4_t cross_mat4(const mat4_t m1, const mat4_t m2)
 }
 
 // create perspective projection matrix
-mat4_t perspective(const float fov, const float near, const float far, const float ratio)
+static inline mat4_t perspective(const float fov, const float near, const float far, const float ratio)
 {
     mat4_t m = {0};
     
@@ -312,7 +312,7 @@ mat4_t perspective(const float fov, const float near, const float far, const flo
 }
 
 // create a transformation matrix from a vec3
-mat4_t translate(const mat4_t m, const vec3_t v)
+static inline mat4_t translate(const mat4_t m, const vec3_t v)
 {
     mat4_t tm = construct_mat4(1.0f);
     tm.values[3][0] = v.values[0];
@@ -322,7 +322,7 @@ mat4_t translate(const mat4_t m, const vec3_t v)
 }
 
 // create a transformation matrix from a vec3
-mat4_t rotate(const mat4_t m, const vec3_t axis, const float a)
+static inline mat4_t rotate(const mat4_t m, const vec3_t axis, const float a)
 {
     float rad = radians(a);
     float c = cos(rad);
@@ -354,7 +354,7 @@ mat4_t rotate(const mat4_t m, const vec3_t axis, const float a)
 
 // create view matrix
 // FIXME is the this the correct handedness?
-mat4_t look_at(const vec3_t eye, const vec3_t ctr, const vec3_t up)
+static inline mat4_t look_at(const vec3_t eye, const vec3_t ctr, const vec3_t up)
 {
     vec3_t f = normalize_vec3(subtract_vec3(ctr, eye));
     vec3_t s = normalize_vec3(cross_vec3(f, up));

@@ -27,6 +27,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+// global window - only need one of these
 extern GLFWwindow* window;
 
 // check for gl errs
