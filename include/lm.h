@@ -1,3 +1,8 @@
+/* 
+ * Copyright (c) 2022 Jacob Micoud
+ * Licensed under GPL-3.0-or-later
+ */
+
 #ifndef LM_H
 #define LM_H
 

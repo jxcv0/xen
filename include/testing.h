@@ -1,3 +1,8 @@
+/* 
+ * Copyright (c) 2022 Jacob Micoud
+ * Licensed under GPL-3.0-or-later
+ */
+
 #ifndef TESTING_H
 #define TESTING_H
 
