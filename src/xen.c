@@ -333,17 +333,20 @@ int mesh_load(mesh_t* mesh, const char* dir, const char* name)
         mesh->normals[i].values[0] = ai_mesh->mNormals[i].x;
         mesh->normals[i].values[1] = ai_mesh->mNormals[i].y;
         mesh->normals[i].values[2] = ai_mesh->mNormals[i].z;
+    
+        if (ai_mesh->mTextureCoords[0])
+        {
+            mesh->tex_coords[i].values[0] = ai_mesh->mTextureCoords[0][i].x; 
+            mesh->tex_coords[i].values[1] = ai_mesh->mTextureCoords[0][i].y;
 
-        mesh->tex_coords[i].values[0] = ai_mesh->mTextureCoords[0][i].x; 
-        mesh->tex_coords[i].values[1] = ai_mesh->mTextureCoords[0][i].y;
+            mesh->tangents[i].values[0] = ai_mesh->mTangents[i].x;
+            mesh->tangents[i].values[1] = ai_mesh->mTangents[i].y;
+            mesh->tangents[i].values[2] = ai_mesh->mTangents[i].z;
 
-        mesh->tangents[i].values[0] = ai_mesh->mTangents[i].x;
-        mesh->tangents[i].values[1] = ai_mesh->mTangents[i].y;
-        mesh->tangents[i].values[2] = ai_mesh->mTangents[i].z;
-
-        mesh->bitangents[i].values[0] = ai_mesh->mBitangents[i].x;
-        mesh->bitangents[i].values[1] = ai_mesh->mBitangents[i].y;
-        mesh->bitangents[i].values[2] = ai_mesh->mBitangents[i].z;
+            mesh->bitangents[i].values[0] = ai_mesh->mBitangents[i].x;
+            mesh->bitangents[i].values[1] = ai_mesh->mBitangents[i].y;
+            mesh->bitangents[i].values[2] = ai_mesh->mBitangents[i].z;
+        }
     }
 
     int n = 0;
@@ -359,23 +362,26 @@ int mesh_load(mesh_t* mesh, const char* dir, const char* name)
     aiReleaseImport(scene);
 
     // textures
-    size_t namelen = strlen(name);
+    if (ai_mesh->mTextureCoords[0])
+    {
+        size_t namelen = strlen(name);
 
-    char diff[namelen + 9]; // name + "_type.png"
-    strcpy(diff, name);
-    strcat(diff, "_diff.png");
+        char diff[namelen + 9]; // name + "_type.png"
+        strcpy(diff, name);
+        strcat(diff, "_diff.png");
 
-    char spec[namelen + 9];
-    strcpy(spec, name);
-    strcat(spec, "_spec.png");
+        char spec[namelen + 9];
+        strcpy(spec, name);
+        strcat(spec, "_spec.png");
 
-    char norm[namelen + 9];
-    strcpy(norm, name);
-    strcat(norm, "_norm.png");
+        char norm[namelen + 9];
+        strcpy(norm, name);
+        strcat(norm, "_norm.png");
 
-    mesh->tex_ids[0] = load_texture(dir, diff);
-    mesh->tex_ids[1] = load_texture(dir, spec);
-    mesh->tex_ids[2] = load_texture(dir, norm);
+        mesh->tex_ids[0] = load_texture(dir, diff);
+        mesh->tex_ids[1] = load_texture(dir, spec);
+        mesh->tex_ids[2] = load_texture(dir, norm);
+    }
 
     // gl buffers
     glGenVertexArrays(1, &mesh->VAO);
@@ -421,6 +427,116 @@ int mesh_load(mesh_t* mesh, const char* dir, const char* name)
     glBindVertexArray(0);
     return 0;
 }
+
+// load a mesh with no texture data
+int mesh_load_simple(mesh_t* mesh, const char* filepath)
+{
+    mesh->tex_coords = NULL;
+    mesh->tangents = NULL;
+    mesh->bitangents = NULL;
+
+    const struct aiScene* scene = aiImportFile(filepath,
+        aiProcess_Triangulate      |
+        aiProcess_GenSmoothNormals |
+        aiProcess_FlipUVs          |
+        aiProcess_CalcTangentSpace );
+
+    if (!scene)
+    {
+        fprintf(stderr, "Unable to open model file | %s\n", filepath);
+        return 1;
+    }
+
+    mesh->world_position = construct_vec3(0.0f, 0.0f, 0.0f);
+    mesh->rot_b = 180.0f;   // facing -z
+
+    struct aiMesh* ai_mesh = scene->mMeshes[0];
+    mesh->n_vertices = ai_mesh->mNumVertices;
+    mesh->n_indices = ai_mesh->mNumFaces * 3;    // all faces are triangulated
+
+    // allocate block of memory for mesh
+    size_t positions_size = sizeof(vec3_t) * mesh->n_vertices;
+    size_t normals_size = sizeof(vec3_t) * mesh->n_vertices;
+    size_t indices_size = sizeof(int) * mesh->n_indices;
+
+    size_t mem_size = positions_size
+                    + normals_size
+                    + indices_size;
+
+    mesh->mem_block = malloc(mem_size);
+
+    // memory offsets into mesh memory
+    mesh->positions = (vec3_t*)(mesh->mem_block);
+
+    mesh->normals = (vec3_t*)(mesh->mem_block
+                            + positions_size);
+
+    mesh->tex_coords = (vec2_t*)(mesh->mem_block
+                               + positions_size
+                               + normals_size);
+
+    mesh->indices = (int*)(mesh->mem_block
+                         + positions_size
+                         + normals_size);
+
+    for(int i = 0; i < ai_mesh->mNumVertices; i++)
+    {
+        mesh->positions[i].values[0] = ai_mesh->mVertices[i].x;
+        mesh->positions[i].values[1] = ai_mesh->mVertices[i].y;
+        mesh->positions[i].values[2] = ai_mesh->mVertices[i].z;
+
+        mesh->normals[i].values[0] = ai_mesh->mNormals[i].x;
+        mesh->normals[i].values[1] = ai_mesh->mNormals[i].y;
+        mesh->normals[i].values[2] = ai_mesh->mNormals[i].z;
+    }
+
+    int n = 0;
+    for(int i = 0; i < ai_mesh->mNumFaces; i++)
+    {
+        struct aiFace face = ai_mesh->mFaces[i];
+        for(int j = 0; j < face.mNumIndices; j++)
+        {
+            mesh->indices[n++] = face.mIndices[j];
+        }
+    }
+
+    aiReleaseImport(scene);
+
+    // gl buffers
+    glGenVertexArrays(1, &mesh->VAO);
+    glGenBuffers(1, &mesh->VBO);
+    glGenBuffers(1, &mesh->EBO);
+
+    glBindVertexArray(mesh->VAO);
+
+    // vertices
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->VBO);
+    glBufferData(GL_ARRAY_BUFFER, mem_size, mesh->mem_block, GL_STATIC_DRAW);
+
+    // indices
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->n_indices * sizeof(unsigned int), &mesh->indices[0], GL_STATIC_DRAW);
+
+    // positions
+    ptrdiff_t offset = (void*)mesh->positions - mesh->mem_block;
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)offset);
+    
+    // normals
+    offset = (void*)mesh->tex_coords - mesh->mem_block;
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)offset);
+
+    // tex_coords
+    offset = (void*)mesh->normals - mesh->mem_block;
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)offset);
+
+    // unbind
+    glBindVertexArray(0);
+    return 0;
+}
+
 // free mesh memory
 void free_mesh(mesh_t* mesh)
 {
@@ -687,7 +803,7 @@ int main()
     
     // mesh
     mesh_t mesh;
-    mesh_load(&mesh, "assets/models/cyborg/", "cyborg");
+    mesh_load_simple(&mesh, "assets/models/ucube/ucube.obj");
     checkerr();
 
     // projection matrix

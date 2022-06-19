@@ -144,8 +144,10 @@ unsigned int load_texture(const char* dir, const char* tex_name);
 
 // for now we assume that each model has 3 texture maps in the same dir, the file is .obj and all 3
 // textures are .png
-// TODO lots of strange string things going on here
 int mesh_load(mesh_t* mesh, const char* dir, const char* name);
+
+// load a mesh with no texture data
+int mesh_load_simple(mesh_t* mesh, const char* filepath);
 
 // free mesh memory
 void free_mesh(mesh_t* mesh);
