@@ -545,31 +545,53 @@ void free_mesh(mesh_t* mesh)
     free(mesh->mem_block);
 }
 
-// draw a mesh
+// draw a mesh with textures
 void draw_mesh(mesh_t* mesh, unsigned int shader)
 {
     shader_use(shader);
+    checkerr();
 
-    // diff
-    glActiveTexture(GL_TEXTURE0);
-    shader_set_uniform(shader, "tex_diff", 0);
-    glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[0]);
+    if (mesh->tex_coords != NULL)
+    {
+        // diff
+        glActiveTexture(GL_TEXTURE0);
+        shader_set_uniform(shader, "tex_diff", 0);
+        glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[0]);
 
-    // spec
-    glActiveTexture(GL_TEXTURE1);
-    shader_set_uniform(shader, "tex_spec", 1);
-    glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[1]);
+        // spec
+        glActiveTexture(GL_TEXTURE1);
+        shader_set_uniform(shader, "tex_spec", 1);
+        glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[1]);
 
-    // norm
-    glActiveTexture(GL_TEXTURE2);
-    shader_set_uniform(shader, "tex_norm", 2);
-    glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[2]);
+        // norm
+        glActiveTexture(GL_TEXTURE2);
+        shader_set_uniform(shader, "tex_norm", 2);
+        glBindTexture(GL_TEXTURE_2D, mesh->tex_ids[2]);
+        checkerr();
+    }
 
     glBindVertexArray(mesh->VAO);
     glDrawElements(GL_TRIANGLES, mesh->n_indices, GL_UNSIGNED_INT, 0);
+    checkerr();
 
     glBindVertexArray(0);
     glActiveTexture(GL_TEXTURE0);
+    checkerr();
+}
+
+// draw a simple mesh with no textures
+void draw_mesh_simple(mesh_t* mesh, unsigned int shader)
+{
+    shader_use(shader);
+    checkerr();
+
+    glBindVertexArray(mesh->VAO);
+    glDrawElements(GL_TRIANGLES, mesh->n_indices, GL_UNSIGNED_INT, 0);
+    checkerr();
+
+    glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
+    checkerr();
 }
 
 // update the camera direction based on a change in mouse position
@@ -606,7 +628,7 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
                                 -offset_rad * (sin(rads_a)),
                                 -offset_rad * (sin(rads_b) * cos(rads_a)));
 
-    camera_pos.values[1] += 3.5f;
+    camera_pos.values[1] += 1.5f;
 
     camera_dir = construct_vec3(cos(rads_b) * cos(rads_a),
                                 sin(rads_a),
@@ -798,7 +820,7 @@ int main()
     xen_init();
 
     // shader
-    unsigned int shader = shader_load("assets/shaders/ubershader.vert", "assets/shaders/ubershader.frag");
+    unsigned int shader = shader_load("assets/shaders/cube_uber.vert", "assets/shaders/cube_uber.frag");
     shader_use(shader);
     
     // mesh
@@ -831,7 +853,9 @@ int main()
         shader_set_uniform(shader, "view_pos", camera_pos);
 
         // model matrix
+        vec3_t col = construct_vec3(0.0f, 0.3f, 0.3f);
         shader_set_uniform(shader, "model", mesh_model_matrix(&mesh));
+        shader_set_uniform(shader, "base_col", col);
 
         // light
         shader_set_uniform(shader, "light.color", light.color);
@@ -843,7 +867,7 @@ int main()
 
         // draw
         clear_buffers();
-        draw_mesh(&mesh, shader);
+        draw_mesh_simple(&mesh, shader);
 
         swap_buffers();
         poll_events();

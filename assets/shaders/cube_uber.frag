@@ -2,11 +2,10 @@
 out vec4 frag_col;
 
 in vec3 frag_pos;
-in vec2 tex_coord;
 in vec3 normal;
-in mat3 TBN;
 
 uniform vec3 base_col;
+uniform float shininess;
 uniform vec3 view_pos;
 
 struct light_t
