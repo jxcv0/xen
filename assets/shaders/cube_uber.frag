@@ -55,5 +55,5 @@ void main()
 	normal = normalize(normal);
 
 	vec3 result = calc_light(light, normal, view_dir);
-    frag_col = vec4(result, 1.0);
+    frag_col = vec4(mix(result, base_col, 0.5f), 1.0);
 }
