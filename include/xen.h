@@ -13,21 +13,11 @@
 #include "glad.h"
 #include <GLFW/glfw3.h>
 
-#include <assimp/cimport.h>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include <stdbool.h>
 
 // #include <pthread.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
-// global window - only need one of these
+// global window extern for static inlines
 extern GLFWwindow* window;
 
 // check for gl errs
@@ -107,17 +97,7 @@ typedef struct light_t
     float quadratic;
 } light_t;
 
-light_t create_default_light()
-{
-    light_t result = {
-        .color.values = {1.0f, 1.0f, 1.0f},
-        .position.values = {1.0f, 3.0f, -1.0f},
-        .constant = 1.0f,
-        .linear = 0.09f,
-        .quadratic = 0.032
-    };
-    return result;
-}
+light_t create_default_light();
 
 typedef struct mesh_t
 {
@@ -153,10 +133,13 @@ int mesh_load_simple(mesh_t* mesh, const char* filepath);
 void free_mesh(mesh_t* mesh);
 
 // draw a simple mesh with no textures
-void draw_mesh_simple(mesh_t* mesh, unsigned int shader)
+void draw_mesh_simple(mesh_t* mesh, unsigned int shader);
 
 // draw a mesh
 void draw_mesh(mesh_t* mesh, unsigned int shader);
+
+// initialize the camera direction based on screen size and cursor position
+void camera_dir_init();
 
 // update the camera direction based on a change in mouse position
 // default version rotates about world origin
@@ -165,6 +148,9 @@ void camera_update_dir(GLFWwindow* window, double x, double y);
 // update the camera direction based on a change in mouse position
 // debug version rotates about camera_pos
 void camera_update_dir_debug(GLFWwindow* window, double x, double y);
+
+// get the current camera position
+vec3_t get_camera_pos();
 
 // create a model matrix from a mesh position and rotation
 mat4_t mesh_model_matrix(const mesh_t* mesh);
@@ -178,15 +164,18 @@ void on_resize(GLFWwindow* window, int width, int height);
 // initialize window and opengl
 void xen_init();
 
+// get the aspect ratio of the screen
+float get_aspect();
+
 // get input from glfw window
 void handle_input(float delta_t);
 
 // glfw function wrappers
-void swap_buffers() { glfwSwapBuffers(window); }
-void poll_events() { glfwPollEvents(); }
-void close_window() { glfwTerminate(); }
-bool window_should_close() { return glfwWindowShouldClose(window); }
-void clear_buffers()
+static inline void swap_buffers() { glfwSwapBuffers(window); }
+static inline void poll_events() { glfwPollEvents(); }
+static inline void close_window() { glfwTerminate(); }
+static inline bool window_should_close() { return glfwWindowShouldClose(window); }
+static inline void clear_buffers()
 {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

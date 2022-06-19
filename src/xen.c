@@ -3,10 +3,19 @@
  * Licensed under GPL-3.0-or-later
  */
 
-#define XEN_DEBUG
 #include "xen.h"
 
+#include <assimp/cimport.h>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+#include <stdlib.h>
+#include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 // window
 GLFWwindow* window;
@@ -25,7 +34,7 @@ static float rot_a = 0.0f;  // rotation about x axis
 static float rot_b = -90.0f; // rotation about y axis
 static float prev_x = 0;
 static float prev_y = 0;
-static float offset_rad = 3.0f;
+static float offset_rad = 5.0f;
 
 // check for gl errs
 GLenum checkerror_(const char *file, int line)
@@ -97,6 +106,19 @@ void APIENTRY gl_debug_output(GLenum source,
     }
     printf("\n\n");
 }
+
+light_t create_default_light()
+{
+    light_t result = {
+        .color.values = {1.0f, 1.0f, 1.0f},
+        .position.values = {1.0f, 3.0f, -1.0f},
+        .constant = 1.0f,
+        .linear = 0.09f,
+        .quadratic = 0.032
+    };
+    return result;
+}
+
 // check compile status
 void shader_check_compile(GLuint shader_id, const char* msg)
 {
@@ -594,6 +616,12 @@ void draw_mesh_simple(mesh_t* mesh, unsigned int shader)
     checkerr();
 }
 
+// initialize the camera direction based on screen size and cursor position
+void camera_dir_init()
+{
+    camera_update_dir(window, (double)screen_w/2.0, (double)screen_h/2.0);
+}
+
 // update the camera direction based on a change in mouse position
 // default version rotates about world origin
 void camera_update_dir(GLFWwindow* window, double x, double y)
@@ -678,6 +706,12 @@ void camera_update_dir_debug(GLFWwindow* window, double x, double y)
     camera_up = normalize_vec3(cross_vec3(camera_dir, camera_right));
 }
 
+// get the current camera position
+vec3_t get_camera_pos()
+{
+    return camera_pos;
+}
+
 // create a model matrix from a mesh position and rotation
 mat4_t mesh_model_matrix(const mesh_t* mesh)
 {
@@ -698,6 +732,7 @@ void on_resize(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+// initialize window and opengl
 void xen_init()
 {
     glfwInit();
@@ -744,6 +779,12 @@ void xen_init()
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
     }
 #endif
+}
+
+// get the aspect ratio of the screen
+float get_aspect()
+{
+    return screen_w/screen_h;
 }
 
 // get input from glfw window
@@ -811,71 +852,4 @@ void handle_input(float delta_t)
     }
     
     // TODO player controls
-}
-
-// main setup and game loop
-int main()
-{
-    // window
-    xen_init();
-
-    // shader
-    unsigned int shader = shader_load("assets/shaders/cube_uber.vert", "assets/shaders/cube_uber.frag");
-    shader_use(shader);
-    
-    // mesh
-    mesh_t mesh;
-    mesh_load_simple(&mesh, "assets/models/ucube/ucube.obj");
-    checkerr();
-
-    // projection matrix
-    mat4_t p_mat = perspective(55.0f, 0.1f, 100.0f, (screen_w/screen_h));
-    shader_set_uniform(shader, "projection", p_mat);
-    checkerr();
-
-    light_t light = create_default_light();
-
-    float last_frame = 0.0f;
-    
-    camera_update_dir(window, (double)screen_w/2.0, (double)screen_h/2.0);
-
-    // TODO will be producer loop
-    while(!window_should_close())
-    {
-        float current_frame = (float)glfwGetTime();
-        float delta_time = current_frame - last_frame;
-        last_frame = current_frame;
-
-        handle_input(delta_time);
-
-        // view matrix
-        shader_set_uniform(shader, "view", camera_view_matrix());
-        shader_set_uniform(shader, "view_pos", camera_pos);
-
-        // model matrix
-        vec3_t col = construct_vec3(0.0f, 0.3f, 0.3f);
-        shader_set_uniform(shader, "model", mesh_model_matrix(&mesh));
-        shader_set_uniform(shader, "base_col", col);
-
-        // light
-        shader_set_uniform(shader, "light.color", light.color);
-        shader_set_uniform(shader, "light.position", light.position);
-        shader_set_uniform(shader, "light.constant", light.constant);
-        shader_set_uniform(shader, "light.linear", light.linear);
-        shader_set_uniform(shader, "light.quadratic", light.quadratic);
-        shader_set_uniform(shader, "shininess", 8.0f);
-
-        // draw
-        clear_buffers();
-        draw_mesh_simple(&mesh, shader);
-
-        swap_buffers();
-        poll_events();
-        checkerr();
-    }
-
-    free_mesh(&mesh);
-    close_window();
-
-    return 0;
 }
