@@ -44,11 +44,6 @@ int main()
         shader_set_uniform(shader, "base_col", col);
 
         // light
-        shader_set_uniform(shader, "light.color", light.color);
-        shader_set_uniform(shader, "light.position", light.position);
-        shader_set_uniform(shader, "light.constant", light.constant);
-        shader_set_uniform(shader, "light.linear", light.linear);
-        shader_set_uniform(shader, "light.quadratic", light.quadratic);
         shader_set_uniform(shader, "shininess", 8.0f);
 
         // draw

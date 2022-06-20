@@ -18,12 +18,15 @@ struct light_t
 	float linear;
 	float quadratic;
 };
-uniform light_t light;
+
+#define MAX_LIGHTS 16;
+
+// lights
+uniform light_t lights[MAX_LIGHTS];
 
 // calculate on omnidirectional light
 vec3 calc_light(light_t light, vec3 normal, vec3 view_dir)
 {
-	
 	float distance = length(light.position - frag_pos);
 	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic + (distance * distance));
 
@@ -54,6 +57,10 @@ void main()
 	normal = (normal * 2.0 - 1.0);
 	normal = normalize(normal);
 
-	vec3 result = calc_light(light, normal, view_dir);
+    vec3 result;
+    for (int i = 0; i < MAX_LIGHTS; i++)
+    {
+	    result += calc_light(lights[i], normal, view_dir);
+    }
     frag_col = vec4(mix(result, base_col, 0.5f), 1.0);
 }

@@ -34,6 +34,16 @@ void APIENTRY gl_debug_output(GLenum source,
                               const char *message,
                               const void *userParam);
 
+typedef struct light_t
+{
+    vec3_t color;
+    vec3_t position;
+    float constant;
+    float linear;
+    float quadratic;
+} light_t;
+
+light_t create_default_light();
 // check compile status
 void shader_check_compile(GLuint shader_id, const char* msg);
 
@@ -56,7 +66,13 @@ static inline void shader_use(unsigned int shader)
     vec2_t: shader_set_uniform_vec2, \
     vec3_t: shader_set_uniform_vec3, \
     mat4_t: shader_set_uniform_mat4 \
+    light_t: shader_set_uniform_light
     )(x, y, z)
+
+// set shader uniform utility function
+void shader_set_uniform_light(unsigned int shader,
+                                unsigned int uniform_index,
+                                const light_t* light);
 
 // set shader uniform utility function
 static inline void shader_set_uniform_int(unsigned int shader, const char* uniform_name, const int i)
@@ -87,17 +103,6 @@ static inline void shader_set_uniform_mat4(unsigned int shader, const char* unif
 {
     glUniformMatrix4fv(glGetUniformLocation(shader, uniform_name), 1, GL_FALSE, &m.values[0][0]);
 }
-
-typedef struct light_t
-{
-    vec3_t color;
-    vec3_t position;
-    float constant;
-    float linear;
-    float quadratic;
-} light_t;
-
-light_t create_default_light();
 
 typedef struct mesh_t
 {

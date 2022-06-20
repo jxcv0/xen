@@ -227,6 +227,19 @@ unsigned int shader_load(const char* vert_path, const char* frag_path)
     return program_id;
 }
 
+// set shader uniform utility function
+void shader_set_uniform_light(unsigned int shader,
+                                unsigned int uniform_index,
+                                const light_t* light)
+{
+    // TODO
+    shader_set_uniform(shader, "light.color", light.color);
+    shader_set_uniform(shader, "light.position", light.position);
+    shader_set_uniform(shader, "light.constant", light.constant);
+    shader_set_uniform(shader, "light.linear", light.linear);
+    shader_set_uniform(shader, "light.quadratic", light.quadratic);
+}
+
 // load a texure from a file and add data to gl buffers
 unsigned int load_texture(const char* dir, const char* tex_name)
 {
