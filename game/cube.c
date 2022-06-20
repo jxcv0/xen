@@ -44,6 +44,7 @@ int main()
         shader_set_uniform(shader, "base_col", col);
 
         // light
+        shader_set_uniform(shader, 0, &light);
         shader_set_uniform(shader, "shininess", 8.0f);
 
         // draw

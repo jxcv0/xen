@@ -15,14 +15,11 @@
 
 #include <stdbool.h>
 
-// #include <pthread.h>
-
 // global window extern for static inlines
 extern GLFWwindow* window;
 
 // check for gl errs
 GLenum checkerror_(const char *file, int line);
-
 #define checkerr() checkerror_(__FILE__, __LINE__)
 
 // opengl debug callback
@@ -65,14 +62,14 @@ static inline void shader_use(unsigned int shader)
     float: shader_set_uniform_float, \
     vec2_t: shader_set_uniform_vec2, \
     vec3_t: shader_set_uniform_vec3, \
-    mat4_t: shader_set_uniform_mat4 \
-    light_t: shader_set_uniform_light
+    mat4_t: shader_set_uniform_mat4, \
+    light_t*: shader_set_uniform_light \
     )(x, y, z)
 
 // set shader uniform utility function
 void shader_set_uniform_light(unsigned int shader,
-                                unsigned int uniform_index,
-                                const light_t* light);
+                              unsigned int uniform_index,
+                              const light_t* light);
 
 // set shader uniform utility function
 static inline void shader_set_uniform_int(unsigned int shader, const char* uniform_name, const int i)

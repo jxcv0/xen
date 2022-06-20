@@ -232,12 +232,33 @@ void shader_set_uniform_light(unsigned int shader,
                                 unsigned int uniform_index,
                                 const light_t* light)
 {
-    // TODO
-    shader_set_uniform(shader, "light.color", light.color);
-    shader_set_uniform(shader, "light.position", light.position);
-    shader_set_uniform(shader, "light.constant", light.constant);
-    shader_set_uniform(shader, "light.linear", light.linear);
-    shader_set_uniform(shader, "light.quadratic", light.quadratic);
+    char buffer[32];
+
+    sprintf(buffer, "light[%d].color", uniform_index);
+    const char* color = buffer;
+    printf("buffer: %s\n", buffer);
+
+    sprintf(buffer, "light[%d].position", uniform_index);
+    const char* position = buffer;
+    printf("buffer: %s\n", buffer);
+
+    sprintf(buffer, "light[%d].constant", uniform_index);
+    const char* constant = buffer;
+    printf("buffer: %s\n", buffer);
+
+    sprintf(buffer, "light[%d].linear", uniform_index);
+    const char* linear = buffer;
+    printf("buffer: %s\n", buffer);
+
+    sprintf(buffer, "light[%d].quadratic", uniform_index);
+    const char* quadratic = buffer;
+    printf("buffer: %s\n", buffer);
+
+    shader_set_uniform(shader, color, light->color);
+    shader_set_uniform(shader, position, light->position);
+    shader_set_uniform(shader, constant, light->constant);
+    shader_set_uniform(shader, linear, light->linear);
+    shader_set_uniform(shader, quadratic, light->quadratic);
 }
 
 // load a texure from a file and add data to gl buffers
