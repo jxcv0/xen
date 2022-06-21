@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <float.h>
-#include <assert.h>
 
 #ifdef _WIN32
 #define test_start() printf("TESTING %s ", __func__)

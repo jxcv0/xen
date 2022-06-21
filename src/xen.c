@@ -17,6 +17,9 @@
 #include <stdio.h>
 #include <string.h>
 
+// printf debuging
+#define HERE() printf("LINE: (%d)\n", __LINE__);
+
 // window
 GLFWwindow* window;
 static float screen_w = 800.0f;
@@ -37,7 +40,7 @@ static float prev_y = 0;
 static float offset_rad = 5.0f;
 
 // check for gl errs
-GLenum checkerror_(const char *file, int line)
+void checkerror_(const char *file, int line)
 {
     GLenum errorCode = GL_NO_ERROR;
     while ((errorCode = glGetError()) != GL_NO_ERROR)
@@ -55,7 +58,8 @@ GLenum checkerror_(const char *file, int line)
         }
         fprintf(stderr, "%s | %s (%d)\n", error, file, line);
     }
-    return errorCode;
+    // exit(1);
+    return;
 }
 
 // opengl debug callback
@@ -229,25 +233,23 @@ unsigned int shader_load(const char* vert_path, const char* frag_path)
 
 // set shader uniform utility function
 void shader_set_uniform_light(unsigned int shader,
-                                unsigned int uniform_index,
+                                unsigned int light_index,
                                 const light_t* light)
 {
-    char buffer[32];
+    char color[16];
+    sprintf(color, "lights[%d].color", light_index);
 
-    sprintf(buffer, "light[%d].color", uniform_index);
-    const char* color = buffer;
+    char position[19];
+    sprintf(position, "lights[%d].position", light_index);
 
-    sprintf(buffer, "light[%d].position", uniform_index);
-    const char* position = buffer;
+    char constant[19];
+    sprintf(constant, "lights[%d].constant", light_index);
 
-    sprintf(buffer, "light[%d].constant", uniform_index);
-    const char* constant = buffer;
+    char linear[17];
+    sprintf(linear, "lights[%d].linear", light_index);
 
-    sprintf(buffer, "light[%d].linear", uniform_index);
-    const char* linear = buffer;
-
-    sprintf(buffer, "light[%d].quadratic", uniform_index);
-    const char* quadratic = buffer;
+    char quadratic[20];
+    sprintf(quadratic, "lights[%d].quadratic", light_index);
 
     shader_set_uniform(shader, color, light->color);
     shader_set_uniform(shader, position, light->position);
@@ -633,16 +635,11 @@ void draw_mesh(mesh_t* mesh, unsigned int shader)
 // draw a simple mesh with no textures
 void draw_mesh_simple(mesh_t* mesh, unsigned int shader)
 {
-    shader_use(shader);
-    checkerr();
-
     glBindVertexArray(mesh->VAO);
     glDrawElements(GL_TRIANGLES, mesh->n_indices, GL_UNSIGNED_INT, 0);
-    checkerr();
 
     glBindVertexArray(0);
     glActiveTexture(GL_TEXTURE0);
-    checkerr();
 }
 
 // initialize the camera direction based on screen size and cursor position

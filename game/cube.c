@@ -22,6 +22,8 @@ int main()
     checkerr();
 
     light_t light = create_default_light();
+    // light.position = construct_vec3(2.0f, 3.0f, 0.0f);
+    // light.color = construct_vec3(1.0f, 1.0f, 1.0f);
     // light_t other_light = create_default_light();
     // other_light.position = construct_vec3(-1.0f, 2.0f, 1.0f);
 
@@ -47,8 +49,9 @@ int main()
 
         // light
         shader_set_uniform(shader, 0, &light);
+        checkerr();
         // shader_set_uniform(shader, 1, &other_light);
-        shader_set_uniform(shader, "shininess", 8.0f);
+        shader_set_uniform(shader, "shininess", 32.0f);
 
         // draw
         clear_buffers();

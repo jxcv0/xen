@@ -19,7 +19,7 @@
 extern GLFWwindow* window;
 
 // check for gl errs
-GLenum checkerror_(const char *file, int line);
+void checkerror_(const char *file, int line);
 #define checkerr() checkerror_(__FILE__, __LINE__)
 
 // opengl debug callback
@@ -40,7 +40,10 @@ typedef struct light_t
     float quadratic;
 } light_t;
 
+// create a light in the scene
+// returns a handle to the light in the lights array and sets appropriate light uniforms
 light_t create_default_light();
+
 // check compile status
 void shader_check_compile(GLuint shader_id, const char* msg);
 
@@ -68,7 +71,7 @@ static inline void shader_use(unsigned int shader)
 
 // set shader uniform utility function
 void shader_set_uniform_light(unsigned int shader,
-                              unsigned int uniform_index,
+                              unsigned int light_index,
                               const light_t* light);
 
 // set shader uniform utility function
