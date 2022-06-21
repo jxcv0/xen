@@ -17,8 +17,8 @@
 #include <stdio.h>
 #include <string.h>
 
-// printf debuging
-#define HERE() printf("LINE: (%d)\n", __LINE__);
+// printf debugging
+#define HERE() printf("LINE: (%d)\n", __LINE__)
 
 // window
 GLFWwindow* window;
@@ -72,7 +72,7 @@ void APIENTRY gl_debug_output(GLenum source,
                               const void *userParam)
 {
     // non-significant error codes
-    if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+    // if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
     printf("---------------\n");
     printf("Debug message (%d): %s\n", id, message);
@@ -111,6 +111,7 @@ void APIENTRY gl_debug_output(GLenum source,
     printf("\n\n");
 }
 
+// create a light
 light_t create_default_light()
 {
     light_t result = {

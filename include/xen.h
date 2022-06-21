@@ -15,7 +15,7 @@
 
 #include <stdbool.h>
 
-// global window extern for static inlines
+// global window for static inlines
 extern GLFWwindow* window;
 
 // check for gl errs
@@ -33,6 +33,7 @@ void APIENTRY gl_debug_output(GLenum source,
 
 typedef struct light_t
 {
+    int id;
     vec3_t color;
     vec3_t position;
     float constant;
@@ -40,8 +41,7 @@ typedef struct light_t
     float quadratic;
 } light_t;
 
-// create a light in the scene
-// returns a handle to the light in the lights array and sets appropriate light uniforms
+// create a light
 light_t create_default_light();
 
 // check compile status

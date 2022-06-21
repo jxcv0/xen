@@ -19,7 +19,7 @@ struct light_t
 	float quadratic;
 };
 
-#define MAX_LIGHTS 1
+#define MAX_LIGHTS 64
 
 // lights
 uniform light_t lights[MAX_LIGHTS];

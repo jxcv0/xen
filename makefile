@@ -1,3 +1,5 @@
+xen_source_files = src/xen.c
+
 mkbin:
 	@if [ ! -d "bin" ]; then mkdir bin; fi
 
