@@ -31,8 +31,8 @@ vec3 calc_light(light_t light, vec3 normal, vec3 view_dir)
 	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic + (distance * distance));
 
 	// ambient
-	float ambientStrength = 0.1;	// get this from where?
-	vec3 ambient = ambientStrength * light.color;
+	float ambientStrength = 0.1;
+	vec3 ambient = ambientStrength * light.color * base_col;
 
 	// extra normal normals
 	vec3 norm = normalize(normal);
