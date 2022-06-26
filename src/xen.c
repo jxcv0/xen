@@ -4,6 +4,7 @@
  */
 
 #include "xen.h"
+#include "lm.h"
 
 #include <assimp/cimport.h>
 #include <assimp/scene.h>
@@ -877,6 +878,5 @@ void handle_input(float delta_t)
 
         return;
     }
-    
     // TODO player controls
 }
