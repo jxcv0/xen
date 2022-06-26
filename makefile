@@ -1,3 +1,6 @@
+build: mkbin
+	@gcc src/cube.c src/xen.c src/glad.c -I src/ -Wall -Werror -o bin/cube -ggdb -ldl -lm -lglfw -lpthread -lassimp
+
 mkbin:
 	@if [ ! -d "bin" ]; then mkdir bin; fi
 
@@ -9,9 +12,6 @@ build_tests: mktests tests/lm_tests.c src/xen.c src/glad.c
 
 run_tests: build_tests
 	@./bin/tests/lm_tests
-
-build: mkbin
-	@gcc game/cube.c src/xen.c src/glad.c -I src/ -Wall -Werror -o bin/cube -ggdb -ldl -lm -lglfw -lpthread -lassimp
 
 run:
 	@./bin/cube

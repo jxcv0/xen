@@ -125,46 +125,46 @@ typedef struct mesh_t
 } mesh_t;
 
 // load a texure from a file and add data to gl buffers
-unsigned int load_texture(const char* dir, const char* tex_name);
+unsigned int load_texture(const char *dir, const char* tex_name);
 
 // for now we assume that each model has 3 texture maps in the same dir, the file is .obj and all 3
 // textures are .png
-int mesh_load(mesh_t* mesh, const char* dir, const char* name);
+int mesh_load(mesh_t* mesh, const char *dir, const char* name);
 
 // load a mesh with no texture data
-int mesh_load_simple(mesh_t* mesh, const char* filepath);
+int mesh_load_simple(mesh_t *mesh, const char* filepath);
 
 // free mesh memory
-void free_mesh(mesh_t* mesh);
+void free_mesh(mesh_t *mesh);
 
 // draw a simple mesh with no textures
-void draw_mesh_simple(mesh_t* mesh, unsigned int shader);
+void draw_mesh_simple(mesh_t *mesh, unsigned int shader);
 
 // draw a mesh
-void draw_mesh(mesh_t* mesh, unsigned int shader);
+void draw_mesh(mesh_t *mesh, unsigned int shader);
 
 // initialize the camera direction based on screen size and cursor position
 void camera_dir_init();
 
 // update the camera direction based on a change in mouse position
 // default version rotates about world origin
-void camera_update_dir(GLFWwindow* window, double x, double y);
+void camera_update_dir(GLFWwindow *window, double x, double y);
 
 // update the camera direction based on a change in mouse position
 // debug version rotates about camera_pos
-void camera_update_dir_debug(GLFWwindow* window, double x, double y);
+void camera_update_dir_debug(GLFWwindow *window, double x, double y);
 
 // get the current camera position
 vec3_t get_camera_pos();
 
 // create a model matrix from a mesh position and rotation
-mat4_t mesh_model_matrix(const mesh_t* mesh);
+mat4_t mesh_model_matrix(const mesh_t *mesh);
 
 // generate a view matrix from the camera
 mat4_t camera_view_matrix(void);
 
 // window resize callback
-void on_resize(GLFWwindow* window, int width, int height);
+void on_resize(GLFWwindow *window, int width, int height);
 
 // initialize window and opengl
 void xen_init();
@@ -173,7 +173,7 @@ void xen_init();
 float get_aspect();
 
 // get input from glfw window
-void handle_input(float delta_t);
+void handle_input(mesh_t *mesh, float delta_t);
 
 // glfw function wrappers
 static inline void swap_buffers() { glfwSwapBuffers(window); }

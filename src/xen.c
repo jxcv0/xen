@@ -34,8 +34,8 @@ static vec3_t camera_right = { .values = {1.0f, 0.0f, 0.0f} };
 static vec3_t world_up = { .values = {0.0f, 1.0f, 0.0f} };
 static bool camera_movement_debug = false;
 static bool first_mouse = true;
-static float rot_a = 0.0f;  // rotation about x axis
-static float rot_b = -90.0f; // rotation about y axis
+static float camera_rot_a = 0.0f;  // rotation about x axis
+static float camera_rot_b = -90.0f; // rotation about y axis
 static float prev_x = 0;
 static float prev_y = 0;
 static float offset_rad = 5.0f;
@@ -671,14 +671,14 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
     prev_y = mouse_y;
 
     // TODO make sensitivity adjustable
-    rot_b += delta_x * 0.1f;
-    rot_a += delta_y * 0.1f;
+    camera_rot_b += delta_x * 0.1f;
+    camera_rot_a += delta_y * 0.1f;
 
-    if (rot_a > 89.0f) { rot_a = 89.0f; }
-    if (rot_a < -89.0f) { rot_a = -89.0f; }
+    if (camera_rot_a > 89.0f) { camera_rot_a = 89.0f; }
+    if (camera_rot_a < -89.0f) { camera_rot_a = -89.0f; }
 
-    float rads_a = radians(rot_a);
-    float rads_b = radians(rot_b);
+    float rads_a = radians(camera_rot_a);
+    float rads_b = radians(camera_rot_b);
 
     camera_pos = construct_vec3(-offset_rad * (cos(rads_b) * cos(rads_a)),
                                 -offset_rad * (sin(rads_a)),
@@ -716,14 +716,14 @@ void camera_update_dir_debug(GLFWwindow* window, double x, double y)
     prev_y = mouse_y;
 
     // TODO make sensitivity adjustable
-    rot_b += delta_x * 0.1f;
-    rot_a += delta_y * 0.1f;
+    camera_rot_b += delta_x * 0.1f;
+    camera_rot_a += delta_y * 0.1f;
 
-    if (rot_a > 89.0f) { rot_a = 89.0f; }
-    if (rot_a < -89.0f) { rot_a = -89.0f; }
+    if (camera_rot_a > 89.0f) { camera_rot_a = 89.0f; }
+    if (camera_rot_a < -89.0f) { camera_rot_a = -89.0f; }
 
-    float rads_a = radians(rot_a);
-    float rads_b = radians(rot_b);
+    float rads_a = radians(camera_rot_a);
+    float rads_b = radians(camera_rot_b);
 
     camera_dir = construct_vec3(cos(rads_b) * cos(rads_a),
                                 sin(rads_a),
@@ -815,8 +815,13 @@ float get_aspect()
     return screen_w/screen_h;
 }
 
+// move debug camera
+void handle_input_debug(float delta_t)
+{
+}
+
 // get input from glfw window
-void handle_input(float delta_t)
+void handle_input(mesh_t *mesh, float delta_t)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
@@ -824,7 +829,7 @@ void handle_input(float delta_t)
         return;
     }
 
-    // debug camera
+    // update debug flags
     if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS)
     {
         camera_movement_debug = !camera_movement_debug;
@@ -838,45 +843,62 @@ void handle_input(float delta_t)
         }
     }
 
-    if (camera_movement_debug)
-    {
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        {
-            vec3_t dist = scale_vec3(camera_dir, delta_t * 2.0f);
-            camera_pos = add_vec3(camera_pos, dist);
-        }
+    if (camera_movement_debug)	// dbg camera movement
+	{
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			vec3_t dist = scale_vec3(camera_dir, delta_t * 2.0f);
+			camera_pos = add_vec3(camera_pos, dist);
+		}
+		
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			vec3_t dist = scale_vec3(camera_dir, -delta_t * 2.0f);
+			camera_pos = add_vec3(camera_pos, dist);
+		}
+		
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		{ vec3_t dist = scale_vec3(camera_right, -delta_t * 2.0f); camera_pos = add_vec3(camera_pos, dist);
+		}
+		
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		{
+			vec3_t dist = scale_vec3(camera_right, delta_t * 2.0f);
+			camera_pos = add_vec3(camera_pos, dist);
+		}
+		
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		{
+			vec3_t dist = scale_vec3(world_up, delta_t * 2.0f);
+			camera_pos = add_vec3(camera_pos, dist);
+		}
+		
+		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+		{
+			vec3_t dist = scale_vec3(world_up, -delta_t * 2.0f);
+			camera_pos = add_vec3(camera_pos, dist);
+		}
+	} else {
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			mesh->rot_b = -camera_rot_b;
+		}
 
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        {
-            vec3_t dist = scale_vec3(camera_dir, -delta_t * 2.0f);
-            camera_pos = add_vec3(camera_pos, dist);
-        }
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			mesh->rot_b = 180.0f - camera_rot_b;
+		}
 
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        {
-            vec3_t dist = scale_vec3(camera_right, -delta_t * 2.0f);
-            camera_pos = add_vec3(camera_pos, dist);
-        }
+		// this may be the wrong direction
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		{
+			mesh->rot_b = 90.0f - camera_rot_b;
+		}
 
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        {
-            vec3_t dist = scale_vec3(camera_right, delta_t * 2.0f);
-            camera_pos = add_vec3(camera_pos, dist);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        {
-            vec3_t dist = scale_vec3(world_up, delta_t * 2.0f);
-            camera_pos = add_vec3(camera_pos, dist);
-        }
-
-        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-        {
-            vec3_t dist = scale_vec3(world_up, -delta_t * 2.0f);
-            camera_pos = add_vec3(camera_pos, dist);
-        }
-
-        return;
-    }
-    // TODO player controls
+		// this may be the wrong direction
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		{
+			mesh->rot_b = 270.0f - camera_rot_b;
+		}
+	}
 }

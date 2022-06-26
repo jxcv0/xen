@@ -37,7 +37,7 @@ int main()
         float delta_time = current_frame - last_frame;
         last_frame = current_frame;
 
-        handle_input(delta_time);
+        handle_input(&mesh, delta_time);
 
         // view matrix
         shader_set_uniform(shader, "view", camera_view_matrix());
