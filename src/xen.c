@@ -832,11 +832,6 @@ float get_aspect()
     return screen_w/screen_h;
 }
 
-// move debug camera
-void handle_input_debug(float delta_t)
-{
-}
-
 // get input from glfw window
 void handle_input(mesh_t *mesh, float delta_t)
 {
