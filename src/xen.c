@@ -21,7 +21,6 @@
  */
 
 #include "xen.h"
-#include "lm.h"
 
 #include <assimp/cimport.h>
 #include <assimp/scene.h>
@@ -39,11 +38,11 @@
 #define HERE() printf("LINE: (%d)\n", __LINE__)
 
 // window
-GLFWwindow* window;
+GLFWwindow* window; // extern in xen.h
 static float screen_w = 800.0f;
 static float screen_h = 600.0f;
 
-// camera
+// camera TODO move to camera.hc??
 static vec3_t camera_pos = { .values = {0.0f, 0.0f, 0.0f} };
 static vec3_t camera_dir = { .values = {0.0f, 0.0f, -1.0f} };
 static vec3_t camera_up = { .values = {0.0f, 1.0f, 0.0f} };
@@ -913,4 +912,15 @@ void handle_input(mesh_t *mesh, float delta_t)
 			mesh->rot_b = 270.0f - camera_rot_b;
 		}
 	}
+}
+
+void frame_start()
+{
+	input_update_buffer();
+}
+
+void frame_end()
+{
+	// TODO jobsys_wait(); // wait for all jobs to finish
+	input_clear_buffer();
 }

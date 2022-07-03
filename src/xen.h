@@ -23,9 +23,8 @@
 #ifndef XEN_H
 #define XEN_H
 
-#define XEN_DEBUG
-
 #include "lm.h"
+#include "input_sys.h"
 
 #include "glad.h"
 #include <GLFW/glfw3.h>
@@ -191,6 +190,9 @@ float get_aspect();
 
 // get input from glfw window
 void handle_input(mesh_t *mesh, float delta_t);
+
+void frame_start(); // get input, ...
+void frame_end(); // wait for jobs, clear input buffer, ...
 
 // glfw function wrappers
 static inline void swap_buffers() { glfwSwapBuffers(window); }
