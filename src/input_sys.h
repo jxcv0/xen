@@ -14,16 +14,17 @@
 // #define ESC_KEY	0x00000080
 // #define F1_KEY	0x00000100
 
-enum INPUT_KEY {
-	W_KEY		= 0x00000001,
-	A_KEY		= 0x00000002,
-	S_KEY		= 0x00000004,
-	D_KEY		= 0x00000008,
-	SPACE_KEY	= 0x00000010,
-	LCTRL_KEY	= 0x00000020,
-	SHIFT_KEY	= 0x00000040,
-	ESC_KEY		= 0x00000080,
-	F1_KEY		= 0x00000100
+enum KEY {
+	NONE	= 0x0,
+	W	= 0x00000001,
+	A	= 0x00000002,
+	S	= 0x00000004,
+	D	= 0x00000008,
+	SPACE	= 0x00000010,
+	LCTRL	= 0x00000020,
+	SHIFT	= 0x00000040,
+	ESC	= 0x00000080,
+	F1	= 0x00000100
 };
 
 // get input from glfw window and store it in input buffer
@@ -33,6 +34,6 @@ void input_update_buffer();
 void input_clear_buffer();
 
 // check if a key is pressed
-bool input_key_pressed(uint64_t);
+bool input_key_pressed(enum KEY);
 
 #endif //  INPUT_SYS_H
