@@ -327,6 +327,6 @@ int main(void)
     rotate_test();
     look_at_test();
 
-	printf("All tests passed.\n");
+	printf("lm_tests passed.\n");
     return 0;
 }

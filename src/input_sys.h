@@ -4,27 +4,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// #define W_KEY	0x00000001
-// #define A_KEY	0x00000002
-// #define S_KEY	0x00000004
-// #define D_KEY	0x00000008
-// #define SPACE_KEY	0x00000010
-// #define LCTRL_KEY	0x00000020
-// #define SHIFT_KEY	0x00000040
-// #define ESC_KEY	0x00000080
-// #define F1_KEY	0x00000100
-
 enum KEY {
-	NONE	= 0x0,
-	W	= 0x00000001,
-	A	= 0x00000002,
-	S	= 0x00000004,
-	D	= 0x00000008,
-	SPACE	= 0x00000010,
-	LCTRL	= 0x00000020,
-	SHIFT	= 0x00000040,
-	ESC	= 0x00000080,
-	F1	= 0x00000100
+	KEY_NONE	= 0x1,
+	KEY_W		= 0x00000001,
+	KEY_A		= 0x00000002,
+	KEY_S		= 0x00000004,
+	KEY_D		= 0x00000008,
+	KEY_SPACE	= 0x00000010,
+	KEY_LCTRL	= 0x00000020,
+	KEY_SHIFT	= 0x00000040,
+	KEY_ESC		= 0x00000080,
+	KEY_F1		= 0x00000100
 };
 
 // get input from glfw window and store it in input buffer
@@ -35,5 +25,10 @@ void input_clear_buffer();
 
 // check if a key is pressed
 bool input_key_pressed(enum KEY);
+
+#ifdef XEN_DEBUG
+// debug/testing utility
+void input_set_buffer(uint8_t);
+#endif // XEN_DEBUG
 
 #endif //  INPUT_SYS_H
