@@ -1,11 +1,12 @@
-CFILES = src/cube.c src/xen.c src/glad.c src/input_sys.c
+CFILES = src/xen.c src/glad.c src/input_sys.c
 LIBS = -ldl -lm -lglfw -lpthread -lassimp
+TESTS = tests/lm_tests.c tests/input_sys_tests.c
 
-debug: mkbin
-	@gcc -o bin/cube $(CFILES) -I src/ -Wall -Werror -o bin/cube -ggdb $(LIBS) -D XEN_DEBUG
+debug: mkbin $(CFILES)
+	@gcc -o bin/cube $(CFILES) src/game.c -I src/ -Wall -Werror -o bin/cube -ggdb $(LIBS) -D XEN_DEBUG
 
-release: mkbin
-	@gcc -o bin/cube $(CFILES) -I src/ -Wall -Werror -o bin/cube -O3 $(LIBS)
+release: mkbin $(CFILES)
+	@gcc -o bin/cube $(CFILES) srx/game.c -I src/ -Wall -Werror -o bin/cube -O3 $(LIBS)
 
 mkbin:
 	@if [ ! -d "bin" ]; then mkdir bin; fi
@@ -13,10 +14,11 @@ mkbin:
 mktests: mkbin
 	@if [ ! -d "bin/tests" ]; then mkdir bin/tests; fi
 
-build_tests: mktests tests/lm_tests.c src/xen.c src/glad.c
-	@gcc tests/lm_tests.c $(CFILES) -I src/ -o bin/tests/lm_tests -ggdb -ldl -lm -lglfw -lpthread -lassimp
+tests: mktests $(TESTS) $(CFILES)
+	@gcc tests/lm_tests.c $(CFILES) -I src/ -o bin/tests/lm_tests -ggdb $(LIBS)
+	@gcc tests/input_sys_tests.c $(CFILES) -I src/ -o bin/tests/input_sys_tests -ggdb $(LIBS)
 
-run_tests: build_tests
+test: tests
 	@./bin/tests/lm_tests
 
 run:

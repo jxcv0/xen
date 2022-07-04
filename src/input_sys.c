@@ -24,6 +24,9 @@ void input_update_buffer()
 	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		XEN_INPUT_BUFFER |= ESC_KEY;
+#ifdef XEN_DEBUG
+		assert(XEN_INPUT_BUFFER | 0x0080);
+#endif // XEN_DEBUG
 	}
 }
 

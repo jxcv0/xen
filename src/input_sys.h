@@ -4,15 +4,27 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define W_KEY		0x00000001
-#define A_KEY		0x00000002
-#define S_KEY		0x00000004
-#define D_KEY		0x00000008
-#define SPACE_KEY	0x00000010
-#define LCTRL_KEY	0x00000020
-#define SHIFT_KEY	0x00000040
-#define ESC_KEY		0x00000080
-#define F1_KEY		0x00000100
+// #define W_KEY	0x00000001
+// #define A_KEY	0x00000002
+// #define S_KEY	0x00000004
+// #define D_KEY	0x00000008
+// #define SPACE_KEY	0x00000010
+// #define LCTRL_KEY	0x00000020
+// #define SHIFT_KEY	0x00000040
+// #define ESC_KEY	0x00000080
+// #define F1_KEY	0x00000100
+
+enum INPUT_KEY {
+	W_KEY		= 0x00000001,
+	A_KEY		= 0x00000002,
+	S_KEY		= 0x00000004,
+	D_KEY		= 0x00000008,
+	SPACE_KEY	= 0x00000010,
+	LCTRL_KEY	= 0x00000020,
+	SHIFT_KEY	= 0x00000040,
+	ESC_KEY		= 0x00000080,
+	F1_KEY		= 0x00000100
+};
 
 // get input from glfw window and store it in input buffer
 void input_update_buffer();
