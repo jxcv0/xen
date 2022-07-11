@@ -1,4 +1,4 @@
-#include "lm.h"
+#include "maths.h"
 #include <assert.h>
 
 void row_mat4_test()

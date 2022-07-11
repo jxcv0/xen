@@ -23,7 +23,7 @@
 #ifndef XEN_H
 #define XEN_H
 
-#include "lm.h"
+#include "maths.h"
 #include "input_sys.h"
 
 #include "glad.h"

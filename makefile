@@ -6,7 +6,7 @@ mktests: mkbin
 
 CFILES = src/xen.c src/glad.c src/input_sys.c
 LIBS = -ldl -lm -lglfw -lpthread -lassimp
-TESTS = tests/lm_tests.c tests/input_sys_tests.c
+TESTS = tests/maths_tests.c tests/input_sys_tests.c
 
 debug: mkbin $(CFILES)
 	@gcc -o bin/cube $(CFILES) src/game.c -I src/ -Wall -Werror -o bin/cube -ggdb $(LIBS) -D XEN_DEBUG
@@ -15,7 +15,7 @@ release: mkbin $(CFILES)
 	@gcc -o bin/cube $(CFILES) srx/game.c -I src/ -Wall -Werror -o bin/cube -O3 $(LIBS)
 
 tests: mktests $(TESTS) $(CFILES)
-	@gcc tests/lm_tests.c $(CFILES) -I src/ -o bin/tests/lm_tests -ggdb $(LIBS) -D XEN_DEBUG
+	@gcc tests/maths_tests.c $(CFILES) -I src/ -o bin/tests/lm_tests -ggdb $(LIBS) -D XEN_DEBUG
 	@gcc tests/input_sys_tests.c $(CFILES) -I src/ -o bin/tests/input_sys_tests -ggdb $(LIBS) -D XEN_DEBUG
 
 test: tests
