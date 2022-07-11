@@ -1,10 +1,4 @@
-mkbin:
-	@if [ ! -d "bin" ]; then mkdir bin; fi
-
-mktests: mkbin
-	@if [ ! -d "bin/tests" ]; then mkdir bin/tests; fi
-
-CFILES = src/xen.c src/glad.c src/input_sys.c
+CFILES = src/xen.c src/glad.c src/input_sys.c src/logger.c
 LIBS = -ldl -lm -lglfw -lpthread -lassimp
 TESTS = tests/maths_tests.c tests/input_sys_tests.c
 
@@ -12,7 +6,7 @@ debug: mkbin $(CFILES)
 	@gcc -o bin/cube $(CFILES) src/game.c -I src/ -Wall -Werror -o bin/cube -ggdb $(LIBS) -D XEN_DEBUG
 
 release: mkbin $(CFILES)
-	@gcc -o bin/cube $(CFILES) srx/game.c -I src/ -Wall -Werror -o bin/cube -O3 $(LIBS)
+	@gcc -o bin/cube $(CFILES) src/game.c -I src/ -Wall -Werror -o bin/cube -O3 $(LIBS)
 
 tests: mktests $(TESTS) $(CFILES)
 	@gcc tests/maths_tests.c $(CFILES) -I src/ -o bin/tests/lm_tests -ggdb $(LIBS) -D XEN_DEBUG
@@ -27,3 +21,10 @@ run:
 
 clean:
 	@rm -r bin/*
+
+mkbin:
+	@if [ ! -d "bin" ]; then mkdir bin; fi
+
+mktests: mkbin
+	@if [ ! -d "bin/tests" ]; then mkdir bin/tests; fi
+
