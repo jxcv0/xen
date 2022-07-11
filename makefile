@@ -1,4 +1,4 @@
-CFILES = src/xen.c src/glad.c src/input_sys.c src/logger.c
+CFILES = src/xen.c src/glad.c src/input_sys.c src/logger.c src/resources.c
 LIBS = -ldl -lm -lglfw -lpthread -lassimp
 TESTS = tests/maths_tests.c tests/input_sys_tests.c
 
