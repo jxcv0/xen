@@ -35,7 +35,7 @@ void xen_log(const char* msg)
 }
 
 // log to stdout then exit
-void xen_fail(const char*)
+void xen_fail(const char* msg)
 {
 	xen_log(msg);
 	exit(EXIT_FAILURE);
