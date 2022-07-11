@@ -57,6 +57,7 @@ static float prev_y = 0;
 static float offset_rad = 5.0f;
 
 // check for gl errs
+// TODO move to logger.h
 void checkerror_(const char *file, int line)
 {
     GLenum errorCode = GL_NO_ERROR;
@@ -75,11 +76,12 @@ void checkerror_(const char *file, int line)
         }
         fprintf(stderr, "%s | %s (%d)\n", error, file, line);
     }
-    // exit(1);
+    exit(EXIT_FAILURE);
     return;
 }
 
 // opengl debug callback
+// TODO move to logger.h
 void APIENTRY gl_debug_output(GLenum source,
                               GLenum type,
                               unsigned int id,
