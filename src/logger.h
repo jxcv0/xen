@@ -26,4 +26,7 @@
 // simple stdout logger
 void xen_log(const char*);
 
+// log to stdout then exit
+void xen_fail(const char*);
+
 #endif // LOGGER_H

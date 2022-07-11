@@ -33,3 +33,10 @@ void xen_log(const char* msg)
 	time(&t);
 	printf("%s [%s]: %s\n", ctime(&t), __FILE__, msg);
 }
+
+// log to stdout then exit
+void xen_fail(const char*)
+{
+	xen_log(msg);
+	exit(EXIT_FAILURE);
+}
