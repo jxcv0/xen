@@ -24,82 +24,131 @@
 
 #include "logger.h"
 
+#include <pthread.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <aio.h>
-#include <signal.h>
+#include <assert.h>
 
-#define IO_SIGNAL SIGUSR1   // Signal used to notify I/O completion
+#define IO_REQUEST_BUFFER_SIZE 64
 
-// cancel all requests on reciept of SIGQUIT
-static sig_atomic_t RECIEVED_SIGQUIT = 0;
+static bool IO_RUNNING;
 
-// passed to sigaction
-static void handle_quit(int sig) { RECIEVED_SIGQUIT = 1; }
+// async
+static pthread_t io_thread;
+static pthread_mutex_t io_mutex;
+static pthread_cond_t io_cond;
 
-// passed to sigaction
-static void handle_io_signal(int sig, siginfo_t *si, void *uctx)
-{
-	if (si->si_code == SI_ASYNCIO)
-	{
-		xen_log("I/O completion signal recieved\n");
-		// struct ioRequest *ioReq = si->si_value.sival_ptr;
-		// int fd = ioReq->aiocbp->aio_fildes;
-	}
-	// TODO other signals?
-}
-
-// node of io_request linked list array
+// io request buffer
 struct io_request
 {
-	struct io_request *next;
-	int reqnum;
-	int status;
-	struct aiocb ctl_block;
+	int fd;		// file descriptor
+	int status;	// the status of the request
+	void* buffer;	// buffer to write to
+	size_t nbytes;	// size of buffer
 };
+static struct io_request io_request_buffer[IO_REQUEST_BUFFER_SIZE];
 
-// linked list of IO requests
-static struct
+static int io_index = 0;
+
+// check if the buffer is empty
+static inline bool io_buffer_empty(void)
 {
-	struct io_request *head;
-	int size;
-} io_req_list;
+	return io_index == 0;
+}
 
-// signal handling
-static struct sigaction resources_sa;
-
-// initialize the resource system
-void xen_resources_init()
+// check if the buffer is full
+static inline bool io_buffer_full(void)
 {
-	// request list
-	io_req_list.head = NULL;
-	io_req_list.size = 0;
+	return io_index == IO_REQUEST_BUFFER_SIZE - 1;
+}
 
-	// SIGQUIT
-	resources_sa.sa_flags = SA_RESTART;
-	sigemptyset(&resources_sa.sa_mask);
-	resources_sa.sa_handler = handle_quit;
-	if (sigaction(SIGQUIT, &resources_sa, NULL) == -1)
+// add an entry to the buffer and advance io_index
+static inline int io_buffer_push(struct io_request ior)
+{
+	if (!io_buffer_full())
 	{
-		xen_fail("Unable to set SIGQUIT handler\n");
+		io_request_buffer[io_index++] = ior;
+		return 0;
 	}
-	
-	// IO_SIGNAL
-	resources_sa.sa_flags = SA_RESTART | SA_SIGINFO;
-	resources_sa.sa_sigaction = handle_io_signal;
-	if (sigaction(IO_SIGNAL, &resources_sa, NULL) == -1)
+	else
 	{
-		xen_fail("Unable to set IO_SIGNAL handler\n");
+		return IO_ERR_BUFFER_FULL;
 	}
 }
 
-// add a request to the IO request list
-int xen_request_io(const char* filename)
+// get an entry from the buffer and decrement io_index
+static inline struct io_request io_buffer_pop(void)
 {
-	// TODO move sigaction stuff to xen_resources_init();
-	// struct io_request *ior = (struct io_request*)malloc(sizeof(struct io_request));
+	assert(io_index > 0);
+	return io_request_buffer[io_index--];
+}
+
+// open and read a file specified by a request
+// set status flag as appropriate
+static inline void io_execute_request(struct io_request *req)
+{
+	// TODO
+}
+
+// the async IO loop
+static void* io_routine(void* arg)
+{
+	while (IO_RUNNING)
+	{
+		pthread_mutex_lock(&io_mutex);
+		if (io_buffer_empty())
+		{
+			pthread_cond_wait(&io_cond, &io_mutex);
+		}
+		struct io_request ior = io_buffer_pop();
+		pthread_mutex_unlock(&io_mutex);
+		io_execute_request(&ior);
+	}
+	return NULL;
+}
+
+// initialize resource system
+void io_init(void)
+{
+	xen_log("Starting resource manager\n");
+	int e = pthread_create(&io_thread, NULL, io_routine, NULL);
+	if (e != 0)
+	{
+		printf("pthread err: %d\n", e);
+		xen_fail("Unable to create io_thread\n");
+	}
+}
+
+// shut down resource system
+void io_shutdown(void)
+{
+	IO_RUNNING = false;
+	pthread_join(io_thread, NULL);
+}
+
+// add a request to the IO request list and get a handle to it
+int io_make_request(const char* filepath, void *buffer, size_t nbytes)
+{
+	int fd = open(filepath, O_RDONLY);
+	if (fd == -1)
+	{
+		printf("ERRNO: %d\n", errno);
+		xen_log("Unable to open file\n");
+		return -1;
+	}
+
+	struct io_request r = {
+		.fd = fd,
+		.status = IO_INPROGRESS,
+		.nbytes = nbytes
+	};
 	
-	// if (ior == NULL) { xen_fail("Unable to allocate memory for I/O request\n"); }
-	return 0;
+	return io_buffer_push(r);
+}
+
+// wait on async io request
+void io_wait(int request_handle)
+{
+
 }

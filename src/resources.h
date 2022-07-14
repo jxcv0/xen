@@ -26,6 +26,10 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+// request status
+enum { IO_WAITING, IO_INPROGRESS, IO_FAILED, IO_COMPLETED };
+enum { IO_ERR_BUFFER_FULL };
+
 // initialize resource system
 void io_init(void);
 
@@ -33,9 +37,9 @@ void io_init(void);
 void io_shutdown(void);
 
 // add a request to the IO request list and get a handle to it
-int io_request(const char*);
+int io_make_request(const char*, void*, size_t);
 
 // wait on async io request
-int io_wait(int);
+void io_wait(int);
 
 #endif // RESOURCES_H
