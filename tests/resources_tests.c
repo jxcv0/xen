@@ -7,7 +7,7 @@ int main()
 {
 	io_init();
 	char buffer[1028];
-	// assert(io_make_request
+	assert(io_make_request("tests/data/aio.txt", &buffer, 1028);
 	// do the things
 	io_shutdown();
 
