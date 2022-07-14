@@ -26,6 +26,8 @@
 #include <stdlib.h>
 #include <time.h>
 
+//TODO logging thread??
+
 // simple stdout logger
 void xen_log(const char* msg)
 {
