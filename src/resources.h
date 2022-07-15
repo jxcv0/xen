@@ -27,9 +27,9 @@
 #include <stdbool.h>
 
 // request status
-enum { IO_HEAD, IO_UNUSED, IO_INPROGRESS, IO_FAILED, IO_COMPLETED };
-enum { IO_ERR_BUFFER_FULL = 1};
+enum { IO_WAITING, IO_INPROGRESS, IO_ERROR, IO_COMPLETED };
 
+// opaque request type
 typedef struct io_request_t io_request_t;
 
 // initialize resource system
@@ -38,8 +38,8 @@ void io_init(void);
 // shut down resource system
 void io_shutdown(void);
 
-// add a request to the IO request list and get a handle to it
-io_request_t* io_request_file(const char*, void*, size_t);
+// wait on an io request
+io_request_t* io_request(const char*, void*, size_t);
 
 // wait on async io request
 void io_wait(io_request_t*);

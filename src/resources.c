@@ -25,6 +25,7 @@
 #include "logger.h"
 
 #include <pthread.h>
+#include <sched.h>
 #include <fcntl.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -46,8 +47,13 @@ struct io_request_t
 	io_request_t *next;
 };
 
+// io request list
 static io_request_t *io_buffer_head;
-static size_t io_buffer_len;
+
+static inline void io_read(io_request_t *ior)
+{
+	// TODO
+}
 
 // the io_thread loop
 static void* io_routine(void* arg)
@@ -55,15 +61,17 @@ static void* io_routine(void* arg)
 	while(IO_RUNNING == true)
 	{
 		pthread_mutex_lock(&io_mutex);
-		if (io_buffer_len == 0)
+		if (io_buffer_head == NULL)
 		{
 			pthread_cond_wait(&io_cond, &io_mutex);
 		}
-		// get a request
+
+		// remove request from the list but do not free it
+		io_request_t *ior = io_buffer_head;
+		io_buffer_head->next = ior->next; // set to NULL if last item
 
 		pthread_mutex_unlock(&io_mutex);
-		// read file
-
+		io_read(ior);
 	}
 	return NULL;
 }
@@ -72,19 +80,54 @@ static void* io_routine(void* arg)
 void io_init(void)
 {
 	io_buffer_head = NULL;
-	io_buffer_len = 0;
 	if (pthread_create(&io_thread, NULL, io_routine, NULL) != 0)
 	{
 		xen_fail("Unable to create io_thread\n");
 	}
 }
 
+void io_shutdown(void)
+{
+	IO_RUNNING = false;
+	pthread_cond_signal(&io_cond);
+	pthread_join(io_thread, NULL);
+	io_request_t *ior = io_buffer_head;
+	for (;;)
+	{
+		if (ior == NULL) { break; } // the last request is NULL
+		io_request_t *i = ior;
+		ior = ior->next;
+		free(i);
+	}
+}
+
 // add a request to the request list and get a handle to it
-io_request_t* io_request_file(const char* filepath, void *buffer, size_t buffer_size)
+io_request_t* io_request(const char* filepath, void *buffer, size_t buffer_size)
 {
 	io_request_t *ior = (io_request_t*)malloc(sizeof(io_request_t)); // TODO preallocate these
+	if (ior == NULL)
+	{
+		xen_fail("Unable to allocate memory for io_request_t\n");
+	}
+	if (ior->fd = open(filepath, O_RDONLY))
+	{
+		xen_log("Unable to open file\n");
+		ior->status = IO_ERROR;
+		return ior;
+	}
 	pthread_mutex_lock(&io_mutex);
 	ior->next = io_buffer_head;
 	io_buffer_head = ior;
-	io_buffer_len++;
+	pthread_mutex_unlock(&io_mutex);
+	pthread_cond_signal(&io_cond);
+	return ior;
+}
+
+// wait on an io request
+void io_wait(io_request_t *ior)
+{
+	while (ior->status == IO_WAITING)
+	{
+		sched_yield();
+	}
 }
