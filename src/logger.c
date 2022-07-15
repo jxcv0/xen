@@ -27,11 +27,11 @@
 #include <time.h>
 
 // simple stdout logger
-void xen_log_(const char* msg, const char *file)
+void xen_log_(const char* msg, const char *file, int line)
 {
 	time_t t;
 	time(&t);
-	printf("%s [%s]: %s\n", ctime(&t), file, msg);
+	printf("%s [%s] (%d): %s\n", ctime(&t), file, line, msg);
 }
 
 // log to stdout then exit

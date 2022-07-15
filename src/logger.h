@@ -24,8 +24,8 @@
 #define LOGGER_H
 
 // simple stdout logger
-void xen_log_(const char*, const char*);
-#define xen_log(str) xen_log_(str, __FILE__)
+void xen_log_(const char*, const char*, int);
+#define xen_log(str) xen_log_(str, __FILE__, __LINE__)
 
 // log to stdout then exit
 void xen_fail(const char*);
