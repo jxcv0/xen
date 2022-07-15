@@ -109,7 +109,7 @@ io_request_t* io_request(const char* filepath, void *buffer, size_t buffer_size)
 	{
 		xen_fail("Unable to allocate memory for io_request_t\n");
 	}
-	if (ior->fd = open(filepath, O_RDONLY))
+	if (ior->fd = open(filepath, O_RDONLY) == -1)
 	{
 		xen_log("Unable to open file\n");
 		ior->status = IO_ERROR;

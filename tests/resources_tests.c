@@ -13,5 +13,6 @@ int main()
 	io_wait(ior);
 
 	xen_log("resources_tests passed\n");
+	io_shutdown();
 	return 0;
 }
