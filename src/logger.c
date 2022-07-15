@@ -26,14 +26,12 @@
 #include <stdlib.h>
 #include <time.h>
 
-//TODO logging thread??
-
 // simple stdout logger
-void xen_log(const char* msg)
+void xen_log_(const char* msg, const char *file)
 {
 	time_t t;
 	time(&t);
-	printf("%s [%s]: %s\n", ctime(&t), __FILE__, msg);
+	printf("%s [%s]: %s\n", ctime(&t), file, msg);
 }
 
 // log to stdout then exit
