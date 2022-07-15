@@ -1,4 +1,6 @@
 #include "maths.h"
+#include "logger.h"
+
 #include <assert.h>
 
 void row_mat4_test()
@@ -327,6 +329,6 @@ int main(void)
     rotate_test();
     look_at_test();
 
-    printf("maths_tests passed\n");
+    xen_log("maths_tests passed\n");
     return 0;
 }

@@ -1,16 +1,12 @@
 #include "resources.h"
+#include "logger.h"
 
-#include <stdio.h>
 #include <assert.h>
 
 int main()
 {
 	io_init();
-	char buffer[1028];
-	assert(io_make_request("tests/data/aio.txt", &buffer, 1028);
-	// do the things
-	io_shutdown();
 
-	printf("resources_tests passed\n");
+	xen_log("resources_tests passed\n");
 	return 0;
 }
