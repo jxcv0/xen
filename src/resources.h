@@ -4,8 +4,7 @@
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the “Software”), to
  * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or * sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in
@@ -27,7 +26,7 @@
 #include <stdbool.h>
 
 // request status
-enum { IO_INPROGRESS=0, IO_ERROR=1, IO_SUCCESS=2};
+enum { IO_SUCCESS, IO_INPROGRESS, IO_ERROR };
 
 // opaque request type
 typedef struct io_request_t io_request_t;

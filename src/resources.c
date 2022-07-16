@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <errno.h>
 
 static bool IO_RUNNING;
 
@@ -49,16 +50,21 @@ struct io_request_t
 };
 
 // io request list
-static io_request_t *io_buffer_head;
+static io_request_t *io_buffer_head = NULL;
 
+// read a file and output the contents into the request buffer
 static inline void io_read(io_request_t *ior)
 {
 	ssize_t nread = read(ior->fd, ior->buffer, ior->nbytes);
 	if (nread == -1)
 	{
+		xen_err("Unable to read file", errno);
 		ior->status = IO_ERROR;
+		close(ior->fd);
 		return;
 	}
+	ior->status = IO_SUCCESS;
+	close(ior->fd);
 }
 
 // the io_thread loop
@@ -85,10 +91,13 @@ static void* io_routine(void* arg)
 // initialize resource system
 void io_init(void)
 {
+	IO_RUNNING = true;
 	io_buffer_head = NULL;
-	if (pthread_create(&io_thread, NULL, io_routine, NULL) != 0)
+	pthread_mutex_init(&io_mutex, NULL);
+	int e = pthread_create(&io_thread, NULL, io_routine, NULL);
+	if (e != 0)
 	{
-		xen_fail("Unable to create io_thread\n");
+		xen_err("Unable to create io_thread", e);
 	}
 }
 
@@ -97,20 +106,14 @@ void io_shutdown(void)
 {
 	IO_RUNNING = false;
 	pthread_cond_signal(&io_cond);
-	if (pthread_join(io_thread, NULL) != 0)
-	{
-		xen_fail("Unable to join io_thread\n");
-	}
+	pthread_join(io_thread, NULL);
 	io_request_t *ior = io_buffer_head;
-	// pthread_mutex_lock(&io_mutex); // to avoid double free
-	for (;;)
+	while(ior != NULL)
 	{
-		if (ior == NULL) { break; } // the last request is NULL
 		io_request_t *i = ior;
 		ior = ior->next;
 		free(i);
 	}
-	// pthread_mutex_unlock(&io_mutex);
 }
 
 // add a request to the request list and get a handle to it
@@ -119,19 +122,23 @@ io_request_t* io_request(const char* filepath, void *buffer, size_t buffer_size)
 	io_request_t *ior = (io_request_t*)malloc(sizeof(io_request_t)); // TODO preallocate these
 	if (ior == NULL)
 	{
-		xen_fail("Unable to allocate memory for io_request_t\n");
+		xen_err("Unable to allocate memory for io_request_t", 0);
 	}
-	if (ior->fd = open(filepath, O_RDONLY) == -1)
+	ior->fd = open(filepath, O_RDONLY);
+	if (ior->fd == -1)
 	{
-		xen_log("Unable to open file\n");
+		xen_err("Unable to open file", errno);
 		ior->status = IO_ERROR;
 		return ior;
 	}
+	ior->status = IO_INPROGRESS;
+
 	pthread_mutex_lock(&io_mutex);
 	ior->next = io_buffer_head;
 	io_buffer_head = ior;
 	pthread_mutex_unlock(&io_mutex);
 	pthread_cond_signal(&io_cond);
+
 	return ior;
 }
 
