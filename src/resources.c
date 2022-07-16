@@ -55,7 +55,7 @@ static io_request_t *io_buffer_head = NULL;
 // read a file and output the contents into the request buffer
 static inline void io_read(io_request_t *ior)
 {
-	ssize_t nread = read(ior->fd, ior->buffer, ior->nbytes);
+	ssize_t nread = pread(ior->fd, ior->buffer, ior->nbytes, 0);
 	if (nread == -1)
 	{
 		xen_err("Unable to read file", errno);
@@ -73,16 +73,14 @@ static void* io_routine(void* arg)
 	while(IO_RUNNING == true)
 	{
 		pthread_mutex_lock(&io_mutex);
-		pthread_cond_wait(&io_cond, &io_mutex);
-
-		if (io_buffer_head == NULL)
+		while (io_buffer_head == NULL)
 		{
-			continue;
+			pthread_cond_wait(&io_cond, &io_mutex);
 		}
 
 		// remove request from the list but do not free it
 		io_request_t *ior = io_buffer_head;
-		io_buffer_head->next = ior->next; // set to NULL if last item
+		io_buffer_head = ior->next; // set to NULL if last item
 
 		pthread_mutex_unlock(&io_mutex);
 		io_read(ior);
