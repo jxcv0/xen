@@ -55,7 +55,7 @@ static io_request_t *io_buffer_head = NULL;
 // read a file and output the contents into the request buffer
 static inline void io_read(io_request_t *ior)
 {
-	ssize_t nread = pread(ior->fd, ior->buffer, ior->nbytes, 0);
+	ssize_t nread = read(ior->fd, &ior->buffer, ior->nbytes);
 	if (nread == -1)
 	{
 		xen_err("Unable to read file", errno);
@@ -132,6 +132,7 @@ io_request_t* io_request(const char* filepath, void *buffer, size_t buffer_size)
 		return ior;
 	}
 	ior->status = IO_INPROGRESS;
+	ior->nbytes = buffer_size;
 
 	pthread_mutex_lock(&io_mutex);
 	ior->next = io_buffer_head;
