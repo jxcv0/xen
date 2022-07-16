@@ -73,9 +73,11 @@ static void* io_routine(void* arg)
 	while(IO_RUNNING == true)
 	{
 		pthread_mutex_lock(&io_mutex);
+		pthread_cond_wait(&io_cond, &io_mutex);
+
 		if (io_buffer_head == NULL)
 		{
-			pthread_cond_wait(&io_cond, &io_mutex);
+			continue;
 		}
 
 		// remove request from the list but do not free it
