@@ -27,6 +27,9 @@
 void xen_log_(const char*, const char*, int);
 #define xen_log(str) xen_log_(str, __FILE__, __LINE__)
 
+void xen_err_(const char*, const char*, int, int);
+#define xen_err(str, e) xen_err_(str, __FILE__, __LINE__, e)
+
 // log to stdout then exit
 void xen_fail(const char*);
 

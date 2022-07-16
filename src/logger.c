@@ -34,9 +34,13 @@ void xen_log_(const char* msg, const char *file, int line)
 	printf("%s [%s] (%d): %s\n", ctime(&t), file, line, msg);
 }
 
-// log to stdout then exit
-void xen_fail(const char* msg)
+// simple error logger
+void xen_err_(const char* msg, const char *file, int line, int e)
 {
-	xen_log(msg);
-	exit(EXIT_FAILURE);
+	time_t t;
+	time(&t);
+	printf("%s [%s] (%d): ", ctime(&t), file, line);
+	printf("\033[0;31m");
+	printf("%s | err: %d\n", msg, e);
+	printf("\033[0m");
 }

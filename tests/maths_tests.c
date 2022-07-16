@@ -329,6 +329,6 @@ int main(void)
     rotate_test();
     look_at_test();
 
-    xen_log("maths_tests passed\n");
+    xen_log("maths_tests passed");
     return 0;
 }
