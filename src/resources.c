@@ -27,6 +27,7 @@
 #include <pthread.h>
 #include <sched.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -52,7 +53,12 @@ static io_request_t *io_buffer_head;
 
 static inline void io_read(io_request_t *ior)
 {
-	// TODO
+	ssize_t nread = read(ior->fd, ior->buffer, ior->nbytes);
+	if (nread == -1)
+	{
+		ior->status = IO_ERROR;
+		return;
+	}
 }
 
 // the io_thread loop
@@ -86,12 +92,17 @@ void io_init(void)
 	}
 }
 
+// shut down resource system
 void io_shutdown(void)
 {
 	IO_RUNNING = false;
 	pthread_cond_signal(&io_cond);
-	pthread_join(io_thread, NULL);
+	if (pthread_join(io_thread, NULL) != 0)
+	{
+		xen_fail("Unable to join io_thread\n");
+	}
 	io_request_t *ior = io_buffer_head;
+	// pthread_mutex_lock(&io_mutex); // to avoid double free
 	for (;;)
 	{
 		if (ior == NULL) { break; } // the last request is NULL
@@ -99,6 +110,7 @@ void io_shutdown(void)
 		ior = ior->next;
 		free(i);
 	}
+	// pthread_mutex_unlock(&io_mutex);
 }
 
 // add a request to the request list and get a handle to it
@@ -124,10 +136,15 @@ io_request_t* io_request(const char* filepath, void *buffer, size_t buffer_size)
 }
 
 // wait on an io request
-void io_wait(io_request_t *ior)
+int io_wait(io_request_t *ior)
 {
-	while (ior->status == IO_WAITING)
+	while (ior->status == IO_INPROGRESS)
 	{
 		sched_yield();
 	}
+
+	// request is already removed from the buffer
+	int status = ior->status;
+	free(ior);
+	return status;
 }

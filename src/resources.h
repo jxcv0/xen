@@ -27,7 +27,7 @@
 #include <stdbool.h>
 
 // request status
-enum { IO_WAITING, IO_INPROGRESS, IO_ERROR, IO_COMPLETED };
+enum { IO_INPROGRESS=0, IO_ERROR=1, IO_SUCCESS=2};
 
 // opaque request type
 typedef struct io_request_t io_request_t;
@@ -42,6 +42,6 @@ void io_shutdown(void);
 io_request_t* io_request(const char*, void*, size_t);
 
 // wait on async io request
-void io_wait(io_request_t*);
+int io_wait(io_request_t*);
 
 #endif // RESOURCES_H
