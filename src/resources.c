@@ -46,8 +46,6 @@ static pthread_mutex_t io_mutex;
 static pthread_cond_t io_cond;
 static int io_run;
 
-#include <stdio.h>
-
 static void* io_routine(void* arg)
 {
 	while(io_run)
