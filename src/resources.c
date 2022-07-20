@@ -46,6 +46,10 @@ static pthread_mutex_t io_mutex;
 static pthread_cond_t io_cond;
 static int io_run;
 
+// TODO 
+// a way of querying the request buffer
+// 
+
 static void* io_routine(void* arg)
 {
 	while(io_run)
@@ -75,13 +79,11 @@ int io_init(void)
 	return pthread_create(&io_thread, NULL, io_routine, NULL);
 }
 
-#include <stdio.h>
-
 // shut down resource system
 void io_shutdown(void)
 {
 	io_run = 0;
-	io_index = 1; // this is dubious
+	io_index = 1; // this is dubious as [1] may be in use
 	pthread_cond_signal(&io_cond);
 	pthread_join(io_thread, NULL);
 }
