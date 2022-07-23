@@ -53,9 +53,14 @@ void io_load_mesh_test(void)
 {
 	mesh_t mesh;
 	io_load_mesh(&mesh, "assets/test/test_obj.obj");
-	assert(fabs(mesh.vertices[1].values[0] = -0.543903) < FLT_EPSILON);
-	assert(fabs(mesh.vertices[1].values[1] = 0.838724) < FLT_EPSILON);
-	assert(fabs(mesh.vertices[1].values[2] = 0.929782) < FLT_EPSILON);
+	assert(fabs(mesh.vertices[1].values[0] - (-0.543903)) < FLT_EPSILON);
+	assert(fabs(mesh.vertices[1].values[1] - 0.838724) < FLT_EPSILON);
+	assert(fabs(mesh.vertices[1].values[2] - 0.920782) < FLT_EPSILON);
+	assert(fabs(mesh.texcoords[1].values[0] - 0.875000) < FLT_EPSILON);
+	assert(fabs(mesh.texcoords[1].values[1] - 0.750000) < FLT_EPSILON);
+	assert(fabs(mesh.normals[1].values[0] - 0.0757) < FLT_EPSILON);
+	assert(fabs(mesh.normals[1].values[1] - 0.9938) < FLT_EPSILON);
+	assert(fabs(mesh.normals[1].values[2] - 0.0817) < FLT_EPSILON);
 	free_mesh(&mesh);
 }
 
