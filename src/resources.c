@@ -146,7 +146,7 @@ int io_load_mesh(mesh_t *mesh, const char* filepath)
 	vec2_t *texcoords = calloc(vt_count, sizeof(vec2_t));
 	vec3_t *normals = calloc(vn_count, sizeof(vec3_t));
 	// allocate enough space for duplicating VTN sets
-	mesh->num_vertices = f_count * 3;
+	mesh->num_vertices = f_count * 3; // 3 vertices per face
 	size_t vertices_size = sizeof(vec3_t) * mesh->num_vertices;
 	size_t texcoords_size = sizeof(vec2_t) * mesh->num_vertices;
 	size_t normals_size = sizeof(vec3_t) * mesh->num_vertices;
@@ -158,6 +158,7 @@ int io_load_mesh(mesh_t *mesh, const char* filepath)
 	v_count = 0;
 	vt_count = 0;
 	vn_count = 0;
+	f_count = 0;
 	rewind(file);
 	while ((nread = getline(&line, &len, file)) != -1)
 	{
@@ -198,19 +199,22 @@ int io_load_mesh(mesh_t *mesh, const char* filepath)
 			continue;
 		} else if (strncmp(token, "f", 2) == 0) { // faces
 			char *toksave = NULL;
-			int indices[3]; // assume triangulated faces
-			for(int i = 0; ; i++)
+			for(;;)
 			{
 				token = strtok_r(NULL, " ", &linesave);
 				if (token == NULL) { break; }
-				int j = 0;
-				for (char* tok = token; ; j++, tok = NULL)
+				int  i = 0;
+				int index[3];
+				for (char* tok = token; ; i++, tok = NULL)
 				{
-					char* subtok  = strtok_r(tok, "/", &toksave);
+					char* subtok = strtok_r(tok, "/", &toksave);
 					if (subtok == NULL) { break; }
-					indices[j] = atoi(subtok);
+					index[i] = atoi(subtok) - 1;
 				}
-				printf("\n");
+				mesh->vertices[f_count] = vertices[index[0]];
+				mesh->texcoords[f_count] = texcoords[index[1]];
+				mesh->normals[f_count] = normals[index[2]];
+				f_count++;
 			}
 		} else if (strncmp(token, "mtllib", 6) == 0) {
 			// TODO handle materials
@@ -218,6 +222,9 @@ int io_load_mesh(mesh_t *mesh, const char* filepath)
 		}
 	}
 
+	free(vertices);
+	free(texcoords);
+	free(normals);
 	free(line);
 	return 0;
 }

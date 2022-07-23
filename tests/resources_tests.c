@@ -38,7 +38,10 @@ void io_sys_test(void)
 	assert(io_init() == 0);
 	const char* filepath = "tests/data/aio.txt";
 	assert(io_request(filepath, strlen(filepath), buffer, 32) == 0);
-	sleep(0.01); // simulate other work
+	assert(io_request(filepath, strlen(filepath), buffer, 32) == 0);
+	assert(io_request(filepath, strlen(filepath), buffer, 32) == 0);
+	assert(io_request(filepath, strlen(filepath), buffer, 32) == 0);
+	assert(io_request(filepath, strlen(filepath), buffer, 32) == 0);
 	io_wait();
 	assert(strcmp(buffer, "Measure twice cut once.\n") == 0);
 	io_shutdown();
@@ -50,11 +53,9 @@ void io_load_mesh_test(void)
 {
 	mesh_t mesh;
 	io_load_mesh(&mesh, "assets/test/test_obj.obj");
-	// for (int i = 0; i < 8; i++)
-	// {
-	// 	vec3_t v = mesh.vertices[i];
-	// 	print_vec3(v);
-	// }
+	assert(fabs(mesh.vertices[1].values[0] = -0.543903) < FLT_EPSILON);
+	assert(fabs(mesh.vertices[1].values[1] = 0.838724) < FLT_EPSILON);
+	assert(fabs(mesh.vertices[1].values[2] = 0.929782) < FLT_EPSILON);
 	free_mesh(&mesh);
 }
 
