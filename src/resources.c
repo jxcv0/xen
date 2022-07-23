@@ -22,8 +22,6 @@
 
 #include "resources.h"
 
-#include "logger.h"
-
 #include <pthread.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -48,7 +46,6 @@ static int io_run;
 
 // TODO 
 // a way of querying the request buffer
-// 
 
 static void* io_routine(void* arg)
 {
@@ -89,11 +86,15 @@ void io_shutdown(void)
 }
 
 // request a file be loaded into a buffer
-int io_request(const char* filepath, size_t pathlen, void* buffer, size_t nbytes)
+int io_request(const char *filepath, size_t pathlen, void *buffer, size_t nbytes)
 {
 	if (pathlen > 64) { return -1; }
 	pthread_mutex_lock(&io_mutex);
-	if (io_index == IO_REQUEST_BUFFER_SIZE - 1) { return -1; }
+	if (io_index == IO_REQUEST_BUFFER_SIZE - 1) {
+		pthread_mutex_unlock(&io_mutex);
+		pthread_cond_signal(&io_cond);
+		return -1;
+	}
 	struct io_request *ior = &io_request_buffer[io_index++];
 	strncpy(ior->filepath, filepath, pathlen);
 	ior->buffer = buffer;
@@ -112,4 +113,91 @@ void io_wait(void)
 		pthread_cond_wait(&io_cond, &io_mutex);
 	}
 	pthread_mutex_unlock(&io_mutex);
+}
+
+// load and parse *.obj file
+// TODO materials (.mtl)
+int io_load_mesh(mesh_t* mesh, const char* filepath)
+{
+	// open file
+	FILE *file = NULL;
+	if ((file = fopen(filepath, "r")) == NULL) {
+		perror(filepath);
+		return -1;
+	}
+
+	int v_count = 0, vt_count = 0, vn_count = 0;
+	char *line = NULL;
+	size_t len = 0;
+	ssize_t nread = 0;
+	while ((nread = getline(&line, &len, file)) != -1) // count the number of vectors
+	{
+		char *c = NULL;
+		if ((c = strstr(line, "v ")) != NULL) {
+			v_count++;
+			continue;
+		} else if ((c = strstr(line, "vt ")) != NULL) {
+			vt_count++;
+			continue;
+		} else if ((c = strstr(line, "vn ")) != NULL) {
+			vn_count++;
+			continue;
+		} 
+	}
+	vec3_t *vertices = calloc(v_count, sizeof(vec3_t));
+	vec2_t *texcoords = calloc(vt_count, sizeof(vec2_t));
+	vec3_t *normals = calloc(vn_count, sizeof(vec3_t));
+	v_count = 0;
+	vt_count = 0;
+	vn_count = 0;
+	rewind(file);
+	while ((nread = getline(&line, &len, file)) != -1)
+	{
+		char *c = NULL;
+		char *linesave = NULL;
+		char *token = strtok_r(line, " ", &linesave);
+		if (strncmp(token, "#", 2) == 0) { // comments
+			continue;
+		} else if (strncmp(token, "mtllib", 6) == 0) { // material library
+			// TODO handle materials
+			continue;
+		} else if (strncmp(token, "o", 2) == 0) { // object name
+			continue;
+		} else if (strncmp(token, "v", 2) == 0) { // vertices
+			for(int i = 0; ; i++)
+			{
+				token = strtok_r(NULL, " ", &linesave);
+				if (token == NULL) { break; }
+				vertices[v_count].values[i] = strtof(token, NULL);
+			}
+			v_count++;
+		} else if (strncmp(token, "vt", 2) == 0) { // texcoords
+			for(int i = 0; ; i++)
+			{
+				token = strtok_r(NULL, " ", &linesave);
+				if (token == NULL) { break; }
+				texcoords[vt_count].values[i] = strtof(token, NULL);
+			}
+			vt_count++;
+		} else if (strncmp(token, "vn", 2) == 0) { // normals
+			for(int i = 0; ; i++)
+			{
+				token = strtok_r(NULL, " ", &linesave);
+				if (token == NULL) { break; }
+				normals[vn_count].values[i] = strtof(token, NULL);
+			}
+			vn_count++;
+		} else if (strncmp(token, "s", 2) == 0) { // smooth shading always off
+			continue;
+		} else if (strncmp(token, "f", 2) == 0) { // faces
+			
+		} else if (strncmp(token, "mtllib", 6) == 0) {
+			// TODO handle materials
+			continue;
+		}
+	}
+	mesh->vertices = vertices;
+
+	free(line);
+	return 0;
 }

@@ -23,6 +23,7 @@
 #include "resources.h"
 
 #include "logger.h"
+#include "maths.h"
 
 #include <assert.h>
 #include <string.h>
@@ -31,7 +32,7 @@
 
 char buffer[32];
 
-int main(void)
+void io_sys_test(void)
 {
 	memset(&buffer, 0, 32);
 	assert(io_init() == 0);
@@ -42,6 +43,24 @@ int main(void)
 	assert(strcmp(buffer, "Measure twice cut once.\n") == 0);
 	io_shutdown();
 
-	xen_log("resource system tests passed.");
+	xen_log("aio test passed.");
+}
+
+void io_load_mesh_test(void)
+{
+	mesh_t mesh;
+	io_load_mesh(&mesh, "assets/test/test_obj.obj");
+	for (int i = 0; i < 8; i++)
+	{
+		vec3_t v = mesh.vertices[i];
+		print_vec3(v);
+	}
+}
+
+int main(void)
+{
+	io_sys_test();
+	io_load_mesh_test();
+	xen_log("resources tests passed");
 	return 0;
 }

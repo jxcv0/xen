@@ -24,22 +24,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 // simple stdout logger
 void xen_log_(const char* msg, const char *file, int line)
 {
-	time_t t;
-	time(&t);
-	printf("%s [%s] (%d): %s\n", ctime(&t), file, line, msg);
+	printf("[%s] (%d): %s\n", file, line, msg);
 }
 
 // simple error logger
 void xen_err_(const char* msg, const char *file, int line, int e)
 {
-	time_t t;
-	time(&t);
-	printf("%s [%s] (%d): ", ctime(&t), file, line);
+	printf("[%s] (%d): ", file, line);
 	printf("\033[0;31m");
 	printf("%s | err: %d\n", msg, e);
 	printf("\033[0m");

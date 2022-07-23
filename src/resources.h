@@ -23,6 +23,8 @@
 #ifndef RESOURCES_H
 #define RESOURCES_H
 
+#include "types.h"
+
 #include <stddef.h>
 
 // initialize resource system
@@ -36,5 +38,8 @@ int io_request(const char*, size_t, void*, size_t);
 
 // wait for the request buffer to be empty
 void io_wait(void);
+
+// load and parse *.obj file
+int io_load_mesh(mesh_t*, const char*);
 
 #endif // RESOURCES_H

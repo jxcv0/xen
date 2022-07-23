@@ -28,11 +28,19 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-// TODO SIMD
+// TODO
+// SIMD
+// optimise
 
 static inline float radians(float x)
 {
     return x * 0.0174533;
+}
+
+// compare 2 floats TODO why does this not work sometimes
+static inline bool fequal(const float a, const float b)
+{
+	return (fabs(a - b) < FLT_EPSILON);
 }
 
 typedef struct vec2_t
@@ -126,13 +134,6 @@ static inline vec4_t col_mat4(const mat4_t m, int n)
 {
     vec4_t v = construct_vec4(m.values[0][n], m.values[1][n], m.values[2][n], m.values[3][n]);
     return v;
-}
-
-// compare 2 floats TODO why does this not work sometimes
-static inline bool fequal(const float a, const float b)
-{
-    if (fabs(a - b) > FLT_EPSILON) { return false; }
-    else { return true; }
 }
 
 // compare 2 vec3s

@@ -35,7 +35,7 @@ int main()
     
     // mesh
     mesh_t mesh;
-    mesh_load_simple(&mesh, "assets/models/ucube/ucube.obj");
+    mesh_load_simple(&mesh, "assets/test/test_obj.obj");
     checkerr();
 
     // projection matrix

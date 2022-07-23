@@ -62,8 +62,7 @@ unsigned int shader_load(const char* vert_path, const char* frag_path)
     }
 
     // frag
-    if ((file = fopen(frag_path, "r")) != NULL)
-    {
+    if ((file = fopen(frag_path, "r")) != NULL) {
         fseek(file, 0, SEEK_END);
         long f_size = ftell(file);
         fseek(file, 0, SEEK_SET);
@@ -78,9 +77,7 @@ unsigned int shader_load(const char* vert_path, const char* frag_path)
         }
         frag_code[n] = '\0';
         fclose(file);
-    }
-    else
-    {
+    } else {
         fprintf(stderr, "Unable to open fragment shader file | %s", frag_path);
         return -1;
     }
