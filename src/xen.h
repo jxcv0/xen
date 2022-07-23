@@ -150,9 +150,6 @@ int mesh_load(mesh_t* mesh, const char *dir, const char* name);
 // load a mesh with no texture data
 int mesh_load_simple(mesh_t *mesh, const char* filepath);
 
-// free mesh memory
-void free_mesh(mesh_t *mesh);
-
 // draw a simple mesh with no textures
 void draw_mesh_simple(mesh_t *mesh, unsigned int shader);
 

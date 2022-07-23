@@ -117,7 +117,7 @@ void io_wait(void)
 
 // load and parse *.obj file
 // TODO materials (.mtl)
-int io_load_mesh(mesh_t* mesh, const char* filepath)
+int io_load_mesh(mesh_t *mesh, const char* filepath)
 {
 	// open file
 	FILE *file = NULL;
@@ -126,34 +126,41 @@ int io_load_mesh(mesh_t* mesh, const char* filepath)
 		return -1;
 	}
 
-	int v_count = 0, vt_count = 0, vn_count = 0;
+	int v_count = 0, vt_count = 0, vn_count = 0, f_count = 0;
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t nread = 0;
 	while ((nread = getline(&line, &len, file)) != -1) // count the number of vectors
 	{
-		char *c = NULL;
-		if ((c = strstr(line, "v ")) != NULL) {
+		if (strstr(line, "v ") != NULL) {
 			v_count++;
-			continue;
-		} else if ((c = strstr(line, "vt ")) != NULL) {
+		} else if (strstr(line, "vt ") != NULL) {
 			vt_count++;
-			continue;
-		} else if ((c = strstr(line, "vn ")) != NULL) {
+		} else if (strstr(line, "vn ") != NULL) {
 			vn_count++;
-			continue;
-		} 
+		} else if (strstr(line, "f ") != NULL) {
+			f_count++;
+		}
 	}
 	vec3_t *vertices = calloc(v_count, sizeof(vec3_t));
 	vec2_t *texcoords = calloc(vt_count, sizeof(vec2_t));
 	vec3_t *normals = calloc(vn_count, sizeof(vec3_t));
+	// allocate enough space for duplicating VTN sets
+	mesh->num_vertices = f_count * 3;
+	size_t vertices_size = sizeof(vec3_t) * mesh->num_vertices;
+	size_t texcoords_size = sizeof(vec2_t) * mesh->num_vertices;
+	size_t normals_size = sizeof(vec3_t) * mesh->num_vertices;
+	size_t mem_block_size = vertices_size + texcoords_size + normals_size;
+	mesh->mem_block = malloc(mem_block_size); // now with less mallocs!
+	mesh->vertices = (vec3_t*)(mesh->mem_block);
+	mesh->texcoords = (vec2_t*)(mesh->mem_block + vertices_size);
+	mesh->normals = (vec3_t*)(mesh->mem_block + vertices_size + normals_size);
 	v_count = 0;
 	vt_count = 0;
 	vn_count = 0;
 	rewind(file);
 	while ((nread = getline(&line, &len, file)) != -1)
 	{
-		char *c = NULL;
 		char *linesave = NULL;
 		char *token = strtok_r(line, " ", &linesave);
 		if (strncmp(token, "#", 2) == 0) { // comments
@@ -190,14 +197,34 @@ int io_load_mesh(mesh_t* mesh, const char* filepath)
 		} else if (strncmp(token, "s", 2) == 0) { // smooth shading always off
 			continue;
 		} else if (strncmp(token, "f", 2) == 0) { // faces
-			
+			char *toksave = NULL;
+			int indices[3]; // assume triangulated faces
+			for(int i = 0; ; i++)
+			{
+				token = strtok_r(NULL, " ", &linesave);
+				if (token == NULL) { break; }
+				int j = 0;
+				for (char* tok = token; ; j++, tok = NULL)
+				{
+					char* subtok  = strtok_r(tok, "/", &toksave);
+					if (subtok == NULL) { break; }
+					indices[j] = atoi(subtok);
+				}
+				printf("\n");
+			}
 		} else if (strncmp(token, "mtllib", 6) == 0) {
 			// TODO handle materials
 			continue;
 		}
 	}
-	mesh->vertices = vertices;
 
 	free(line);
 	return 0;
+}
+
+void free_mesh(mesh_t *mesh)
+{
+	free(mesh->mem_block);
+	mesh->mem_block = NULL;
+	// other things ... 
 }

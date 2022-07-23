@@ -50,11 +50,12 @@ void io_load_mesh_test(void)
 {
 	mesh_t mesh;
 	io_load_mesh(&mesh, "assets/test/test_obj.obj");
-	for (int i = 0; i < 8; i++)
-	{
-		vec3_t v = mesh.vertices[i];
-		print_vec3(v);
-	}
+	// for (int i = 0; i < 8; i++)
+	// {
+	// 	vec3_t v = mesh.vertices[i];
+	// 	print_vec3(v);
+	// }
+	free_mesh(&mesh);
 }
 
 int main(void)

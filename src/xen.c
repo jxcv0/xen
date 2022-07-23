@@ -610,14 +610,6 @@ int mesh_load_simple(mesh_t* mesh, const char* filepath)
     return 0;
 }
 
-// free mesh memory
-void free_mesh(mesh_t* mesh)
-{
-    glDeleteVertexArrays(1, &mesh->VAO);
-    glDeleteBuffers(1, &mesh->VBO);
-    free(mesh->mem_block);
-}
-
 // draw a mesh with textures
 void draw_mesh(mesh_t* mesh, unsigned int shader)
 {

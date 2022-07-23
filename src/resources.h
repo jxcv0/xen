@@ -40,6 +40,8 @@ int io_request(const char*, size_t, void*, size_t);
 void io_wait(void);
 
 // load and parse *.obj file
-int io_load_mesh(mesh_t*, const char*);
+int io_load_mesh(mesh_t *mesh, const char*);
 
+// free mesh memory
+void free_mesh(mesh_t *mesh);
 #endif // RESOURCES_H
