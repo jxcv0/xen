@@ -24,6 +24,6 @@ void input_update_buffer();
 void input_clear_buffer();
 
 // check if a key is pressed
-bool input_key_pressed(enum KEY);
+bool input_key_pressed(int);
 
 #endif //  INPUT_H

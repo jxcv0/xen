@@ -27,6 +27,7 @@
 #include <GLFW/glfw3.h>
 
 GLFWwindow* window_ptr(void);
+void window_init(void);
 void window_resize_callback(GLFWwindow*, int, int);
 
 #endif // WINDOW_H

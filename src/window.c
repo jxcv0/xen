@@ -23,6 +23,13 @@
 #include "window.h"
 
 static GLFWwindow *window;
+static float scr_width = 800.0f;
+static float scr_height = 800.0f;
+
+void window_init(void)
+{
+	window = glfwCreateWindow(scr_width, scr_height, "TITLE", NULL, NULL);
+}
 
 GLFWwindow* window_ptr(void)
 {

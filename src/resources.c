@@ -49,8 +49,9 @@ static int io_run;
 
 static void* io_routine(void* arg)
 {
-	while(io_run)
+	while(1)
 	{
+		if (!io_run) { break; }
 		pthread_mutex_lock(&io_mutex);
 		while (io_index == 0)
 		{
@@ -80,7 +81,6 @@ int io_init(void)
 void io_shutdown(void)
 {
 	io_run = 0;
-	io_index = 1; // this is dubious as [1] may be in use
 	pthread_cond_signal(&io_cond);
 	pthread_join(io_thread, NULL);
 }

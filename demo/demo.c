@@ -11,6 +11,9 @@ int main(void)
 	while (!graphics_window_should_close())
 	{
 		frame_begin();
+		if (input_key_pressed(KEY_ESC)) {
+			
+		}
 		frame_end();
 	}
 

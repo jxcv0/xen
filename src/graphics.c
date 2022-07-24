@@ -28,9 +28,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static float scr_width = 800.0f;
-static float scr_height = 800.0f;
-
 void APIENTRY gl_debug_output(GLenum source,
 			      GLenum type,
 			      unsigned int id,
@@ -79,13 +76,12 @@ void APIENTRY gl_debug_output(GLenum source,
 // Init window with glfw
 void graphics_init(void)
 {
-	
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 
+	window_init();
 	GLFWwindow* window = window_ptr();
-	window = glfwCreateWindow(scr_width, scr_height, "TITLE", NULL, NULL);
 
 	if (!window) {
 		perror("Unable to create GLFW window\n");

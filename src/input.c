@@ -31,7 +31,7 @@ void input_clear_buffer()
 }
 
 // check if a key is pressed
-bool input_key_pressed(enum KEY k)
+bool input_key_pressed(int k)
 {
-	return (XEN_INPUT_BUFFER & (uint8_t)k);
+	return (XEN_INPUT_BUFFER & k) != 0;
 }
