@@ -142,24 +142,27 @@ int io_load_mesh(mesh_t *mesh, const char* filepath)
 			f_count++;
 		}
 	}
-	vec3_t *vertices = calloc(v_count, sizeof(vec3_t));
-	vec2_t *texcoords = calloc(vt_count, sizeof(vec2_t));
-	vec3_t *normals = calloc(vn_count, sizeof(vec3_t));
+
+	// temp storage
+	vec3_t vertices[v_count];
+	vec2_t texcoords[vt_count];
+	vec3_t normals[vn_count];
 	// allocate enough space for duplicating VTN sets
 	mesh->num_vertices = f_count * 3; // 3 vertices per face
 	size_t vertices_size = sizeof(vec3_t) * mesh->num_vertices;
 	size_t texcoords_size = sizeof(vec2_t) * mesh->num_vertices;
 	size_t normals_size = sizeof(vec3_t) * mesh->num_vertices;
 	size_t mem_block_size = vertices_size + texcoords_size + normals_size;
-	mesh->mem_block = malloc(mem_block_size); // now with less mallocs!
+	mesh->mem_block = malloc(mem_block_size);
 	mesh->vertices = (vec3_t*)(mesh->mem_block);
 	mesh->texcoords = (vec2_t*)(mesh->mem_block + vertices_size);
 	mesh->normals = (vec3_t*)(mesh->mem_block + vertices_size + normals_size);
 	v_count = 0;
 	vt_count = 0;
 	vn_count = 0;
-	f_count = 0;
+	int it = 0;
 	rewind(file);
+
 	while ((nread = getline(&line, &len, file)) != -1)
 	{
 		char *linesave = NULL;
@@ -199,7 +202,7 @@ int io_load_mesh(mesh_t *mesh, const char* filepath)
 			continue;
 		} else if (strncmp(token, "f", 2) == 0) { // faces
 			char *toksave = NULL;
-			for(;;)
+			for(; it < f_count; it++) // why is this required??
 			{
 				token = strtok_r(NULL, " ", &linesave);
 				if (token == NULL) { break; }
@@ -211,21 +214,17 @@ int io_load_mesh(mesh_t *mesh, const char* filepath)
 					if (subtok == NULL) { break; }
 					index[i] = atoi(subtok) - 1;
 				}
-				mesh->vertices[f_count] = vertices[index[0]];
-				mesh->texcoords[f_count] = texcoords[index[1]];
-				mesh->normals[f_count] = normals[index[2]];
-				f_count++;
+				mesh->vertices[it] = vertices[index[0]];
+				mesh->texcoords[it] = texcoords[index[1]];
+				mesh->normals[it] = normals[index[2]];
 			}
 		} else if (strncmp(token, "mtllib", 6) == 0) {
 			// TODO handle materials
 			continue;
 		}
 	}
-
-	free(vertices);
-	free(texcoords);
-	free(normals);
 	free(line);
+	fclose(file);
 	return 0;
 }
 

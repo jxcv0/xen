@@ -45,8 +45,6 @@ void io_sys_test(void)
 	io_wait();
 	assert(strcmp(buffer, "Measure twice cut once.\n") == 0);
 	io_shutdown();
-
-	xen_log("aio test passed.");
 }
 
 void io_load_mesh_test(void)
