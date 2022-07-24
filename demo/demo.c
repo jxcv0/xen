@@ -1,3 +1,4 @@
+#include "window.h"
 #include "graphics.h"
 #include "resources.h"
 #include "input.h"
@@ -5,19 +6,19 @@
 
 int main(void)
 {
-	io_init();
+	window_init();
 	graphics_init();
+	io_init();
 
-	while (!graphics_window_should_close())
+	while (!window_should_close())
 	{
 		frame_begin();
 		if (input_key_pressed(KEY_ESC)) {
-			
+			set_window_should_close(true);
 		}
 		frame_end();
 	}
 
 	io_shutdown();
-	graphics_shutdown();
 	return 0;
 }

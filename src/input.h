@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-enum KEY {
+enum {
 	KEY_NONE	= 0x1,
 	KEY_W		= 0x00000001,
 	KEY_A		= 0x00000002,

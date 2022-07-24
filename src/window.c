@@ -22,13 +22,47 @@
 
 #include "window.h"
 
+#include <stdio.h>
+
 static GLFWwindow *window;
 static float scr_width = 800.0f;
-static float scr_height = 800.0f;
+static float scr_height = 600.0f;
 
 void window_init(void)
 {
-	window = glfwCreateWindow(scr_width, scr_height, "TITLE", NULL, NULL);
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+
+	window = glfwCreateWindow(scr_width, scr_height, "XEN", NULL, NULL);
+
+	if (!window) {
+		perror("Unable to create GLFW window\n");
+		glfwTerminate();
+	}
+
+	glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, window_resize_callback);
+
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		perror("Unable to initialize GLAD\n");
+	}
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	// glfwSetCursorPosCallback(window, camera_update_dir);
+	glfwWindowHint(GLFW_SAMPLES, 4);
+
+}
+
+void set_window_should_close(bool flag)
+{
+	glfwSetWindowShouldClose(window_ptr(), flag);
+	glfwTerminate();
+}
+
+bool window_should_close(void)
+{
+	return glfwWindowShouldClose(window);
 }
 
 GLFWwindow* window_ptr(void)

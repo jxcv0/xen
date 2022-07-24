@@ -76,31 +76,7 @@ void APIENTRY gl_debug_output(GLenum source,
 // Init window with glfw
 void graphics_init(void)
 {
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-
-	window_init();
-	GLFWwindow* window = window_ptr();
-
-	if (!window) {
-		perror("Unable to create GLFW window\n");
-		glfwTerminate();
-	}
-
-	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, window_resize_callback);
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		perror("Unable to initialize GLAD\n");
-	}
-
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	// glfwSetCursorPosCallback(window, camera_update_dir);
-
-	glfwWindowHint(GLFW_SAMPLES, 4);
 	glEnable(GL_MULTISAMPLE);
-
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_CULL_FACE);
@@ -108,7 +84,6 @@ void graphics_init(void)
 
 #ifdef XEN_DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-
 	int flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
@@ -118,19 +93,6 @@ void graphics_init(void)
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 	}
 #endif
-}
-
-// shut down graphics system
-void graphics_shutdown(void)
-{
-	glfwSetWindowShouldClose(window_ptr(), GL_TRUE);
-	glfwTerminate();
-}
-
-// check if window should close
-bool graphics_window_should_close(void)
-{
-	return glfwWindowShouldClose(window_ptr());
 }
 
 // check gl err

@@ -26,8 +26,12 @@
 #include "glad.h"
 #include <GLFW/glfw3.h>
 
-GLFWwindow* window_ptr(void);
+#include <stdbool.h>
+
 void window_init(void);
+void set_window_should_close(bool);
+bool window_should_close(void);
+GLFWwindow* window_ptr(void);
 void window_resize_callback(GLFWwindow*, int, int);
 
 #endif // WINDOW_H

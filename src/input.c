@@ -33,5 +33,5 @@ void input_clear_buffer()
 // check if a key is pressed
 bool input_key_pressed(int k)
 {
-	return (XEN_INPUT_BUFFER & k) != 0;
+	return (XEN_INPUT_BUFFER & (uint8_t)k) != 0;
 }
