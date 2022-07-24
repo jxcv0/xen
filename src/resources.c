@@ -154,6 +154,7 @@ int io_load_mesh(mesh_t *mesh, const char* filepath)
 	size_t normals_size = sizeof(vec3_t) * mesh->num_vertices;
 	size_t mem_block_size = vertices_size + texcoords_size + normals_size;
 	mesh->mem_block = malloc(mem_block_size);
+	if (mesh->mem_block == NULL) { return -1; }
 	mesh->vertices = (vec3_t*)(mesh->mem_block);
 	mesh->texcoords = (vec2_t*)(mesh->mem_block + vertices_size);
 	mesh->normals = (vec3_t*)(mesh->mem_block + vertices_size + normals_size);
@@ -202,7 +203,7 @@ int io_load_mesh(mesh_t *mesh, const char* filepath)
 			continue;
 		} else if (strncmp(token, "f", 2) == 0) { // faces
 			char *toksave = NULL;
-			for(; it < f_count; it++) // why is this required??
+			for(; it < f_count; it++)
 			{
 				token = strtok_r(NULL, " ", &linesave);
 				if (token == NULL) { break; }

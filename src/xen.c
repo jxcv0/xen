@@ -34,9 +34,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// printf debugging
-#define HERE() printf("LINE: (%d)\n", __LINE__)
-
 // window
 GLFWwindow* window; // extern in xen.h
 static float screen_w = 800.0f;
@@ -55,80 +52,6 @@ static float camera_rot_b = -90.0f; // rotation about y axis
 static float prev_x = 0;
 static float prev_y = 0;
 static float offset_rad = 5.0f;
-
-// check for gl errs
-// TODO move to logger.h
-void checkerror_(const char *file, int line)
-{
-    GLenum errorCode = GL_NO_ERROR;
-    while ((errorCode = glGetError()) != GL_NO_ERROR)
-    {
-        const char* error = NULL;
-        switch (errorCode)
-        {
-            case GL_INVALID_ENUM: error = "INVALID_ENUM"; break;
-            case GL_INVALID_VALUE: error = "INVALID_VALUE"; break;
-            case GL_INVALID_OPERATION: error = "INVALID_OPERATION"; break;
-            case GL_STACK_OVERFLOW: error = "STACK_OVERFLOW"; break;
-            case GL_STACK_UNDERFLOW: error = "STACK_UNDERFLOW"; break;
-            case GL_OUT_OF_MEMORY: error = "OUT_OF_MEMORY"; break;
-            case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
-        }
-        fprintf(stderr, "%s | %s (%d)\n", error, file, line);
-    }
-    exit(EXIT_FAILURE);
-    return;
-}
-
-// opengl debug callback
-// TODO move to logger.h
-void APIENTRY gl_debug_output(GLenum source,
-                              GLenum type,
-                              unsigned int id,
-                              GLenum severity,
-                              GLsizei length,
-                              const char *message,
-                              const void *userParam)
-{
-    // non-significant error codes
-    // if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
-
-    printf("---------------\n");
-    printf("Debug message (%d): %s\n", id, message);
-    switch (source)
-    {
-        case GL_DEBUG_SOURCE_API: printf("Source: API"); break;
-        case GL_DEBUG_SOURCE_WINDOW_SYSTEM: printf("Source: Window System"); break;
-        case GL_DEBUG_SOURCE_SHADER_COMPILER: printf("Source: Shader Compiler"); break;
-        case GL_DEBUG_SOURCE_THIRD_PARTY: printf("Source: Third Party"); break;
-        case GL_DEBUG_SOURCE_APPLICATION: printf("Source: Application"); break;
-        case GL_DEBUG_SOURCE_OTHER: printf("Source: Other"); break;
-    }
-    printf("\n");
-
-    switch (type)
-    {
-        case GL_DEBUG_TYPE_ERROR: printf("Type: Error"); break;
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: printf("Type: Deprecated Behaviour"); break;
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: printf("Type: Undefined Behaviour"); break;
-        case GL_DEBUG_TYPE_PORTABILITY: printf("Type: Portability"); break;
-        case GL_DEBUG_TYPE_PERFORMANCE: printf("Type: Performance"); break;
-        case GL_DEBUG_TYPE_MARKER: printf("Type: Marker"); break;
-        case GL_DEBUG_TYPE_PUSH_GROUP: printf("Type: Push Group"); break;
-        case GL_DEBUG_TYPE_POP_GROUP: printf("Type: Pop Group"); break;
-        case GL_DEBUG_TYPE_OTHER: printf("Type: Other"); break;
-    }
-    printf("\n");
-
-    switch (severity)
-    {
-        case GL_DEBUG_SEVERITY_HIGH: printf("Severity: high"); break;
-        case GL_DEBUG_SEVERITY_MEDIUM: printf("Severity: medium"); break;
-        case GL_DEBUG_SEVERITY_LOW: printf("Severity: low"); break;
-        case GL_DEBUG_SEVERITY_NOTIFICATION: printf("Severity: notification"); break;
-    }
-    printf("\n\n");
-}
 
 // create a light
 light_t create_default_light()

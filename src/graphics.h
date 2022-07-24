@@ -24,4 +24,16 @@
 #define GRAPHICS_H
 
 #include "glad.h"
+#include <GLFW/glfw3.h>
+
+// Init window with glfw
+void graphics_init_window(void);
+
+// check gl err
+void checkerr_(const char *file, int line);
+#define checkerr() checkerr_(__FILE__, __LINE__)
+
+// load, compile and link a shader from a file
+unsigned int shader_load(const char* vert_path, const char* frag_path);
+
 #endif // GRAPHICS_H
