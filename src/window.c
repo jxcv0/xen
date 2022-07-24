@@ -54,15 +54,24 @@ void window_init(void)
 
 }
 
+void window_close(void)
+{
+	glfwTerminate();
+}
+
 void set_window_should_close(bool flag)
 {
 	glfwSetWindowShouldClose(window_ptr(), flag);
-	glfwTerminate();
 }
 
 bool window_should_close(void)
 {
 	return glfwWindowShouldClose(window);
+}
+
+void window_swap_buffers(void)
+{
+	glfwSwapBuffers(window);
 }
 
 GLFWwindow* window_ptr(void)

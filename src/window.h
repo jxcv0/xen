@@ -29,8 +29,10 @@
 #include <stdbool.h>
 
 void window_init(void);
+void window_close(void);
 void set_window_should_close(bool);
 bool window_should_close(void);
+void window_swap_buffers(void);
 GLFWwindow* window_ptr(void);
 void window_resize_callback(GLFWwindow*, int, int);
 

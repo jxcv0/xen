@@ -19,6 +19,7 @@ int main(void)
 		frame_end();
 	}
 
+	window_close();
 	io_shutdown();
 	return 0;
 }

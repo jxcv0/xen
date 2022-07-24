@@ -266,7 +266,7 @@ void frame_end()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// graphics_draw_objects();
 	// TODO jobsys_wait();
+	window_swap_buffers();
 	glfwPollEvents();
-	glfwSwapBuffers(window_ptr());
 	input_clear_buffer();
 }
