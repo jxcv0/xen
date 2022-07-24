@@ -1,5 +1,5 @@
-#ifndef INPUT_SYS_H
-#define INPUT_SYS_H
+#ifndef INPUT_H
+#define INPUT_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -26,9 +26,4 @@ void input_clear_buffer();
 // check if a key is pressed
 bool input_key_pressed(enum KEY);
 
-#ifdef XEN_DEBUG
-// debug/testing utility
-void input_set_buffer(uint8_t);
-#endif // XEN_DEBUG
-
-#endif //  INPUT_SYS_H
+#endif //  INPUT_H

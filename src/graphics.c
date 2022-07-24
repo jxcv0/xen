@@ -19,14 +19,15 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
+
 #include "graphics.h"
 
+#include "window.h"
 #include "maths.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 
-static GLFWwindow *game_window;
 static float scr_width = 800.0f;
 static float scr_height = 800.0f;
 
@@ -76,28 +77,30 @@ void APIENTRY gl_debug_output(GLenum source,
 }
 
 // Init window with glfw
-void graphics_init_window(void)
+void graphics_init(void)
 {
+	
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 
-	game_window = glfwCreateWindow(scr_width, scr_height, "TITLE", NULL, NULL);
+	GLFWwindow* window = window_ptr();
+	window = glfwCreateWindow(scr_width, scr_height, "TITLE", NULL, NULL);
 
-	if (!game_window) {
-		perror("Unable to create GLFW game_window\n");
+	if (!window) {
+		perror("Unable to create GLFW window\n");
 		glfwTerminate();
 	}
 
-	glfwMakeContextCurrent(game_window);
-	// glfwSetFramebufferSizeCallback(game_window, on_resize);
+	glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, window_resize_callback);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		perror("Unable to initialize GLAD\n");
 	}
 
-	glfwSetInputMode(game_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	// glfwSetCursorPosCallback(game_window, camera_update_dir);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	// glfwSetCursorPosCallback(window, camera_update_dir);
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glEnable(GL_MULTISAMPLE);
@@ -119,6 +122,19 @@ void graphics_init_window(void)
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 	}
 #endif
+}
+
+// shut down graphics system
+void graphics_shutdown(void)
+{
+	glfwSetWindowShouldClose(window_ptr(), GL_TRUE);
+	glfwTerminate();
+}
+
+// check if window should close
+bool graphics_window_should_close(void)
+{
+	return glfwWindowShouldClose(window_ptr());
 }
 
 // check gl err

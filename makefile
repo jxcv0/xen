@@ -1,4 +1,4 @@
-CFILES = src/graphics.c src/glad.c src/resources.c
+CFILES = src/xen.c src/graphics.c src/glad.c src/resources.c src/input.c src/window.c
 FLAGS = -Wall -Werror -O3
 LIBS = -ldl -lm -lc -lglfw -lpthread
 

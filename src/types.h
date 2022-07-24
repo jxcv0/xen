@@ -3,8 +3,13 @@
 
 #include "maths.h"
 
+typedef struct material
+{
+	// the things
+} material_t;
+
 // 3d mesh no EBO
-typedef struct mesh_t
+typedef struct mesh
 {
 	void* mem_block;
 	vec3_t *vertices;
@@ -18,5 +23,15 @@ typedef struct mesh_t
 	// vec3_t *tangents; 
 	// vec3_t *bitangents;
 } mesh_t;
+
+typedef struct light
+{
+    int id;
+    vec3_t color;
+    vec3_t position;
+    float constant;
+    float linear;
+    float quadratic;
+} light_t;
 
 #endif // TYPES_H

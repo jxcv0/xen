@@ -20,27 +20,13 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef GRAPHICS_H
-#define GRAPHICS_H
+#ifndef WINDOW_H
+#define WINDOW_H
 
 #include "glad.h"
 #include <GLFW/glfw3.h>
-#include <stdbool.h>
 
-// init graphics system
-void graphics_init(void);
+GLFWwindow* window_ptr(void);
+void window_resize_callback(GLFWwindow*, int, int);
 
-// shut down graphics system
-void graphics_shutdown(void);
-
-// check gl err
-void checkerr_(const char *file, int line);
-#define checkerr() checkerr_(__FILE__, __LINE__)
-
-// load, compile and link a shader from a file
-unsigned int shader_load(const char* vert_path, const char* frag_path);
-
-// check if window should close
-bool graphics_window_should_close(void);
-
-#endif // GRAPHICS_H
+#endif // WINDOW_H
