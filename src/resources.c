@@ -51,12 +51,12 @@ static void* io_routine(void* arg)
 {
 	while(1)
 	{
-		if (!io_run) { break; }
 		pthread_mutex_lock(&io_mutex);
-		while (io_index == 0)
+		while (io_index == 0 && io_run == 1)
 		{
 			pthread_cond_wait(&io_cond, &io_mutex);
 		}
+		if (!io_run) { break; }
 		struct io_request ior = io_request_buffer[--io_index];
 		pthread_mutex_unlock(&io_mutex);
 		pthread_cond_signal(&io_cond);
