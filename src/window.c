@@ -28,6 +28,11 @@ static GLFWwindow *window;
 static float scr_width = 800.0f;
 static float scr_height = 600.0f;
 
+static void window_resize_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
 void window_init(void)
 {
 	glfwInit();
@@ -78,9 +83,4 @@ GLFWwindow* window_ptr(void)
 {
 	// syncronization?
 	return window;
-}
-
-void window_resize_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
 }

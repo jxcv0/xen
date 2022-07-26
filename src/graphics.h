@@ -27,7 +27,7 @@
 #include <GLFW/glfw3.h>
 #include <stdbool.h>
 
-// init graphics system
+// init opengl settings
 void graphics_init(void);
 
 // shut down graphics system
@@ -39,8 +39,5 @@ void checkerr_(const char *file, int line);
 
 // load, compile and link a shader from a file
 unsigned int shader_load(const char* vert_path, const char* frag_path);
-
-// check if window should close
-bool graphics_window_should_close(void);
 
 #endif // GRAPHICS_H

@@ -28,6 +28,7 @@ int main(void)
 			set_window_should_close(true);
 		}
 		frame_end();
+		checkerr();
 	}
 
 	free_mesh(&mesh);

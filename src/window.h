@@ -28,12 +28,22 @@
 
 #include <stdbool.h>
 
+// init glfw, opengl and open game window
 void window_init(void);
+
+// close game window
 void window_close(void);
+
+// set glfw flag
 void set_window_should_close(bool);
+
+// get glfw flag
 bool window_should_close(void);
+
+// swap buffers
 void window_swap_buffers(void);
+
+// get ptr to the game window
 GLFWwindow* window_ptr(void);
-void window_resize_callback(GLFWwindow*, int, int);
 
 #endif // WINDOW_H

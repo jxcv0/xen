@@ -73,7 +73,7 @@ void APIENTRY gl_debug_output(GLenum source,
 	printf("\n\n");
 }
 
-// Init window with glfw
+// init opengl settings
 void graphics_init(void)
 {
 	glEnable(GL_MULTISAMPLE);
@@ -113,8 +113,8 @@ void checkerr_(const char *file, int line)
 			case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
 		}
 		fprintf(stderr, "%s | %s (%d)\n", error, file, line);
+		exit(EXIT_FAILURE);
 	}
-	exit(EXIT_FAILURE);
 	return;
 }
 
