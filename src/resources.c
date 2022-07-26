@@ -22,108 +22,25 @@
 
 #include "resources.h"
 
-#include <pthread.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
-struct io_request
-{
-	char filepath[64];
-	void *buffer;
-	size_t nbytes;
-};
-
-#define IO_REQUEST_BUFFER_SIZE 64
-static struct io_request io_request_buffer[IO_REQUEST_BUFFER_SIZE];
-static int io_index;
-static pthread_t io_thread;
-static pthread_mutex_t io_mutex;
-static pthread_cond_t io_cond;
-static int io_run;
-
-// TODO 
-// a way of querying the request buffer
-
-static void* io_routine(void* arg)
-{
-	while(1)
-	{
-		pthread_mutex_lock(&io_mutex);
-		while (io_index == 0 && io_run == 1)
-		{
-			pthread_cond_wait(&io_cond, &io_mutex);
-		}
-		if (!io_run) { break; }
-		struct io_request ior = io_request_buffer[--io_index];
-		pthread_mutex_unlock(&io_mutex);
-		pthread_cond_signal(&io_cond);
-		int fd = open(ior.filepath, O_RDONLY);
-		assert(fd != -1);
-		ssize_t n_read = read(fd, ior.buffer, ior.nbytes);
-		assert(n_read != -1);
-		close(fd);
-	}
-	return NULL;
-}
-
-// initialize resource system
-int io_init(void)
-{
-	io_run = 1;
-	io_index = 0;
-	return pthread_create(&io_thread, NULL, io_routine, NULL);
-}
-
-// shut down resource system
-void io_shutdown(void)
-{
-	io_run = 0;
-	pthread_cond_signal(&io_cond);
-	pthread_join(io_thread, NULL);
-}
-
-// request a file be loaded into a buffer
-int io_request(const char *filepath, size_t pathlen, void *buffer, size_t nbytes)
-{
-	if (pathlen > 64) { return -1; }
-	pthread_mutex_lock(&io_mutex);
-	if (io_index == IO_REQUEST_BUFFER_SIZE - 1) {
-		pthread_mutex_unlock(&io_mutex);
-		pthread_cond_signal(&io_cond);
-		return -1;
-	}
-	struct io_request *ior = &io_request_buffer[io_index++];
-	strncpy(ior->filepath, filepath, pathlen);
-	ior->buffer = buffer;
-	ior->nbytes = nbytes;
-	pthread_mutex_unlock(&io_mutex);
-	pthread_cond_signal(&io_cond);
-	return 0;
-}
-
-// wait for the request buffer to be empty
-void io_wait(void)
-{
-	pthread_mutex_lock(&io_mutex);
-	while (io_index != 0)
-	{
-		pthread_cond_wait(&io_cond, &io_mutex);
-	}
-	pthread_mutex_unlock(&io_mutex);
-}
-
 // load and parse *.obj file
 // TODO materials (.mtl)
-int io_load_mesh(mesh_t *mesh, const char* filepath)
+static void* io_load_mesh(void* arg)
 {
+	struct io_request *ior = (struct io_request*)arg;
+	mesh_t *mesh = (mesh_t*)ior->struct_ptr;
+	const char *filepath = ior->filepath;
+
 	// open file
 	FILE *file = NULL;
 	if ((file = fopen(filepath, "r")) == NULL) {
 		perror(filepath);
-		return -1;
+		return NULL;
 	}
 
 	int v_count = 0, vt_count = 0, vn_count = 0, f_count = 0;
@@ -154,7 +71,7 @@ int io_load_mesh(mesh_t *mesh, const char* filepath)
 	size_t normals_size = sizeof(vec3_t) * mesh->num_vertices;
 	size_t mem_block_size = vertices_size + texcoords_size + normals_size;
 	mesh->mem_block = malloc(mem_block_size);
-	if (mesh->mem_block == NULL) { return -1; }
+	if (mesh->mem_block == NULL) { return NULL; }
 	mesh->vertices = (vec3_t*)(mesh->mem_block);
 	mesh->texcoords = (vec2_t*)(mesh->mem_block + vertices_size);
 	mesh->normals = (vec3_t*)(mesh->mem_block + vertices_size + normals_size);
@@ -226,9 +143,17 @@ int io_load_mesh(mesh_t *mesh, const char* filepath)
 	}
 	free(line);
 	fclose(file);
-	return 0;
+	pthread_exit(NULL);
+	return NULL;
 }
 
+// create a new thread to parse an *.obj file into a mesh_t
+int io_load_mesh_async(struct io_request *ior)
+{
+	return pthread_create(ior->thread_ptr, NULL, io_load_mesh, ior);
+}
+
+// free mesh memory
 void free_mesh(mesh_t *mesh)
 {
 	free(mesh->mem_block);

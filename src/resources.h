@@ -25,23 +25,20 @@
 
 #include "types.h"
 
+#include <pthread.h>
 #include <stddef.h>
 
-// initialize resource system
-int io_init(void);
+struct io_request
+{
+	const char* filepath;
+	pthread_t *thread_ptr;
+	void *struct_ptr;
+};
 
-// shut down resource system
-void io_shutdown(void);
-
-// request a file be loaded into a buffer
-int io_request(const char*, size_t, void*, size_t);
-
-// wait for the request buffer to be empty
-void io_wait(void);
-
-// load and parse *.obj file
-int io_load_mesh(mesh_t *mesh, const char*);
+// create a new thread to parse an *.obj file into a mesh_t
+int io_load_mesh_async(struct io_request*);
 
 // free mesh memory
 void free_mesh(mesh_t *mesh);
+
 #endif // RESOURCES_H

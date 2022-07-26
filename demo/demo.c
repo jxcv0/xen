@@ -4,11 +4,22 @@
 #include "input.h"
 #include "xen.h"
 
+#include <assert.h>
 int main(void)
 {
 	window_init();
 	graphics_init();
-	io_init();
+
+	mesh_t mesh;
+	pthread_t thread;
+	struct io_request ior;
+	ior.filepath = "assets/test/test_obj.obj";
+	ior.struct_ptr = &mesh;
+	ior.thread_ptr = &thread;
+
+	assert(io_load_mesh_async(&ior) != -1);
+	pthread_join(thread, NULL);
+	print_vec3(mesh.vertices[0]);
 
 	while (!window_should_close())
 	{
@@ -19,7 +30,7 @@ int main(void)
 		frame_end();
 	}
 
+	free_mesh(&mesh);
 	window_close();
-	io_shutdown();
 	return 0;
 }
