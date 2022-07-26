@@ -19,7 +19,7 @@ int main(void)
 
 	assert(io_load_mesh_async(&ior) != -1);
 	pthread_join(thread, NULL);
-	print_vec3(mesh.vertices[0]);
+	graphics_gen_buffer_objects(&mesh);
 
 	while (!window_should_close())
 	{

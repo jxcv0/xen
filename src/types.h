@@ -13,15 +13,13 @@ typedef struct mesh
 {
 	void* mem_block;
 	vec3_t *vertices;
-	vec3_t *normals;
 	vec2_t *texcoords;
+	vec3_t *normals;
 	size_t num_vertices;
 	unsigned int VBO;
 	unsigned int VAO;
 	// material_t *materials;
 	// TODO what are these again?:
-	// vec3_t *tangents; 
-	// vec3_t *bitangents;
 } mesh_t;
 
 typedef struct light

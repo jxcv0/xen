@@ -219,3 +219,27 @@ unsigned int shader_load(const char* vert_path, const char* frag_path)
 
 	return program_id;
 }
+
+// create VAO and VBO
+int graphics_gen_buffer_objects(mesh_t *mesh)
+{
+	if (mesh->mem_block == NULL) { return -1; }
+	glGenBuffers(1, &mesh->VBO);
+	glGenVertexArrays(1, &mesh->VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh->VBO);
+	glBindVertexArray(mesh->VAO);
+	size_t vertices_size = mesh->num_vertices * sizeof(vec3_t);
+	size_t texcoords_size = mesh->num_vertices * sizeof(vec2_t);
+	size_t normals_size = mesh->num_vertices * sizeof(vec3_t);
+	size_t VBO_size = vertices_size + texcoords_size + normals_size;
+	glBufferData(GL_ARRAY_BUFFER, VBO_size, mesh->mem_block, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0); // vertices
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, mesh->mem_block);
+	glEnableVertexAttribArray(1); // texcoords
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (mesh->mem_block + vertices_size));
+	glEnableVertexAttribArray(2); // normals
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (mesh->mem_block + vertices_size + texcoords_size));
+	glBindVertexArray(0);
+	checkerr();
+	return 0;
+}

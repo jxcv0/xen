@@ -25,7 +25,10 @@
 
 #include "glad.h"
 #include <GLFW/glfw3.h>
+
 #include <stdbool.h>
+
+#include "types.h"
 
 // init opengl settings
 void graphics_init(void);
@@ -39,5 +42,8 @@ void checkerr_(const char *file, int line);
 
 // load, compile and link a shader from a file
 unsigned int shader_load(const char* vert_path, const char* frag_path);
+
+// create VAO and VBO
+int graphics_gen_buffer_objects(mesh_t*);
 
 #endif // GRAPHICS_H

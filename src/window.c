@@ -33,6 +33,7 @@ static void window_resize_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+// init glfw, opengl and open game window
 void window_init(void)
 {
 	glfwInit();
@@ -59,26 +60,31 @@ void window_init(void)
 
 }
 
+// close game window
 void window_close(void)
 {
 	glfwTerminate();
 }
 
+// set glfw flag
 void set_window_should_close(bool flag)
 {
 	glfwSetWindowShouldClose(window_ptr(), flag);
 }
 
+// get glfw flag
 bool window_should_close(void)
 {
 	return glfwWindowShouldClose(window);
 }
 
+// swap buffers
 void window_swap_buffers(void)
 {
 	glfwSwapBuffers(window);
 }
 
+// get ptr to the game window
 GLFWwindow* window_ptr(void)
 {
 	// syncronization?
