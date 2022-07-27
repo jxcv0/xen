@@ -1,6 +1,7 @@
 #include "camera.h"
 #include "window.h"
 #include "maths.h"
+#include <stdbool.h>
 
 static vec3_t camera_pos = { .values = {0.0f, 0.0f, 0.0f} };
 static vec3_t camera_dir = { .values = {0.0f, 0.0f, -1.0f} };
@@ -17,13 +18,14 @@ static float offset_rad = 5.0f;
 // set the camera update function
 void set_camera_update_callback(GLFWcursorposfun callback)
 {
-	glfwSetCursorPosCallback(window, callback);
+	glfwSetCursorPosCallback(window_ptr(), callback);
 }
 
 // create view matrix
 mat4_t gen_view_matrix(void)
 {
-	return look_at(camera_dir, camera_pos, camera_up);
+	vec3_t dir = add_vec3(camera_pos, camera_dir);
+	return look_at(camera_pos, dir, camera_up);
 }
 
 // update the camera direction based on a change in mouse position
@@ -56,8 +58,8 @@ void camera_update_dir(GLFWwindow* window, double x, double y)
 	float rads_b = radians(camera_rot_b);
 
 	camera_pos = construct_vec3(-offset_rad * (cos(rads_b) * cos(rads_a)),
-				-offset_rad * (sin(rads_a)),
-				-offset_rad * (sin(rads_b) * cos(rads_a)));
+				    -offset_rad * (sin(rads_a)),
+				    -offset_rad * (sin(rads_b) * cos(rads_a)));
 
 	camera_pos.values[1] += 1.5f;
 

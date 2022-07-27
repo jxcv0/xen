@@ -2,9 +2,8 @@
 #include "graphics.h"
 #include "resources.h"
 #include "input.h"
+#include "camera.h"
 #include "xen.h"
-
-#include <assert.h>
 
 mat4_t view_matrix;
 mat4_t projection_matrix;
@@ -22,7 +21,10 @@ int main(void)
 	ior.struct_ptr = &mesh;
 	ior.thread_ptr = &thread;
 
-	assert(io_load_mesh_async(&ior) != -1);
+	set_camera_update_callback(camera_update_dir);
+	if (io_load_mesh_async(&ior) == -1) {
+		perror("io_load_mesh_async");
+	}
 	pthread_join(thread, NULL);
 	graphics_gen_buffer_objects(&mesh);
 

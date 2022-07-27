@@ -23,8 +23,11 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#ifndef GL_INCLUDED
+#define GL_INCLUDED
 #include "glad.h"
 #include <GLFW/glfw3.h>
+#endif
 
 #include <stdbool.h>
 

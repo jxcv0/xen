@@ -43,22 +43,22 @@ static inline bool fequal(const float a, const float b)
 	return (fabs(a - b) < FLT_EPSILON);
 }
 
-typedef struct vec2_t
+typedef struct vec2
 {
     float values[2];
 } vec2_t;
 
-typedef struct vec3_t
+typedef struct vec3
 {
     float values[3];
 } vec3_t;
 
-typedef struct vec4_t
+typedef struct vec4
 {
     float values[4];
 } vec4_t;
 
-typedef struct mat4_t
+typedef struct mat4
 {
     float values[4][4];
 } mat4_t;
