@@ -332,11 +332,11 @@ static inline mat4_t perspective(const float fov, const float near, const float 
 // create a transformation matrix from a vec3
 static inline mat4_t translate(const mat4_t m, const vec3_t v)
 {
-    mat4_t tm = construct_mat4(1.0f);
-    tm.values[3][0] = v.values[0];
-    tm.values[3][1] = v.values[1];
-    tm.values[3][2] = v.values[2];
-    return tm;
+	mat4_t mat = m;
+	mat.values[3][0] = v.values[0];
+	mat.values[3][1] = v.values[1];
+	mat.values[3][2] = v.values[2];
+	return mat;
 }
 
 // create a transformation matrix from a vec3
@@ -371,7 +371,6 @@ static inline mat4_t rotate(const mat4_t m, const vec3_t axis, const float a)
 }
 
 // create view matrix
-// FIXME is the this the correct handedness?
 static inline mat4_t look_at(const vec3_t eye, const vec3_t ctr, const vec3_t up)
 {
     vec3_t f = normalize_vec3(subtract_vec3(ctr, eye));

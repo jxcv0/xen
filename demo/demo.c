@@ -5,6 +5,11 @@
 #include "xen.h"
 
 #include <assert.h>
+
+mat4_t view_matrix;
+mat4_t projection_matrix;
+mat4_t model_matrix;
+
 int main(void)
 {
 	window_init();
@@ -27,6 +32,7 @@ int main(void)
 		if (input_key_pressed(KEY_ESC)) {
 			set_window_should_close(true);
 		}
+		draw_mesh(&mesh);
 		frame_end();
 		checkerr();
 	}

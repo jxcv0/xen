@@ -18,8 +18,8 @@ typedef struct mesh
 	size_t num_vertices;
 	unsigned int VBO;
 	unsigned int VAO;
+	mat4_t model_matrix;
 	// material_t *materials;
-	// TODO what are these again?:
 } mesh_t;
 
 typedef struct light

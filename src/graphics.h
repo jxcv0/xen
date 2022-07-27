@@ -44,6 +44,12 @@ void checkerr_(const char *file, int line);
 unsigned int shader_load(const char* vert_path, const char* frag_path);
 
 // create VAO and VBO
+void update_model_matrix(mesh_t*, vec3_t, vec3_t, float);
+
+// generate gl buffers for mesh
 int graphics_gen_buffer_objects(mesh_t*);
+
+// draw a mesh
+void draw_mesh(mesh_t*);
 
 #endif // GRAPHICS_H

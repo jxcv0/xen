@@ -55,7 +55,6 @@ void window_init(void)
 	}
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	// glfwSetCursorPosCallback(window, camera_update_dir);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
 }

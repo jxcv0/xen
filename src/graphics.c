@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+// opengl debug output
 void APIENTRY gl_debug_output(GLenum source,
 			      GLenum type,
 			      unsigned int id,
@@ -119,28 +120,26 @@ void checkerr_(const char *file, int line)
 }
 
 // check compile status
-void shader_check_compile(GLuint shader_id, const char* msg)
+static void shader_check_compile(GLuint shader_id, const char* msg)
 {
 	GLint success;
 	GLchar log[1024];
 	glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-	glGetShaderInfoLog(shader_id, 1024, NULL, log);
-	fprintf(stderr, "Shader program compilation error | %s\n%s\n", msg, log);
+	if (!success) {
+		glGetShaderInfoLog(shader_id, 1024, NULL, log);
+		fprintf(stderr, "Shader program compilation error | %s\n%s\n", msg, log);
 	}
 }
 
 // check link status
-void shader_check_link(GLuint prgm_id)
+static void shader_check_link(GLuint prgm_id)
 {
 	GLint success;
 	GLchar log[1024];
 	glGetProgramiv(prgm_id, GL_LINK_STATUS, &success);
-	if (!success)
-	{
+	if (!success) {
 	glGetProgramInfoLog(prgm_id, 1024, NULL, log);
-	fprintf(stderr, "Shader program linking error | %s\n", log);
+		fprintf(stderr, "Shader program linking error | %s\n", log);
 	}
 }
 
@@ -195,7 +194,7 @@ unsigned int shader_load(const char* vert_path, const char* frag_path)
 
 	const char* const_vert_code = vert_code;
 	unsigned int vert_id = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vert_id, 1, &const_vert_code, NULL); // wtf
+	glShaderSource(vert_id, 1, &const_vert_code, NULL);
 	glCompileShader(vert_id);
 	shader_check_compile(vert_id, vert_path);
 
@@ -220,7 +219,7 @@ unsigned int shader_load(const char* vert_path, const char* frag_path)
 	return program_id;
 }
 
-// create VAO and VBO
+// generate gl buffers for mesh
 int graphics_gen_buffer_objects(mesh_t *mesh)
 {
 	if (mesh->mem_block == NULL) { return -1; }
@@ -234,12 +233,29 @@ int graphics_gen_buffer_objects(mesh_t *mesh)
 	size_t VBO_size = vertices_size + texcoords_size + normals_size;
 	glBufferData(GL_ARRAY_BUFFER, VBO_size, mesh->mem_block, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(0); // vertices
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, mesh->mem_block);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (mesh->mem_block));
 	glEnableVertexAttribArray(1); // texcoords
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (mesh->mem_block + vertices_size));
 	glEnableVertexAttribArray(2); // normals
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (mesh->mem_block + vertices_size + texcoords_size));
 	glBindVertexArray(0);
+#ifdef XEN_DEBUG
 	checkerr();
+#endif
 	return 0;
+}
+
+// update model matrix of a mesh
+void update_model_matrix(mesh_t *mesh, vec3_t position, vec3_t rotation_axis, float angle)
+{
+	mat4_t mat = translate(construct_mat4(1.0f), position);
+	mesh->model_matrix = rotate(mat, rotation_axis, radians(angle));
+}
+
+// draw a mesh
+void draw_mesh(mesh_t* mesh)
+{
+	glBindVertexArray(mesh->VAO);
+	glDrawArrays(GL_TRIANGLES, 0, mesh->num_vertices);
+	glBindVertexArray(0);
 }
