@@ -1,4 +1,4 @@
-CFILES = src/xen.c src/camera.c src/graphics.c src/glad.c src/resources.c src/input.c src/window.c
+CFILES = src/xen.c src/camera.c src/shader.c src/graphics.c src/glad.c src/resources.c src/input.c src/window.c
 FLAGS = -Wall -Werror -O3 -D XEN_DEBUG
 LIBS = -ldl -lm -lc -lglfw -lpthread
 

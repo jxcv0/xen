@@ -29,6 +29,7 @@
 #include <GLFW/glfw3.h>
 #endif
 
+#include "maths.h"
 #include <stdbool.h>
 
 // init glfw, opengl and open game window
@@ -48,5 +49,8 @@ void window_swap_buffers(void);
 
 // get ptr to the game window
 GLFWwindow* window_ptr(void);
+
+// calculate perspective matrix
+mat4_t window_perspective_matrix(float);
 
 #endif // WINDOW_H

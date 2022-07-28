@@ -24,12 +24,7 @@
 #define SHADER_H
 
 #include "glad.h"
-
-// check compile status
-void shader_check_compile(GLuint shader_id, const char* msg);
-
-// check link status
-void shader_check_link(GLuint prgm_id);
+#include "maths.h"
 
 // load and compile a shader from a text file
 unsigned int shader_load(const char* vert_path, const char* frag_path);
@@ -42,18 +37,13 @@ static inline void shader_use(unsigned int shader)
 
 // lazy overloads
 #define shader_set_uniform(x, y, z) _Generic((z), \
-    int: shader_set_uniform_int, \
+    int: shader_set_uniform_int,     \
     float: shader_set_uniform_float, \
     vec2_t: shader_set_uniform_vec2, \
     vec3_t: shader_set_uniform_vec3, \
-    mat4_t: shader_set_uniform_mat4, \
-    light_t*: shader_set_uniform_light \
+    mat4_t: shader_set_uniform_mat4  \
     )(x, y, z)
 
-// set shader uniform utility function
-void shader_set_uniform_light(unsigned int shader,
-                              unsigned int light_index,
-                              const light_t* light);
 
 // set shader uniform utility function
 static inline void shader_set_uniform_int(unsigned int shader, const char* uniform_name, const int i)

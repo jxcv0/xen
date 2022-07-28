@@ -1,19 +1,25 @@
 #include "window.h"
 #include "graphics.h"
+#include "shader.h"
 #include "resources.h"
 #include "input.h"
 #include "camera.h"
 #include "xen.h"
 
-mat4_t view_matrix;
-mat4_t projection_matrix;
-mat4_t model_matrix;
-
 int main(void)
 {
+	// init
 	window_init();
 	graphics_init();
 
+
+	unsigned int ubershader = shader_load("assets/shaders/ubershader.vert",
+					  "assets/shaders/ubershader.frag");
+
+	mat4_t projection_matrix = window_perspective_matrix(55.0f);
+	shader_set_uniform(ubershader, "projection", projection_matrix);
+
+	// load 3d model
 	mesh_t mesh;
 	pthread_t thread;
 	struct io_request ior;
@@ -26,7 +32,7 @@ int main(void)
 		perror("io_load_mesh_async");
 	}
 	pthread_join(thread, NULL);
-	graphics_gen_buffer_objects(&mesh);
+	gen_buffer_objects(&mesh);
 
 	while (!window_should_close())
 	{
@@ -34,7 +40,7 @@ int main(void)
 		if (input_key_pressed(KEY_ESC)) {
 			set_window_should_close(true);
 		}
-		draw_mesh(&mesh);
+		draw_mesh(ubershader, &mesh);
 		frame_end();
 		checkerr();
 	}

@@ -89,3 +89,10 @@ GLFWwindow* window_ptr(void)
 	// syncronization?
 	return window;
 }
+
+
+// calculate perspective matrix
+mat4_t window_perspective_matrix(float fov)
+{
+	return perspective(radians(fov), 0.1f, 100.0f, (scr_width/scr_height));
+}

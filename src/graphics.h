@@ -23,11 +23,8 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
-#ifndef GL_INCLUDED
-#define GL_INCLUDED
 #include "glad.h"
 #include <GLFW/glfw3.h>
-#endif
 
 #include <stdbool.h>
 
@@ -43,16 +40,13 @@ void graphics_shutdown(void);
 void checkerr_(const char *file, int line);
 #define checkerr() checkerr_(__FILE__, __LINE__)
 
-// load, compile and link a shader from a file
-unsigned int shader_load(const char* vert_path, const char* frag_path);
-
 // create VAO and VBO
 void update_model_matrix(mesh_t*, vec3_t, vec3_t, float);
 
 // generate gl buffers for mesh
-int graphics_gen_buffer_objects(mesh_t*);
+int gen_buffer_objects(mesh_t*);
 
 // draw a mesh
-void draw_mesh(mesh_t*);
+void draw_mesh(unsigned int, mesh_t*);
 
 #endif // GRAPHICS_H

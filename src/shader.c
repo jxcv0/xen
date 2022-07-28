@@ -1,11 +1,10 @@
 #include "shader.h"
-#include "checkerr.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
 // check compile status
-void shader_check_compile(GLuint shader_id, const char* msg)
+static void shader_check_compile(GLuint shader_id, const char* msg)
 {
     GLint success;
     GLchar log[1024];
@@ -18,7 +17,7 @@ void shader_check_compile(GLuint shader_id, const char* msg)
 }
 
 // check link status
-void shader_check_link(GLuint prgm_id)
+static void shader_check_link(GLuint prgm_id)
 {
     GLint success;
     GLchar log[1024];
@@ -108,31 +107,3 @@ unsigned int shader_load(const char* vert_path, const char* frag_path)
 
     return program_id;
 }
-
-// set shader uniform utility function
-void shader_set_uniform_light(unsigned int shader,
-                                unsigned int light_index,
-                                const light_t* light)
-{
-    char color[16];
-    sprintf(color, "lights[%d].color", light_index);
-
-    char position[19];
-    sprintf(position, "lights[%d].position", light_index);
-
-    char constant[19];
-    sprintf(constant, "lights[%d].constant", light_index);
-
-    char linear[17];
-    sprintf(linear, "lights[%d].linear", light_index);
-
-    char quadratic[20];
-    sprintf(quadratic, "lights[%d].quadratic", light_index);
-
-    shader_set_uniform(shader, color, light->color);
-    shader_set_uniform(shader, position, light->position);
-    shader_set_uniform(shader, constant, light->constant);
-    shader_set_uniform(shader, linear, light->linear);
-    shader_set_uniform(shader, quadratic, light->quadratic);
-}
-
