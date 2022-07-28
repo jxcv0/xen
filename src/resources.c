@@ -40,6 +40,7 @@ static void* io_load_mesh(void* arg)
 	FILE *file = NULL;
 	if ((file = fopen(filepath, "r")) == NULL) {
 		perror(filepath);
+		mesh = NULL;
 		return NULL;
 	}
 
@@ -71,7 +72,10 @@ static void* io_load_mesh(void* arg)
 	size_t normals_size = sizeof(vec3_t) * mesh->num_vertices;
 	size_t mem_block_size = vertices_size + texcoords_size + normals_size;
 	mesh->mem_block = malloc(mem_block_size);
-	if (mesh->mem_block == NULL) { return NULL; }
+	if (mesh->mem_block == NULL) {
+		mesh = NULL;
+		return NULL;
+	}
 	mesh->vertices = (vec3_t*)(mesh->mem_block);
 	mesh->texcoords = (vec2_t*)(mesh->mem_block + vertices_size);
 	mesh->normals = (vec3_t*)(mesh->mem_block + vertices_size + normals_size);
@@ -159,4 +163,39 @@ void free_mesh(mesh_t *mesh)
 	free(mesh->mem_block);
 	mesh->mem_block = NULL;
 	// other things ... 
+}
+
+// load shader frag/vert text from file
+// struct_ptr is cast to char* to contain the text GLSL
+// freeing this memory must be done in calling function
+static void* io_load_text(void* arg)
+{
+	struct io_request *ior = (struct io_request*)arg;
+	char* text = (char*)ior->struct_ptr;
+	FILE *file = NULL;
+	if ((file = fopen(ior->filepath, "r")) == NULL) {
+		ior->struct_ptr = NULL;
+		fprintf(stderr, "Unable to open file | %s", ior->filepath);
+		return NULL;
+	}
+
+	fseek(file, 0, SEEK_END);
+	long file_size = ftell(file);
+	fseek(file, 0, SEEK_SET);
+	text = malloc(file_size);
+	size_t n = 0;
+	int c;
+	while ((c = fgetc(file)) != EOF)
+	{
+		text[n++] = (char)c;
+	}
+	text[n] = '\0';
+	fclose(file);
+	pthread_exit(NULL);
+	return NULL;
+}
+
+int io_load_text_async(struct io_request *ior)
+{
+	return pthread_create(ior->thread_ptr, NULL, io_load_text, ior);
 }

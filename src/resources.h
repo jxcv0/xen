@@ -28,6 +28,7 @@
 #include <pthread.h>
 #include <stddef.h>
 
+// uniform request type
 struct io_request
 {
 	const char* filepath;
@@ -37,6 +38,9 @@ struct io_request
 
 // create a new thread to parse an *.obj file into a mesh_t
 int io_load_mesh_async(struct io_request*);
+
+// create a new thread to load a file into a char array
+int io_load_text_async(struct io_request*);
 
 // free mesh memory
 void free_mesh(mesh_t *mesh);
