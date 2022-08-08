@@ -20,120 +20,81 @@
  * IN THE SOFTWARE.
  */
 
-#include "xen.h"
-
-#include "input.h"
-#include "window.h"
-
-#include <assimp/cimport.h>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
-// create a light
-light_t create_default_light()
+#include "glad.h"
+#include <GLFW/glfw3.h>
+
+// window
+static GLFWwindow *WINDOW;
+static float scr_width = 800.0f;
+static float scr_height = 600.0f;
+
+void xen_init(void);
+void on_resize(GLFWwindow*, int, int);
+void frame_start(void);
+void frame_end(void);
+
+int main(void)
 {
-    light_t result = {
-        .color.values = {1.0f, 1.0f, 1.0f},
-        .position.values = {1.0f, 1.0f, -1.0f},
-        .constant = 1.0f,
-        .linear = 0.09f,
-        .quadratic = 0.032
-    };
-    return result;
-}
+	xen_init();
 
-// set shader uniform utility function
-void shader_set_uniform_light(unsigned int shader,
-                                unsigned int light_index,
-                                const light_t* light)
-{
-    char color[16];
-    sprintf(color, "lights[%d].color", light_index);
-
-    char position[19];
-    sprintf(position, "lights[%d].position", light_index);
-
-    char constant[19];
-    sprintf(constant, "lights[%d].constant", light_index);
-
-    char linear[17];
-    sprintf(linear, "lights[%d].linear", light_index);
-
-    char quadratic[20];
-    sprintf(quadratic, "lights[%d].quadratic", light_index);
-
-    // shader_set_uniform(shader, color, light->color);
-    // shader_set_uniform(shader, position, light->position);
-    // shader_set_uniform(shader, constant, light->constant);
-    // shader_set_uniform(shader, linear, light->linear);
-    // shader_set_uniform(shader, quadratic, light->quadratic);
-}
-
-// load a texure from a file and add data to gl buffers
-unsigned int load_texture(const char* dir, const char* tex_name)
-{
-    char filepath[strlen(dir) + strlen(tex_name)];
-    strcpy(filepath, dir);
-    strcat(filepath, tex_name);
-
-    unsigned int tex_id;
-    glGenTextures(1, &tex_id);
-
-    int w, h, n;
-    unsigned char* data = stbi_load(filepath, &w, &h, &n, 0);
-
-    if (data)
-    {
-        GLenum format = GL_RGBA;
-
-        if (n == 1)
-        {
-            format = GL_RED;
-        }
-        else if (n == 3)
-        {
-            format = GL_RGB;
-        }
-
-        glBindTexture(GL_TEXTURE_2D, tex_id);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, GL_UNSIGNED_BYTE, data);
-        // glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        stbi_image_free(data);
+	while (!glfwWindowShouldClose(WINDOW))
+	{
+		frame_start();
+		if (glfwGetKey(WINDOW, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+			glfwSetWindowShouldClose(WINDOW, GLFW_TRUE);
+		}
+		frame_end();
 	}
-    else
-    {
-        fprintf(stderr, "Unable to load texture | %s\n", filepath);
-        stbi_image_free(data);
-    }
-    return tex_id;
+
+	glfwTerminate();
+	return 0;
 }
 
-void frame_begin()
+// TODO opengl version detection
+void xen_init(void)
 {
-	input_update_buffer();
+	glfwInit();
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+
+	WINDOW = glfwCreateWindow(scr_width, scr_height, "XEN", NULL, NULL);
+
+	if (!WINDOW) {
+		perror("Unable to create GLFW window\n");
+		glfwTerminate();
+	}
+
+	glfwMakeContextCurrent(WINDOW);
+	glfwSetFramebufferSizeCallback(WINDOW, on_resize);
+
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		perror("Unable to initialize GLAD\n");
+	}
+
+	glfwSetInputMode(WINDOW, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 }
 
-void frame_end()
+void on_resize(GLFWwindow* window, int w, int h)
 {
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	if (window) {
+		glViewport(0, 0, w, h);
+	}
+}
+
+void frame_start(void)
+{
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	// graphics_draw_objects();
-	// TODO jobsys_wait();
-	window_swap_buffers();
+	glClearColor(0.1f, 0.1f, 0.7f, 1.0f);
+}
+
+void frame_end(void)
+{
+	glfwSwapBuffers(WINDOW);
 	glfwPollEvents();
-	input_clear_buffer();
 }

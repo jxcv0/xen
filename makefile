@@ -1,12 +1,6 @@
-CFILES = src/xen.c src/camera.c src/shader.c src/graphics.c src/glad.c src/resources.c src/input.c src/window.c
-FLAGS = -Wall -Werror -O3 -D XEN_DEBUG
-LIBS = -ldl -lm -lc -lglfw -lpthread
+CFILES = src/xen.c opengl/glad.c
+FLAGS = -ggdb -O3 -Wall -Wextra -Werror
+LIBS = -lm -lc -lglfw
 
-build: mkbin $(CFILES)
-	gcc -o bin/demo -I src demo/demo.c $(CFILES) $(FLAGS) $(LIBS)
-
-clean:
-	@rm -r bin/*
-	
-mkbin:
-	@if [ ! -d "bin" ]; then mkdir bin; fi
+build:
+	gcc -o bin/xen -I src -I opengl $(CFILES) $(FLAGS) $(LIBS)
