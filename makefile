@@ -3,4 +3,4 @@ FLAGS = -ggdb -O3 -Wall -Wextra -Werror
 LIBS = -lm -lc -lglfw
 
 build:
-	gcc -o bin/xen -I src -I opengl $(CFILES) $(FLAGS) $(LIBS)
+	gcc -o bin/xen -I include -I src -I opengl $(CFILES) $(FLAGS) $(LIBS)

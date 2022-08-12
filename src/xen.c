@@ -28,6 +28,8 @@
 #include "glad.h"
 #include <GLFW/glfw3.h>
 
+#include "types.h"
+
 // window
 static GLFWwindow *WINDOW;
 static float scr_width = 800.0f;
@@ -37,6 +39,7 @@ void xen_init(void);
 void on_resize(GLFWwindow*, int, int);
 void frame_start(void);
 void frame_end(void);
+int load_mesh(const char*);
 
 int main(void)
 {
@@ -59,8 +62,8 @@ int main(void)
 void xen_init(void)
 {
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 
 	WINDOW = glfwCreateWindow(scr_width, scr_height, "XEN", NULL, NULL);
 
@@ -90,7 +93,7 @@ void on_resize(GLFWwindow* window, int w, int h)
 void frame_start(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.1f, 0.1f, 0.7f, 1.0f);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 }
 
 void frame_end(void)

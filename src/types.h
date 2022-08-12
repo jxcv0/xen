@@ -1,7 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include "maths.h"
+#include "3dmath.h"
 
 typedef struct material
 {
@@ -24,12 +24,12 @@ typedef struct mesh
 
 typedef struct light
 {
-    int id;
-    vec3_t color;
-    vec3_t position;
-    float constant;
-    float linear;
-    float quadratic;
+	int id;
+	vec3_t color;
+	vec3_t position;
+	float constant;
+	float linear;
+	float quadratic;
 } light_t;
 
 #endif // TYPES_H
