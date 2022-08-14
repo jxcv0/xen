@@ -16,20 +16,10 @@ typedef struct mesh
 	vec2_t *texcoords;
 	vec3_t *normals;
 	size_t num_vertices;
-	unsigned int VBO;
-	unsigned int VAO;
+	uint32_t VBO;
+	uint32_t VAO;
 	mat4_t model_matrix;
 	// material_t *materials;
 } mesh_t;
-
-typedef struct light
-{
-	int id;
-	vec3_t color;
-	vec3_t position;
-	float constant;
-	float linear;
-	float quadratic;
-} light_t;
 
 #endif // TYPES_H

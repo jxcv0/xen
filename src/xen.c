@@ -58,11 +58,13 @@ int main(void)
 	if ((test_cube = load_mesh("assets/test/test_obj.obj")) == -1) {
 		perror("Unable to load mesh");
 	}
+
 	int basic_shader = load_shader("assets/shaders/basic.vert", "assets/shaders/basic.frag");
 	if (basic_shader == -1) {
 		perror("Unable to load vertex shader");
 	}
-	
+
+	glUseProgram(basic_shader);
 
 	while (!glfwWindowShouldClose(WINDOW))
 	{
@@ -239,6 +241,23 @@ int load_mesh(const char* filepath)
 	}
 	free(line);
 	fclose(file);
+
+	glGenBuffers(1, &mesh->VBO);
+	glGenVertexArrays(1, &mesh->VBO);
+	glEnableVertexAttribArray(mesh->VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, mesh->VBO);
+	glBufferData(GL_ARRAY_BUFFER, mem_block_size, mesh->vertices, GL_STATIC_DRAW);
+	
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, vertices_size, GL_FLOAT, GL_FALSE, 0, mesh->vertices);
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, normals_size, GL_FLOAT, GL_FALSE, 0, mesh->normals);
+
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, texcoords_size, GL_FLOAT, GL_FALSE, 0, mesh->texcoords);
+
 	return num_meshes++;
 }
 
