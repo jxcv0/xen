@@ -24,6 +24,9 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "glad.h"
 #include <GLFW/glfw3.h>
@@ -45,6 +48,7 @@ void on_resize(GLFWwindow*, int, int);
 void frame_start(void);
 void frame_end(void);
 int load_mesh(const char*);
+int load_shader(const char*, const char*);
 
 int main(void)
 {
@@ -53,6 +57,10 @@ int main(void)
 	int test_cube;
 	if ((test_cube = load_mesh("assets/test/test_obj.obj")) == -1) {
 		perror("Unable to load mesh");
+	}
+	int basic_shader = load_shader("assets/shaders/basic.vert", "assets/shaders/basic.frag");
+	if (basic_shader == -1) {
+		perror("Unable to load vertex shader");
 	}
 	
 
@@ -232,4 +240,95 @@ int load_mesh(const char* filepath)
 	free(line);
 	fclose(file);
 	return num_meshes++;
+}
+
+// check compile status
+static void shader_check_compile(GLuint shader_id, const char* msg)
+{
+	GLint success;
+	GLchar log[1024];
+	glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(shader_id, 1024, NULL, log);
+		fprintf(stderr, "Shader program compilation error: %s\n%s\n", msg, log);
+	}
+}
+
+// check link status
+static void shader_check_link(GLuint prgm_id)
+{
+	GLint success;
+	GLchar log[1024];
+	glGetProgramiv(prgm_id, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		glGetProgramInfoLog(prgm_id, 1024, NULL, log);
+		fprintf(stderr, "Shader program linking error: %s\n", log);
+	}
+}
+
+int load_shader(const char* vert_path, const char* frag_path)
+{
+	// vertex shader
+
+	FILE *file;
+	char *vert_buf = NULL;
+	char *frag_buf = NULL;
+
+	if ((file = fopen(vert_path, "r")) == NULL) {
+		return -1;
+	}
+	fseek(file, 0, SEEK_END);
+	vert_buf = malloc(ftell(file));
+	fseek(file, 0, SEEK_SET);
+
+	int n = 0;
+	for(int c = fgetc(file); c != EOF; n++, c = fgetc(file))
+	{
+		vert_buf[n] = (char)c;
+	}
+	vert_buf[n] = '\0';
+	fclose(file);
+
+	if ((file = fopen(frag_path, "r")) == NULL) {
+		return -1;
+	}
+	fseek(file, 0, SEEK_END);
+	frag_buf = malloc(ftell(file));
+	fseek(file, 0, SEEK_SET);
+
+	n = 0;
+	for(int c = fgetc(file); c != EOF; n++, c = fgetc(file))
+	{
+		frag_buf[n] = (char)c;
+	}
+	frag_buf[n] = '\0';
+	fclose(file);
+
+	const char* const_vert_code = vert_buf;
+	unsigned int vert_id = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vert_id, 1, &const_vert_code, NULL);
+	glCompileShader(vert_id);
+	shader_check_compile(vert_id, vert_buf);
+
+	const char* const_frag_code = frag_buf;
+	unsigned int frag_id = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(frag_id, 1, &const_frag_code, NULL);
+	glCompileShader(frag_id);
+	shader_check_compile(frag_id, frag_path);
+
+	unsigned int program_id = glCreateProgram();
+	glAttachShader(program_id, vert_id);
+	glAttachShader(program_id, frag_id);
+	glLinkProgram(program_id);
+	shader_check_link(program_id);
+
+	glDeleteShader(vert_id);
+	glDeleteShader(frag_id);
+
+	free(vert_buf);
+	free(frag_buf);
+
+	return program_id;
 }
