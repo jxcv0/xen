@@ -8,4 +8,4 @@
  */
 void re_load_model(const char *filepath);
 
-#endif // RESOURCES_H_
+#endif  // RESOURCES_H_
