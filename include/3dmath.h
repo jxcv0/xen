@@ -29,8 +29,7 @@
 #include <stdio.h>
 
 // TODO
-// SIMD
-// optimise
+// VECTORIZE!! this is so slow.
 
 static inline float radians(float x) { return x * 0.0174533; }
 
