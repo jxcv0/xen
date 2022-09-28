@@ -4,6 +4,9 @@
 #include "mesh.h"
 #include "texture.h"
 
+#define MAX_CACHED_MESHES 64
+#define MAX_CACHED_TEXTURES 128
+
 /**
  * @brief Load a model and associated resources into the resource cache.
  *
