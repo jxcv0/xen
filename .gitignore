@@ -1,2 +1,5 @@
 # build
 build/*
+
+# compile commands
+.cache/
