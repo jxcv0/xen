@@ -4,7 +4,7 @@ GLAD_SRC = lib/glad/src/glad.c
 GLAD_INCLUDE_DIR = lib/glad/include/glad
 KHR_INCLUDE_DIR = lib/glad/include/KHR
 STB_DIR = lib/stb
-LIBS = -lm -lc -lglfw -lassimp
+LIBS = -lm -ldl -lc -lglfw -lassimp
 
 build:
 	gcc -DL1DCLS=64 -o bin/xen \
