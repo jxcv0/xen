@@ -3,8 +3,7 @@
 
 #include "3dmath.h"
 
-struct vertex
-{
+struct vertex {
   vec3_t m_position;
   vec3_t m_normal;
   vec2_t m_tex_coord;
