@@ -8,7 +8,7 @@
  */
 struct model {
   uint32_t m_num_meshes;
-  uint32_t *mp_meshes; // an array of indexes into the mesh cache.
+  uint32_t *mp_meshes;  // an array of indexes into the mesh cache.
 };
 
 #endif  // MODEL_H_

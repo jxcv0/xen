@@ -9,11 +9,11 @@
 
 /**
  * @brief Load a model and associated resources into the resource cache.
+ *        Mesh resources are assumed to be in the same directory as the model.
  *
  * @param filepath The filepath to the file.
+ * @return A the new model containing mesh data.
  */
-void re_load_model(const char *filepath);
-
-struct model *re_fetch_model(const char *name);
+struct model resources_load_model(const char *filepath);
 
 #endif  // RESOURCES_H_
