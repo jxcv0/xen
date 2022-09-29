@@ -7,8 +7,8 @@
  * @brief A model is a collection of meshes.
  */
 struct model {
-  struct mesh *mp_meshes;
-  struct material *mp_materials;
+  uint32_t m_num_meshes;
+  uint32_t *mp_meshes; // an array of indexes into the mesh cache.
 };
 
 #endif  // MODEL_H_
