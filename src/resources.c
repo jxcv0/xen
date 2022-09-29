@@ -1,5 +1,7 @@
 #include "resources.h"
 
+#include "mesh.h"
+#include "texture.h"
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -15,24 +17,30 @@ static struct texture s_texture_cache[MAX_CACHED_TEXTURES];
 
 /*------------------------------------------------------------------------------
  */
-void process_node(const char *filepath, struct model *model,
-                  struct aiNode *node, struct aiScene *scene) {}
+void
+process_node (const char *filepath, struct model *model, struct aiNode *node,
+              const struct aiScene *scene)
+{
+}
 
 /*------------------------------------------------------------------------------
  */
-struct model resources_load_model(const char *filepath) {
+struct model
+resources_load_model (const char *filepath)
+{
   // if not already loaded ...
 
-  const struct aiScene *scene = aiImportFile(
-      filepath, aiProcess_CalcTangentSpace | aiProcess_Triangulate |
-                    aiProcess_JoinIdenticalVertices);
-  if (NULL == scene) {
-    perror(aiGetErrorString());
-    exit(EXIT_FAILURE);
-  }
+  const struct aiScene *scene = aiImportFile (
+      filepath, aiProcess_CalcTangentSpace | aiProcess_Triangulate
+                    | aiProcess_JoinIdenticalVertices);
+  if (NULL == scene)
+    {
+      perror (aiGetErrorString ());
+      exit (EXIT_FAILURE);
+    }
   struct model model;
 
-  process_node(filepath, &mesh, scene->mRoodNode, scene);
-  aiReleaseImport(scene);
+  process_node (filepath, &model, scene->mRootNode, scene);
+  aiReleaseImport (scene);
   return model;
 }

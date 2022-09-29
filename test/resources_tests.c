@@ -1,11 +1,15 @@
 #include <assert.h>
 #include <stdbool.h>
 
-void placeholder(void) {
-  assert(true);
+void
+placeholder (void)
+{
+  assert (true);
 }
 
-int main() {
-  placeholder();
+int
+main ()
+{
+  placeholder ();
   return 0;
 }

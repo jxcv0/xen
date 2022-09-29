@@ -8,7 +8,8 @@
 /**
  * @brief Bundled mesh data.
  */
-struct mesh {
+struct mesh
+{
   struct vertex *mp_vertices;
   uint32_t *mp_indices;
   uint32_t *mp_materials;
@@ -17,4 +18,4 @@ struct mesh {
   uint32_t m_num_materials;
 };
 
-#endif  // MESH_H_
+#endif // MESH_H_
