@@ -18,7 +18,12 @@ static struct texture s_texture_cache[MAX_CACHED_TEXTURES];
 /*------------------------------------------------------------------------------
  */
 void process_node(const char *filepath, struct model *model,
-                  struct aiNode *node, const struct aiScene *scene) {}
+                  struct aiNode *node, const struct aiScene *scene) {
+  for (int i = 0; i < node->mNumMeshes; ++i) {
+      struct aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
+      s_mesh_cache[s_num_meshes] = process_mesh(...)
+  }
+}
 
 /*------------------------------------------------------------------------------
  */
@@ -32,8 +37,8 @@ struct model resources_load_model(const char *filepath) {
     perror(aiGetErrorString());
     exit(EXIT_FAILURE);
   }
-  struct model model;
 
+  struct model model;
   process_node(filepath, &model, scene->mRootNode, scene);
   aiReleaseImport(scene);
   return model;
