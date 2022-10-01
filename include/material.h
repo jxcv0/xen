@@ -7,6 +7,7 @@
  * @brief A material is a collection of textures.
  */
 struct material {
+
   uint32_t *mp_textures;
 };
 
