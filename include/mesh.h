@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include "material.h"
 #include "vertex.h"
 
 /**
@@ -11,7 +12,7 @@
 struct mesh {
   struct vertex *mp_vertices;
   uint32_t *mp_indices;
-  uint32_t *mp_materials;
+  struct material *mp_materials;
   uint32_t m_num_vertices;
   uint32_t m_num_indices;
   uint32_t m_num_materials;

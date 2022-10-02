@@ -5,7 +5,7 @@ set(CMAKE_CXX_COMPILER /usr/bin/gcc)
 set(CMAKE_BUILD_TYPE debug)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(CMAKE_CXX_CREATE_SHARED_LIBRARY C)
-set(CMAKE_C_FLAGS "-Wno-dev")
+set(CMAKE_C_FLAGS "-Wno-dev -ggdb")
 
 enable_testing()
 
