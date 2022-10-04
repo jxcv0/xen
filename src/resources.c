@@ -138,6 +138,10 @@ struct model *resources_load_model(const char *filepath) {
 
   // TODO an allocator that sensibly stores models
   model = malloc(sizeof(struct model));
+  if (NULL == model) {
+      perror("Unable to allocate model memory");
+      return NULL;
+  }
 
   const struct aiScene *scene = aiImportFile(
       filepath, aiProcess_CalcTangentSpace | aiProcess_Triangulate |
