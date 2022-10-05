@@ -6,10 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define INFO  "INFO --->"
-#define WARN  "WARN --->"
-#define DEBUG "DEBUG -->"
-#define ERROR "ERROR -->"
+#define INFO  "INFO ---> "
+#define WARN  "WARN ---> "
+#define DEBUG "DEBUG --> "
+#define ERROR "ERROR --> "
 
 #ifndef NDEBUG
 #define log_debug(...) printf(__VA_ARGS__)
