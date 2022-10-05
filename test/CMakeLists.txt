@@ -8,6 +8,8 @@ set(TEST_COMMON_LIBS xen)
 
 add_executable(resources_tests resources_tests.c)
 add_executable(logger_tests logger_tests.c)
+add_executable(vec_tests vec_tests.c)
 
 target_link_libraries(resources_tests ${TEST_COMMON_LIBS})
 target_link_libraries(logger_tests ${TEST_COMMON_LIBS})
+target_link_libraries(vec_tests ${TEST_COMMON_LIBS})

@@ -19,6 +19,7 @@ find_package(assimp REQUIRED)
 
 set(
   HEADERS 
+    include/vec.h
     include/logger.h
     include/resources.h
     include/material.h
@@ -51,6 +52,7 @@ target_link_libraries(
       OpenGL::GL
       dl
       assimp
+      m
 )
 
 add_subdirectory(lib/glad)
