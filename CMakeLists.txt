@@ -19,6 +19,7 @@ find_package(assimp REQUIRED)
 
 set(
   HEADERS 
+    include/logger.h
     include/resources.h
     include/material.h
     include/texture.h

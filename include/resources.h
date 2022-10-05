@@ -7,11 +7,11 @@
 #define MAX_CACHED_TEXTURES 128
 
 /**
- * @brief Load a model from a file.
+ * @brief Import assets from a wavefront .obj file
  *
  * @param filepath The filepath to the file.
- * @return A the new model containing mesh data.
+ * @return A model containing the asset data.
  */
-struct model *resources_load_model(const char *filepath);
+struct model *resources_load_obj(const char *filepath);
 
 #endif  // RESOURCES_H_
