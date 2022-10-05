@@ -47,18 +47,25 @@ struct model *is_loaded(const char *filepath) {
 
 /*------------------------------------------------------------------------------
  */
+void load_image(const char *filepath) {
+}
+
+/*------------------------------------------------------------------------------
+ */
 void load_material(const char *filepath, struct mesh *destmesh,
                     struct aiMaterial *material) {
-  // const char *last = strrchr(filepath, '/'); // why segfault
+  const char *last = strrchr(filepath, '/');
   int len = 0;
   printf("len: %d", len);
   printf("DIR: %s", filepath);
   stbi_set_flip_vertically_on_load(true);
   int num_textures = aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE);
   for (int i = 0; i < num_textures; ++i) {
+    // do the thing
   }
 
   struct aiString str;
+  // do the other things
 }
 
 /*------------------------------------------------------------------------------
@@ -105,15 +112,23 @@ void process_mesh(const char *filepath, struct mesh *destmesh,
  */
 void process_node(const char *filepath, struct model *model,
                   struct aiNode *node, const struct aiScene *scene) {
-  if (model->m_num_meshes > 0) {
-    // if this is a child node
+  if (node != scene->mRootNode && node->mNumMeshes > 0) {
+    // this is a child node
     model->mp_meshes =
         reallocarray(model->mp_meshes, model->m_num_meshes + node->mNumMeshes,
                      sizeof(struct mesh));
-  } else {
-    // if this is the root node
+    if (NULL == model->mp_meshes) {
+        perror("Unable to reallocate mesh memory");
+        exit(EXIT_FAILURE);
+    }
+  } else if (scene->mNumMeshes > 0) {
+    // this is the root node so allocate if we need to
     model->m_num_meshes = 0;
     model->mp_meshes = calloc(node->mNumMeshes, sizeof(struct mesh));
+    if (NULL == model->mp_meshes) {
+        perror("Unable to allocate mesh memory");
+        exit(EXIT_FAILURE);
+    }
   }
 
   // TODO an allocator to sensibly store meshes
