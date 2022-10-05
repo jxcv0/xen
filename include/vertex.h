@@ -11,4 +11,4 @@ struct vertex {
   vec3_t m_bitangent;
 };
 
-#endif // VERTEX_H_
+#endif  // VERTEX_H_

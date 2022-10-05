@@ -12,10 +12,10 @@
 struct mesh {
   struct vertex *mp_vertices;
   uint32_t *mp_indices;
-  struct material *mp_materials;
+  struct material *mp_material;
   uint32_t m_num_vertices;
   uint32_t m_num_indices;
   uint32_t m_num_materials;
 };
 
-#endif // MESH_H_
+#endif  // MESH_H_

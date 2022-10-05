@@ -14,4 +14,4 @@ struct texture {
   enum texture_type { diffuse, specular, normal, height } m_type;
 };
 
-#endif // TEXTURE_H_
+#endif  // TEXTURE_H_

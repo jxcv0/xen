@@ -364,4 +364,4 @@ static inline mat4_t look_at(const vec3_t eye, const vec3_t ctr,
   return m;
 }
 
-#endif // THREEDMATH_H
+#endif  // THREEDMATH_H

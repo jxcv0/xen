@@ -1,13 +1,8 @@
 #include "resources.h"
+
 #include <assimp/types.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "3dmath.h"
-#include "material.h"
-#include "mesh.h"
-#include "stb_image.h"
-#include "texture.h"
-#include "vertex.h"
 #include <assimp/cimport.h>
 #include <assimp/defs.h>
 #include <assimp/material.h>
@@ -18,6 +13,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "3dmath.h"
+#include "material.h"
+#include "mesh.h"
+#include "stb_image.h"
+#include "texture.h"
+#include "vertex.h"
 
 #define MAX_ASSETS 64
 #define MAX_FILEPATH_LEN 128
@@ -47,25 +49,28 @@ struct model *is_loaded(const char *filepath) {
 
 /*------------------------------------------------------------------------------
  */
-void load_image(const char *filepath) {
+void load_textures(const char *dir, struct material *destmat,
+           struct aiMaterial *material, enum aiTextureType type) {
+  stbi_set_flip_vertically_on_load(true);
+  int num_textures = aiGetMaterialTextureCount(material, type);
+  for (int i = 0; i < num_textures; ++i) {
+    // do the thing
+  }
 }
 
 /*------------------------------------------------------------------------------
  */
-void load_material(const char *filepath, struct mesh *destmesh,
-                    struct aiMaterial *material) {
+void load_materials(const char *filepath, struct mesh *destmesh,
+                   struct aiMaterial *material) {
+  destmesh->mp_materials = 
   const char *last = strrchr(filepath, '/');
-  int len = 0;
-  printf("len: %d", len);
-  printf("DIR: %s", filepath);
-  stbi_set_flip_vertically_on_load(true);
-  int num_textures = aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE);
-  for (int i = 0; i < num_textures; ++i) {
-    // do the thing
-  }
-
-  struct aiString str;
-  // do the other things
+  size_t pathlen = strlen(filepath);
+  size_t rm_len = strlen(last);
+  size_t dirlen = pathlen - rm_len;
+  char dir[dirlen + 1];
+  strncpy(dir, filepath, dirlen);
+  dir[dirlen] = '/';
+  load_texures(dir, destmesh, material, aiTextureType_DIFFUSE);
 }
 
 /*------------------------------------------------------------------------------
@@ -104,8 +109,9 @@ void process_mesh(const char *filepath, struct mesh *destmesh,
   destmesh->m_num_indices = mesh->mNumFaces * 3;
   destmesh->mp_indices = indices;
 
+  // we assume mesh only has one material for now
   struct aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
-  load_material(filepath, destmesh, material);
+  load_materials(filepath, destmesh, material);
 }
 
 /*------------------------------------------------------------------------------
@@ -118,16 +124,16 @@ void process_node(const char *filepath, struct model *model,
         reallocarray(model->mp_meshes, model->m_num_meshes + node->mNumMeshes,
                      sizeof(struct mesh));
     if (NULL == model->mp_meshes) {
-        perror("Unable to reallocate mesh memory");
-        exit(EXIT_FAILURE);
+      perror("Unable to reallocate mesh memory");
+      exit(EXIT_FAILURE);
     }
   } else if (scene->mNumMeshes > 0) {
     // this is the root node so allocate if we need to
     model->m_num_meshes = 0;
     model->mp_meshes = calloc(node->mNumMeshes, sizeof(struct mesh));
     if (NULL == model->mp_meshes) {
-        perror("Unable to allocate mesh memory");
-        exit(EXIT_FAILURE);
+      perror("Unable to allocate mesh memory");
+      exit(EXIT_FAILURE);
     }
   }
 
@@ -154,8 +160,8 @@ struct model *resources_load_model(const char *filepath) {
   // TODO an allocator that sensibly stores models
   model = malloc(sizeof(struct model));
   if (NULL == model) {
-      perror("Unable to allocate model memory");
-      return NULL;
+    perror("Unable to allocate model memory");
+    return NULL;
   }
 
   const struct aiScene *scene = aiImportFile(
