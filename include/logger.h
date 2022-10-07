@@ -6,10 +6,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define INFO  "INFO ---> "
-#define WARN  "WARN ---> "
-#define DEBUG "DEBUG --> "
-#define ERROR "ERROR --> "
+#define get_filename() \
+    (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
+#define INFO  "info: "
+#define WARN  "warning: "
+#define DEBUG "debug: "
+#define ERROR "error: "
 
 #ifndef NDEBUG
 #define log_debug(...) printf(__VA_ARGS__)
