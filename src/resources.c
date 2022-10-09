@@ -4,6 +4,9 @@
 #include <stddef.h>
 #include <errno.h>
 #include <assert.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
 
 /*------------------------------------------------------------------------------
  */
@@ -15,24 +18,22 @@ struct model *resources_load_obj(const char *filepath) {
   }
 
   log_debug(INFO "opening file: %s\n", filepath);
-  int fd = fopen(filepath, O_RDONLY);
-  if (fd == -1) {
+  FILE *fstream = fopen(filepath, "r");
+  if (fstream == NULL) {
     perror("unable to open file");
-  }
-
-  // get the size of the file and malloc buffer
-  lseek(file, 0, SEEK_END);
-  size_t fsize = ftell(file);
-  char *bytes = malloc(fsize);
-  lseek(file, 0, SEEK_SET);
-  if (read(fd, bytes, fsize) == -1) { // read entire file into buffer
-      perror("unable to read file");
-      return NULL;
   }
 
   struct model *newmodel = malloc(sizeof(struct model));
 
+  char *line = NULL;
+  size_t len = 0;
+  ssize_t nread;
+  while ((nread = getline(&line, &len, fstream)) != -1) {
+    printf("line: %s", line);
+  }
+
   // do the model processing
 
-  return newmodel;
+  // return newmodel;
+  return NULL;
 }
