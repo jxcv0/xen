@@ -343,4 +343,4 @@ static inline mat4_t look_at(const vec3_t eye, const vec3_t ctr,
   return m;
 }
 
-#endif  // VEC_H_
+#endif // VEC_H_

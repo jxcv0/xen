@@ -13,4 +13,4 @@ struct material {
   struct texture *mp_textures;
 };
 
-#endif  // MATERIAL_H_
+#endif // MATERIAL_H_

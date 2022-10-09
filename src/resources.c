@@ -1,12 +1,53 @@
 #include "resources.h"
 #include "logger.h"
 
-#include <stddef.h>
-#include <errno.h>
 #include <assert.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <unistd.h>
+
+#define NEEDLE_VERTEX  "v "
+#define NEEDLE_OBJECT  "o "
+#define NEEDLE_FACE    "f "
+#define NEEDLE_PARAM   "vp "
+#define NEEDLE_LINE    "l "
+#define NEEDLE_NORMAL  "vn "
+#define NEEDLE_TEXTURE "vt "
+#define NEEDLE_USEMTL  "usemtl "
+#define NEEDLE_MTLLIB  "mtllib "
+#define NEEDLE_SMOOTH  "s "
+
+/*------------------------------------------------------------------------------
+ */
+enum line_type {
+  object,
+  vertex,
+  face,
+  param,
+  line,
+  normal,
+  texture,
+  usemtl,
+  mtllib,
+  smooth
+};
+
+/*------------------------------------------------------------------------------
+ */
+struct line {
+  enum line_type m_type;
+  char *mp_line;
+};
+
+/*------------------------------------------------------------------------------
+ */
+static struct line construct_line(const char *line) {
+  struct line l = {};
+  // do the things
+  return l;
+}
 
 /*------------------------------------------------------------------------------
  */

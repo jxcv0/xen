@@ -18,4 +18,4 @@ struct mesh {
   uint32_t m_num_materials;
 };
 
-#endif  // MESH_H_
+#endif // MESH_H_
