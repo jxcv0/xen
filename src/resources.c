@@ -8,54 +8,36 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#define NEEDLE_VERTEX  "v "
-#define NEEDLE_OBJECT  "o "
-#define NEEDLE_FACE    "f "
-#define NEEDLE_PARAM   "vp "
-#define NEEDLE_LINE    "l "
-#define NEEDLE_NORMAL  "vn "
-#define NEEDLE_TEXTURE "vt "
-#define NEEDLE_USEMTL  "usemtl "
-#define NEEDLE_MTLLIB  "mtllib "
-#define NEEDLE_SMOOTH  "s "
+#define MAX_RESOURCES 512
+
+static struct {
+    char m_filepath[MAX_PATH_LEN];
+    void* mp_resource;
+} s_loaded_paths[MAX_RESOURCES];
 
 /*------------------------------------------------------------------------------
  */
-enum line_type {
-  object,
-  vertex,
-  face,
-  param,
-  line,
-  normal,
-  texture,
-  usemtl,
-  mtllib,
-  smooth
-};
-
-/*------------------------------------------------------------------------------
- */
-struct line {
-  enum line_type m_type;
-  char *mp_line;
-};
-
-/*------------------------------------------------------------------------------
- */
-static struct line construct_line(const char *line) {
-  struct line l = {};
-  // do the things
-  return l;
+int get_loaded_resource(char filepath[MAX_PATH_LEN]) {
+  for (int i = 0; i < MAX_RESOURCES; i++) {
+    if (strncmp(s_loaded_paths[i].m_filepath, filepath, MAX_PATH_LEN) == 0) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 /*------------------------------------------------------------------------------
  */
-struct model *resources_load_obj(const char *filepath) {
+struct model *resources_load_obj(char filepath[MAX_PATH_LEN]) {
   size_t pathlen = 0;
   if (filepath == NULL || (pathlen = strlen(filepath)) == 0) {
     log_always(WARN "filepath not usable: %s\n", filepath);
     return NULL;
+  }
+
+  int idx = -1;
+  if ((idx = get_loaded_resource(filepath)) > 0) {
+    return (struct model*)s_loaded_paths[idx].mp_resource;
   }
 
   log_debug(INFO "opening file: %s\n", filepath);
