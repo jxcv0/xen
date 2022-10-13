@@ -8,6 +8,13 @@
 #define MAX_PATH_LEN 64
 
 /**
+ * @brief Initialize the resources system.
+ *        Allocate memory for resource stacks.
+ *
+ */
+void resources_init(void);
+
+/**
  * @brief Import assets from a wavefront .obj file
  *
  * @param filepath The filepath to the file.
