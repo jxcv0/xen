@@ -5,7 +5,7 @@ set(CMAKE_CXX_COMPILER /usr/bin/gcc)
 set(CMAKE_BUILD_TYPE debug)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(CMAKE_CXX_CREATE_SHARED_LIBRARY C)
-set(CMAKE_C_FLAGS "-Wno-dev -ggdb")
+add_compile_options("-Wno-dev -ggdb")
 
 enable_testing()
 
@@ -58,6 +58,7 @@ target_link_libraries(
 add_subdirectory(lib/glad)
 add_subdirectory(example)
 add_subdirectory(test)
+add_subdirectory(ecs)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

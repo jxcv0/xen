@@ -36,7 +36,7 @@ struct model *resources_load_obj(char filepath[MAX_PATH_LEN]) {
   }
 
   int idx = -1;
-  if ((idx = get_loaded_resource(filepath)) > 0) {
+  if ((idx = get_loaded_resource(filepath)) != -1) {
     return (struct model*)s_loaded_paths[idx].mp_resource;
   }
 
